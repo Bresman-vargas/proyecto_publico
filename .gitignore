@@ -1,0 +1,16 @@
+# Dependencias (NUNCA se suben)
+node_modules/
+
+# Carpetas de compilación
+dist/
+build/
+out/
+
+# Variables de entorno (Contienen contraseñas o llaves API)
+.env
+.env.local
+
+# Archivos del sistema y de VS Code
+.vscode/
+.DS_Store
+*.log
