@@ -12,14 +12,14 @@ const optionalString = z
 //LOGIN SCHEMA
 
 export const loginSchema = z.object({
-  email:  z
+  email: z
     .string({ required_error: "El email es requerido" })
     .email("Email debe ser valido"),
   password: z
     .string({ required_error: "Contraseña es requerida" })
     .min(3, "Más de 3 caracteres")
-    .max(255)
-})
+    .max(255),
+});
 
 //REGISTER SCHEMA
 
