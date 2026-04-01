@@ -1,0 +1,8 @@
+{
+  "name": "proyecto_publico_root",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
