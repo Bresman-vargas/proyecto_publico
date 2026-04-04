@@ -45,13 +45,15 @@ export const registerSchema = z.object({
       invalid_type_error: "Debe ser un número",
     })
     .int()
-    .positive(),
+    .positive("Debe ser positivo")
+    .min(1000000, "El RUT es demasiado corto")
+    .max(99999999, "El RUT es demasiado largo"),
 
   rut_dv: z
-    .string({ required_error: "Digito verificador es requerido" })
-    .length(1, "Debe ser de solo un caracter")
+    .string({ required_error: "Requerido" })
+    .length(1, "Inválido")
     .transform((val) => val.toUpperCase())
-    .refine((val) => /^[0-9K]$/.test(val), "DV inválido"),
+    .refine((val) => /^[0-9K]$/.test(val), "Inválido"),
 
   email: z
     .string({ required_error: "El email es requerido" })
@@ -70,5 +72,5 @@ export const registerSchema = z.object({
   password: z
     .string({ required_error: "Contraseña es requerida" })
     .min(3, "Más de 3 caracteres")
-    .max(255),
+    .max(20, "Menos de 20 caracteres"),
 });
