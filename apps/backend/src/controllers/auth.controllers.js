@@ -80,3 +80,20 @@ export const profile = async (req, res) => {
     email: req.user.email,
   });
 };
+
+
+export const verifyToken = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    
+    const user = await authService.verifyTokenService(token);
+
+    if (!user) {
+      return res.status(401).json({ message: "No autorizado" });
+    }
+
+    return res.json(user);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

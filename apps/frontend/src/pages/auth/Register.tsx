@@ -19,12 +19,20 @@ import {
   IonIcon,
   IonPage,
 } from "@ionic/react";
-import { personAddOutline } from "ionicons/icons";
+//form
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@proyecto_publico/schemas";
-import api from "../../api/axios";
 import InputForm from "../../components/InputForm";
+
+//usado para el auth
+import { useAuth } from "../../context/AuthContext";
+import { useEffect } from "react";
+import { useIonRouter } from '@ionic/react';
+
+//en general
+import { personAddOutline } from "ionicons/icons";
+
 const Register: React.FC = () => {
 
   const {
@@ -49,16 +57,15 @@ const Register: React.FC = () => {
       password: "",
     },
   });
+  const { registar , isAuthenticated} = useAuth();
+  const router = useIonRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) router.push('/prote', 'forward', 'replace')
+  }, [isAuthenticated])
 
   const onSubmit = async (data: any) => {
-    try {
-      console.log(data);
-      const response = await api.post("/auth/register", data);
-      console.log("Respuesta del servidor:", response.data);
-      reset();
-    } catch (error) {
-      console.error("Error al registrase", error);
-    }
+    await registar(data);
   };
 
   return (

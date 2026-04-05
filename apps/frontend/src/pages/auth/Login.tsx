@@ -16,13 +16,20 @@ import {
   IonLabel,
   IonRouterLink,
 } from "@ionic/react";
+
+//form
 import InputForm from "../../components/InputForm";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { lockOpenOutline } from "ionicons/icons";
 import { loginSchema } from "@proyecto_publico/schemas";
-import axios from "axios";
 
+//auth
+import { useAuth } from "../../context/AuthContext";
+import { useEffect } from "react";
+import { useIonRouter } from '@ionic/react';
+
+//general
+import { lockOpenOutline } from "ionicons/icons";
 const Login: React.FC = () => {
   const {
     control,
@@ -37,11 +44,17 @@ const Login: React.FC = () => {
     },
   });
 
+  const {login, isAuthenticated} = useAuth()
+  const router  = useIonRouter()
+  
+  useEffect(() => {
+    if (isAuthenticated) router.push('/prote', 'forward', 'replace')
+  }, [isAuthenticated])
+
   const onSubmit = async (data: any) => {
-    try {
-      const res = await axios.post("/auth/register", data);
-    } catch (error) {}
+    await login(data)
   };
+
   return (
     <IonPage>
       <IonHeader>
