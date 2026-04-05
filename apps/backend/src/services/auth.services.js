@@ -2,6 +2,8 @@ import { pool } from "../db.js";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessToken } from "../libs/jwt.js";
+import jwt from "jsonwebtoken";
+import { TOKEN_SECRET } from "../cofing.js";
 
 export const loginUser = async (email, password) => {
   const [users] = await pool.query("SELECT * FROM usuarios WHERE email = ?", [
@@ -99,4 +101,33 @@ export const registerUser = async (dataUser) => {
       email,
     },
   };
+};
+
+export const verifyTokenService = async (token) => {
+  if (!token) return null;
+
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, TOKEN_SECRET, async (error, decoded) => {
+      if (error) return resolve(null);
+
+      try {
+        const [users] = await pool.query(
+          "SELECT * FROM usuarios WHERE id = ?",
+          [decoded.id],
+        );
+        const user = users[0];
+
+        if (!user) {
+            throw new Error("NOT FOUND");
+          }
+        resolve({
+          id: user.id,
+          username: user.nombre,
+          email: user.email,
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  });
 };

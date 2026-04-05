@@ -31,29 +31,43 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+/* Rutas */
 import { routes } from './routes';
-
+import { AuthProvider, useAuth } from './context/AuthContext';
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        {routes.map((route, index) => (
-          <Route
-            key={index}
-            path={route.path}
-            component={route.component}
-            exact={route.exact}
-          />
-        ))}
+const App: React.FC = () => {
+  return (
+    <AuthProvider> 
+      <AppContent />
+    </AuthProvider>
+  );
+};
 
-        <Route exact path="/">
-          <Redirect to="/home"/>
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAuth(); 
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          {routes.map((route, index) => (
+            <Route
+              key={index}
+              path={route.path}
+              exact={route.exact}
+              render={(props) => {
+                if (route.private && !isAuthenticated) return <Redirect to="/login" />;
+                if (route.restricted && isAuthenticated) return <Redirect to="/prote" />;
+                return <route.component {...props} />;
+              }}
+            />
+          ))}
+          <Route exact path="/"><Redirect to="/home"/></Route>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
