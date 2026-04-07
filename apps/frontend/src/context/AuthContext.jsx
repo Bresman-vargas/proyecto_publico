@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await loginRequest(data);
       console.log(res.data);
-      setUser(res.data);
+      setUser(res.data.user);
+      console.log(user);
       setIsAuthenticated(true);
     } catch (error) {
       console.log(error);
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ registar, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ registar, login, logout, isAuthenticated, user }}>
       {children}
     </AuthContext.Provider>
   );
