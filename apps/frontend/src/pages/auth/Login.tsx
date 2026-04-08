@@ -113,6 +113,7 @@ const Login: React.FC = () => {
                       name="password"
                       label="Contraseña"
                       placeholder="*******"
+                      type={"password"}
                       control={control}
                       errors={errors}
                       required={true}
