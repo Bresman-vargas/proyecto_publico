@@ -17,6 +17,8 @@ import {
   IonText,
   IonIcon,
   IonCardTitle,
+  IonButton,
+  IonItem,
 } from "@ionic/react";
 
 import { heartOutline } from "ionicons/icons";
@@ -30,17 +32,18 @@ interface Discussion {
   description: string;
   keywords: string[];
   userName: string;
-  userAvatar: string; 
+  userAvatar: string;
   likes: number;
   comments: number;
   createdAt: Date;
 }
 
 const discussions: Discussion[] = [
- {
+  {
     id: "701",
     title: "Baches críticos en Av. Central",
-    description: "Hay tres hoyos enormes que están dañando los neumáticos de los vecinos.",
+    description:
+      "Hay tres hoyos enormes que están dañando los neumáticos de los vecinos.",
     keywords: ["vialidad", "seguridad", "denuncia"],
     userName: "VecinoAtento",
     userAvatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Carlos",
@@ -51,7 +54,8 @@ const discussions: Discussion[] = [
   {
     id: "702",
     title: "Falta de iluminación en Parque Norte",
-    description: "Desde hace una semana las luminarias LED no encienden después de las 20:00.",
+    description:
+      "Desde hace una semana las luminarias LED no encienden después de las 20:00.",
     keywords: ["iluminación", "parque", "seguridad"],
     userName: "MariaLuz",
     userAvatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Maria",
@@ -62,7 +66,8 @@ const discussions: Discussion[] = [
   {
     id: "703",
     title: "Microbasural en esquina Los Olivos",
-    description: "Gente de otros sectores viene a dejar escombros y restos de poda.",
+    description:
+      "Gente de otros sectores viene a dejar escombros y restos de poda.",
     keywords: ["aseo", "medioambiente", "comuna"],
     userName: "EcoVecino",
     userAvatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Juan",
@@ -73,7 +78,8 @@ const discussions: Discussion[] = [
   {
     id: "704",
     title: "Ruidos molestos por obras nocturnas",
-    description: "La constructora del centro sigue trabajando pasada la medianoche.",
+    description:
+      "La constructora del centro sigue trabajando pasada la medianoche.",
     keywords: ["ruido", "normativa", "fiscalización"],
     userName: "NoDuermo",
     userAvatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sofi",
@@ -84,7 +90,8 @@ const discussions: Discussion[] = [
   {
     id: "705",
     title: "Semaforización necesaria en cruce escolar",
-    description: "Es urgente un semáforo frente al colegio San José por el alto flujo vehicular.",
+    description:
+      "Es urgente un semáforo frente al colegio San José por el alto flujo vehicular.",
     keywords: ["transito", "colegio", "prevención"],
     userName: "PadrePreocupado",
     userAvatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Pedro",
@@ -94,8 +101,12 @@ const discussions: Discussion[] = [
   },
 ];
 
-const ProtectedPage: React.FC = ({ component: Component, ...rest }: any) => {
+const ProtectedPage: React.FC = () => {
   const { logout, user } = useAuth();
+
+  const tocar = (id: any) => {
+    console.log(id);
+  };
 
   return (
     <IonPage>
@@ -106,14 +117,21 @@ const ProtectedPage: React.FC = ({ component: Component, ...rest }: any) => {
               <IonBackButton defaultHref="/home"></IonBackButton>
             </IonButtons>
             <IonTitle>Hola {user ? `${user.nombre} 👋` : "invitado"}</IonTitle>
+            <IonItem slot="end">
+              <IonButton fill="outline" onClick={() => logout()}>
+                Logout
+              </IonButton>
+            </IonItem>
           </div>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <div className="container">
           <IonText color="dark">
-            <h1 className="ion-padding-start">Discusiones Recientes</h1>
+            <h1 className="ion-padding-start">Discusiones Recientes:</h1>
           </IonText>
+
+    
           <IonGrid>
             <IonRow>
               {discussions.map((item) => (
@@ -127,6 +145,7 @@ const ProtectedPage: React.FC = ({ component: Component, ...rest }: any) => {
                     likes={item.likes}
                     comments={item.comments}
                     createdAt={item.createdAt}
+                    onClick={() => tocar(item.id)}
                   />
                 </IonCol>
               ))}

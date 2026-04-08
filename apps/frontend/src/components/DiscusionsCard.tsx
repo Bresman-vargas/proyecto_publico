@@ -23,6 +23,7 @@ interface Pros {
   likes: number;
   comments?: number;
   createdAt: Date;
+  onClick?: () => void;
 }
 
 const DiscusionesCard: React.FC<Pros> = ({
@@ -35,16 +36,17 @@ const DiscusionesCard: React.FC<Pros> = ({
   likes,
   comments,
   createdAt,
+  onClick,
 }) => {
   return (
-    <IonCard style={{borderRadius : '15px'}}>
+    <IonCard
+      style={{ borderRadius: "15px", cursor: "pointer" }}
+      onClick={onClick}
+    >
       <IonGrid>
         <IonRow>
           {/* Columna de Contenido */}
-          <IonCol
-            size="12"
-            className="ion-align-self-center ion-padding"
-          >
+          <IonCol size="12" className="ion-align-self-center ion-padding">
             <IonCardTitle>{title}</IonCardTitle>
 
             <IonText color="medium">
