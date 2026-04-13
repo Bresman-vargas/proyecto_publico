@@ -1,63 +1,47 @@
-import { IonItem, IonLabel, IonInput, IonText } from "@ionic/react";
-import { FieldErrors, Controller } from "react-hook-form";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
-interface Props {
-  name: string;
+interface InputProps {
   label: string;
+  type?: string;
   placeholder?: string;
-  control: any;
-  errors: FieldErrors;
-  type?: "text" | "number" | "password";
-  required?: boolean;
+  name: string;
+  register: UseFormRegister<any>;
+  errors: FieldErrors<any>;
+  className?: string;
+  require?: boolean;
 }
 
-const InputForm: React.FC<Props> = ({
-  name,
+export default function InputForm({
   label,
-  placeholder = "",
-  control,
-  errors,
   type = "text",
-  required = false,
-}) => {
+  placeholder,
+  name,
+  register,
+  errors,
+  className,
+  require = false,
+}: InputProps) {
   return (
-    <>
-      <IonItem>
-        <IonLabel position="stacked">
-          {label}
-          {required && (
-            <span
-              style={{
-                color: "var(--ion-color-danger, #eb445a)",
-                marginLeft: "4px",
-              }}
-            >
-              *
-            </span>
-          )}
-        </IonLabel>
-        <Controller
-          control={control}
-          name={name}
-          render={({ field }) => (
-            <IonInput
-              {...field}
-              type={type}
-              onIonInput={(e) => field.onChange(e.detail.value)}
-              placeholder={placeholder}
-            />
-          )}
+    <div className={className}>
+      <label className="text-txt-sec flex flex-col gap-2">
+        <div className="flex gap-2">
+          {label} {require && <span className="text-txt-sec">*</span>}
+        </div>
+        <input
+          className="outline-none p-2 border-2 border-bg-ter rounded-md"
+          type={type}
+          placeholder={placeholder}
+          autoComplete="off"
+          {...register(name)}
         />
-      </IonItem>
-      <div style={{ height: "10px" }}>
+      </label>
+      <div className="h-8">
         {errors[name] && (
-          <IonText color="danger" className="ion-padding-start">
-            <small>{errors[name]?.message as string}</small>
-          </IonText>
+          <span className="text-err text-sm">
+            {errors[name]?.message as string}
+          </span>
         )}
       </div>
-    </>
+    </div>
   );
-};
-
-export default InputForm;
+}

@@ -1,18 +1,17 @@
-/// <reference types="vitest" />
-
-import legacy from '@vitejs/plugin-legacy'
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-
-// https://vitejs.dev/config/
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    legacy()
-  ],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
+  plugins: [react(), tailwindcss(), ],resolve: {
+    alias: {
+      '@proyecto_publico/schemas': path.resolve(__dirname, '../../packages/schemas')
+    },
+  },
+  server: {
+    fs: {
+      allow: ['..'] // Esto permite que Vite lea archivos en /packages
+    }
   }
 })
