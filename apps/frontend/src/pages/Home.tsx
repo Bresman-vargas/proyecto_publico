@@ -1,62 +1,49 @@
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButton,
-} from "@ionic/react";
-
-const Home: React.FC = () => {
+import CardLandig from "../components/CardLandig";
+import HeaderLandig from "../components/HeaderLandig";
+function Home() {
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <div className="toolbar-center-container">
-            <IonTitle>App Inicio</IonTitle>
-
-            <div className="buttons-group">
-              <IonButton
-                shape="round"
-                fill="outline"
-                color="primary"
-                routerLink="/login"
-              >
-                Login
-              </IonButton>
-              
-              <IonButton
-                shape="round"
-                fill="solid"
-                color="primary"
-                routerLink="/register"
-              >
-                Registro
-              </IonButton>
+    <>
+      <HeaderLandig />
+      <section className="h-96 bg-bg text-text">
+        <div className="container h-full px-8 border-x border-border">
+          <div className="flex flex-col justify-center items-center md:items-start h-full">
+            <h1 className="text-3xl font-semibold text-accent">
+              Santo Domingo Conecta
+            </h1>
+            <p className="text-txt-sec">Tu voz construye nuestra comuna.</p>
+            <div className="py-4">
+              <button className="bg-bg-sec px-4 py-2 rounded-md border border-border">
+                Sumar mi voz
+              </button>
             </div>
           </div>
-        </IonToolbar>
-      </IonHeader>
-
-      <IonContent>
-        <div className="container">
-          <IonHeader collapse="condense">
-            <IonToolbar>
-              <IonTitle size="large">App Inicio</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-
-          <div className="ion-padding">
-            <h2>Contenido Principal</h2>
-            <p>
-              Bienvenido a la aplicación. Los botones de acceso están en la
-              barra superior.
-            </p>
-          </div>
         </div>
-      </IonContent>
-    </IonPage>
-  );
-};
+      </section>
 
+      <section className="bg-bg border-y border-border text-text">
+        <div className="container py-8 px-8 grid grid-cols-1 md:grid-cols-3 gap-5 border-x border-border">
+          <CardLandig title="Debates con altura de miras.">
+            <p>
+              Abre hilos sobre seguridad, cultura, urbanismo o medio ambiente.
+              <strong> Tu opinión importa</strong> y la comunidad la valora.
+            </p>
+          </CardLandig>
+          <CardLandig title="Reportes en tiempo real.">
+            <p>
+              Informa sobre problemas de iluminación, calles en mal estado o
+              aseo. <strong>Gestión directa</strong>
+            </p>
+          </CardLandig>
+          <CardLandig title="Comunidad activa.">
+            <p>
+              Conecta con personas de tu mismo barrio para organizar
+              actividades. <strong>Juntos hacemos más</strong> por nuestro
+              sector.
+            </p>
+          </CardLandig>
+        </div>
+      </section>
+    </>
+  );
+}
 export default Home;

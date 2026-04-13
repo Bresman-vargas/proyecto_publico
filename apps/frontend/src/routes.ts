@@ -1,7 +1,9 @@
-import Home from "./pages/Home";
-import Register from "./pages/auth/Register";
-import Login from "./pages/auth/Login";
-import ProtectedPage from "./pages/ProtectedPage";
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import Home from './pages/Home'
+
+import NotFound from './pages/NotFound';
+import Prote from './pages/Prote';
 
 interface RouteConfig {
   path: string;
@@ -13,7 +15,8 @@ interface RouteConfig {
 
 export const routes: RouteConfig[] = [
   { path: "/home", component: Home, exact: true },
-  { path: "/register", component: Register, exact: true, restricted: true },
-  { path: "/login", component: Login, exact: true, restricted: true },
-  { path: "/prote", component: ProtectedPage, exact: true, private: true }
+  { path: "/login", component: Login,  exact: true, restricted: true},
+  { path: "/register", component: Register, exact: true, restricted: true},
+  { path: "/prote", component: Prote, exact: true, private: true},
+  { path: "/not-found", component: NotFound, exact: true}
 ];

@@ -1,45 +1,16 @@
-import React from "react";
-import {
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonButton,
-  IonButtons,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonText,
-  IonCheckbox,
-  IonCard,
-  IonListHeader,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonBackButton,
-  IonIcon,
-  IonPage,
-} from "@ionic/react";
-//form
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "@proyecto_publico/schemas";
+import { useForm } from "react-hook-form";
 import InputForm from "../../components/InputForm";
-
-//usado para el auth
+import { registerSchema } from "@proyecto_publico/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
-import { useIonRouter } from '@ionic/react';
-
-//en general
-import { personAddOutline } from "ionicons/icons";
-
-const Register: React.FC = () => {
-
+export default function Register() {
+  const navigate = useNavigate();
   const {
-    control,
+    register,
     handleSubmit,
-    reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(registerSchema),
     mode: "onChange",
@@ -53,200 +24,147 @@ const Register: React.FC = () => {
       email: "",
       id_region: 5,
       id_comuna: 65,
-      acepta_terminos: false,
+      acepta_terminos: true,
       password: "",
     },
   });
-  const { registar , isAuthenticated} = useAuth();
-  const router = useIonRouter();
+
+  const { registar, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) router.push('/prote', 'forward', 'replace')
-  }, [isAuthenticated])
+    if (isAuthenticated) navigate("/prote");
+  }, [isAuthenticated]);
 
   const onSubmit = async (data: any) => {
     await registar(data);
   };
-
   return (
-    <IonPage>
-      <IonContent>
-        <IonHeader>
-          <IonToolbar>
-            <div className="toolbar-center-container">
-              <IonButtons slot="start">
-                <IonBackButton default-href="#"></IonBackButton>
-              </IonButtons>
-              <IonTitle>Crear una cuenta</IonTitle>
+    <main className="center h-lvh">
+      <section className="bg-bg-sec p-4 w-4xl rounded-md">
+        <div className="flex flex-col justify-center">
+          <header className="pb-8 w-11/12">
+            <h2 className="text-2xl py-2">¡Bienvenido de nuevo!</h2>
+            <p className="text-txt-sec text-pretty">
+              ¿Ya tienes una cuenta? {""}
+              <Link to="/login" className="text-accent underline">
+                Inicia sesión aquí
+              </Link>
+            </p>
+          </header>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-4 gap-x-4"
+          >
+            <InputForm
+              label="Primer Nombre"
+              placeholder="Ej: Julian"
+              name="nombre"
+              require={true}
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
+            <InputForm
+              label="Segundo Nombre"
+              placeholder="Ej: Antonio"
+              name="nombre2"
+              require={true}
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
+
+            <InputForm
+              label="Apellido Paterno"
+              placeholder="Ej: Silva"
+              name="apellido_paterno"
+              require={true}
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
+            <InputForm
+              label="Apellido Materno"
+              placeholder="Ej: Donoso"
+              name="apellido_materno"
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
+            <div className="col-span-2 grid grid-cols-3 gap-4">
+              <InputForm
+                label="RUT"
+                placeholder="12345678"
+                name="rut_cuerpo"
+                require={true}
+                register={register}
+                errors={errors}
+                className="col-span-2"
+              />
+
+              <InputForm
+                label="DV"
+                placeholder="K"
+                name="rut_dv"
+                require={true}
+                register={register}
+                errors={errors}
+              />
             </div>
-          </IonToolbar>
-        </IonHeader>
-        <div className="center">
-          <IonCard>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <IonGrid>
-                <IonRow>
-                  <IonCol size="12">
-                    <IonListHeader>
-                      <IonLabel color="primary">
-                        <h2>Información Personal</h2>
-                      </IonLabel>
-                    </IonListHeader>
-                  </IonCol>
-                </IonRow>
-                <IonRow>
-                  <IonCol size="12" sizeMd="6">
-                    <InputForm
-                      name="nombre"
-                      label="Primer nombre"
-                      placeholder="Bresman"
-                      control={control}
-                      errors={errors}
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                  <IonCol size="12" sizeMd="6">
-                    <InputForm
-                      name="nombre2"
-                      label="Segundo nombre"
-                      placeholder="Opcional"
-                      control={control}
-                      errors={errors}
-                    ></InputForm>
-                  </IonCol>
-                </IonRow>
+            <InputForm
+              label="Correo Electrónico"
+              placeholder="usuario@correo.cl"
+              name="email"
+              require={true}
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
+            <InputForm
+              label="Contraseña"
+              placeholder="******"
+              type="password"
+              name="password"
+              require={true}
+              register={register}
+              errors={errors}
+              className="col-span-2"
+            />
 
-                <IonRow>
-                  <IonCol size="12" sizeMd="6">
-                    <InputForm
-                      name="apellido_paterno"
-                      label="Apellido paterno"
-                      placeholder="Garzón"
-                      control={control}
-                      errors={errors}
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                  <IonCol>
-                    <InputForm
-                      name="apellido_materno"
-                      label="Apellido materno"
-                      placeholder="Opcional"
-                      control={control}
-                      errors={errors}
-                    ></InputForm>
-                  </IonCol>
-                </IonRow>
+            <div className="col-span-4 flex flex-col items-end py-2">
+              <label className="flex items-center gap-2 cursor-pointer text-txt-sec text-sm">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-accent"
+                  {...register("acepta_terminos")}
+                />
+                Acepto los términos y condiciones de servicio. <span>*</span>
+              </label>
+              <div className="h-4">
+                {errors.acepta_terminos && (
+                  <p className="text-err text-xs mt-1">
+                    {errors.acepta_terminos.message as string}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                <IonRow className="ion-margin-top">
-                  <IonCol size="12">
-                    <IonListHeader>
-                      <IonLabel color="primary">
-                        <h2>Contacto y Seguridad</h2>
-                      </IonLabel>
-                    </IonListHeader>
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol size="8" sizeMd="4">
-                    <InputForm
-                      name="rut_cuerpo"
-                      label="Rut (sin puntos)"
-                      placeholder="12345678"
-                      control={control}
-                      errors={errors}
-                      type="number"
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                  <IonCol size="4" sizeMd="2">
-                    <InputForm
-                      name="rut_dv"
-                      label="DV"
-                      placeholder="K"
-                      control={control}
-                      errors={errors}
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                  <IonCol size="12" sizeMd="6">
-                    <InputForm
-                      name="email"
-                      label="Email"
-                      placeholder="prueba@prueba.com"
-                      control={control}
-                      errors={errors}
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol size="12" sizeMd="6">
-                    <InputForm
-                      name="password"
-                      label="Contraseña"
-                      placeholder="********"
-                      control={control}
-                      errors={errors}
-                      type="password"
-                      required={true}
-                    ></InputForm>
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol offsetMd="6" size="12" sizeMd="6">
-                    <IonItem lines="none" className="ion-margin-top">
-                      <Controller
-                        control={control}
-                        name="acepta_terminos"
-                        render={({ field }) => (
-                          <IonCheckbox
-                            checked={field.value}
-                            onIonChange={(e) =>
-                              field.onChange(e.detail.checked)
-                            }
-                          >
-                            <IonLabel className="ion-text-end">
-                              Acepto los términos y condiciones
-                            </IonLabel>
-                          </IonCheckbox>
-                        )}
-                      />
-                    </IonItem>
-                    {errors.acepta_terminos && (
-                      <div className="ion-padding-start">
-                        <IonText color="danger">
-                          <small>
-                            {errors.acepta_terminos.message as string}
-                          </small>
-                        </IonText>
-                      </div>
-                    )}
-                  </IonCol>
-                </IonRow>
-
-                <IonRow>
-                  <IonCol offsetMd="8" size="12" sizeMd="4">
-                    <IonButton
-                      expand="block"
-                      type="submit"
-                      className="ion-margin-top"
-                    >
-                      <IonIcon slot="start" icon={personAddOutline}></IonIcon>
-                      Finalizar Registro
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </form>
-          </IonCard>
+            <div className="col-span-4 py-4">
+                <button
+                  className={`rounded-md px-4 py-2 w-full ${
+                    isValid
+                      ? "bg-accent cursor-pointer text-zinc-50"
+                      : "bg-accent/20 cursor-not-allowed text-txt"
+                  }`}
+                  type="submit"
+                  disabled={!isValid} // <-- Deshabilita si NO es válido
+                >
+                  Submit
+                </button>
+              </div>
+          </form>
         </div>
-      </IonContent>
-    </IonPage>
+      </section>
+    </main>
   );
-};
-
-export default Register;
+}
