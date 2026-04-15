@@ -18,7 +18,7 @@ export default function HeaderLandig() {
               </g>{" "}
             </svg>
           </div>
-          <div className="text-txt">
+          <div className="text-txt hidden md:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="30"

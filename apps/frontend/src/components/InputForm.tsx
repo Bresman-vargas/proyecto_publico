@@ -28,7 +28,7 @@ export default function InputForm({
           {label} {require && <span className="text-txt-sec">*</span>}
         </div>
         <input
-          className="outline-none p-2 border-2 border-bg-ter rounded-md"
+          className={`outline-none p-2 border-2 border-bg-ter rounded-md focus:outline-1 outline-err ${errors ? 'focus:outline-2' : ''}`}
           type={type}
           placeholder={placeholder}
           autoComplete="off"

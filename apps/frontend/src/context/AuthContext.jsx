@@ -1,5 +1,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { registerRequest, loginRequest, verifyTokenRequest } from "../api/auth";
+import {
+  registerRequest,
+  loginRequest,
+  verifyTokenRequest,
+  logoutRequest,
+} from "../api/auth";
 import Cookies from "js-cookie";
 
 export const AuthContext = createContext();
@@ -13,61 +18,97 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children}) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [errors, setErrors] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (errors.length > 0) {
+      const time = setTimeout(() => {
+        setErrors([]);
+      }, 5000);
+
+      return () => clearTimeout(time);
+    }
+  }, [errors]);
+
+  const clearErrors = () => {
+    setErrors([]);
+  };
 
   const registar = async (data) => {
     try {
       const res = await registerRequest(data);
-      console.log(res.data);
       setUser(res.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.log(error);
+      const errorMsg = error.response.data.message;
+      setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
     }
   };
 
   const login = async (data) => {
     try {
       const res = await loginRequest(data);
-      console.log(res.data);
       setUser(res.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.log(error);
+      const errorMsg = error.response.data.message;
+      setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
     }
   };
 
-  const logout = () => {
-    Cookies.remove("token");
-    setUser(null);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      await logoutRequest();
+
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.log("Error al cerrar sesión");
+    }
   };
 
   useEffect(() => {
     const checkLogin = async () => {
-      const cookies = Cookies.get();
-      if (!cookies.token) {
-        setIsAuthenticated(false);
-        return;
-      }
-
       try {
-        const res = await verifyTokenRequest(cookies.token);
-        console.log(res);
-        if (!res.data) return setIsAuthenticated(false);
+        const res = await verifyTokenRequest();
+
+        if (!res.data) {
+          setIsAuthenticated(false);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
         setIsAuthenticated(true);
         setUser(res.data);
+        setLoading(false);
       } catch (error) {
         setIsAuthenticated(false);
+        setUser(null);
+        setLoading(false);
       }
     };
+
     checkLogin();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ registar, login, logout, isAuthenticated, user }}>
+    <AuthContext.Provider
+      value={{
+        registar,
+        login,
+        logout,
+        clearErrors,
+        errors,
+        isAuthenticated,
+        user,
+        loading
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

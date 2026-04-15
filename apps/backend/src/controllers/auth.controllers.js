@@ -1,9 +1,3 @@
-import { pool } from "../db.js";
-import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
-import { createAccessToken } from "../libs/jwt.js";
-import jwt from "jsonwebtoken";
-import { TOKEN_SECRET } from "../cofing.js";
 import * as authService from "../services/auth.services.js";
 
 export const login = async (req, res) => {
@@ -21,18 +15,14 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       message: "Login exitoso",
-      user: {
         id: user.id,
         nombre: user.nombre,
-        email: user.email,
-      },
+        email: user.email
     });
   } catch (error) {
     if (error.message === "USER_NOT_FOUND" || error.message === "INVALID_CREDENTIALS") {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
-
-    console.error("Error en login:", error);
     return res.status(500).json({ message: "Error interno del servidor" });
   }
 };
@@ -59,8 +49,6 @@ export const register = async (req, res) => {
     if (error.message === "ALREADY_REGISTERED_USER") {
       return res.status(401).json({ message: "Usuario ya registrado" });
     }
-
-    console.error("Error en login:", error);
     return res.status(500).json({ message: "Error interno del servidor" });
   }
 };

@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
+import { ArrowLeft, OctagonAlert } from "lucide-react";
 export default function Register() {
   const navigate = useNavigate();
   const {
@@ -24,26 +25,35 @@ export default function Register() {
       email: "",
       id_region: 5,
       id_comuna: 65,
-      acepta_terminos: true,
+      acepta_terminos: false,
       password: "",
     },
   });
 
-  const { registar, isAuthenticated } = useAuth();
+  const { registar, isAuthenticated, errors: registerErrors, clearErrors } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) navigate("/prote");
   }, [isAuthenticated]);
 
+  useEffect(() => {
+      clearErrors();
+    }, []);
+
   const onSubmit = async (data: any) => {
     await registar(data);
   };
   return (
-    <main className="center h-lvh">
+    <main className="flex justify-center md:items-center  md:h-lvh">
       <section className="bg-bg-sec p-4 w-4xl rounded-md">
         <div className="flex flex-col justify-center">
           <header className="pb-8 w-11/12">
-            <h2 className="text-2xl py-2">¡Bienvenido de nuevo!</h2>
+            <h2 className="text-2xl py-2 flex items-center gap-4">
+              <Link to="/">
+                <ArrowLeft />
+              </Link>
+              ¡Bienvenido de nuevo!
+            </h2>
             <p className="text-txt-sec text-pretty">
               ¿Ya tienes una cuenta? {""}
               <Link to="/login" className="text-accent underline">
@@ -62,7 +72,7 @@ export default function Register() {
               require={true}
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
             <InputForm
               label="Segundo Nombre"
@@ -71,7 +81,7 @@ export default function Register() {
               require={true}
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
 
             <InputForm
@@ -81,7 +91,7 @@ export default function Register() {
               require={true}
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
             <InputForm
               label="Apellido Materno"
@@ -89,9 +99,9 @@ export default function Register() {
               name="apellido_materno"
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
-            <div className="col-span-2 grid grid-cols-3 gap-4">
+            <div className="col-span-4 md:col-span-2 grid grid-cols-3 gap-4">
               <InputForm
                 label="RUT"
                 placeholder="12345678"
@@ -99,7 +109,7 @@ export default function Register() {
                 require={true}
                 register={register}
                 errors={errors}
-                className="col-span-2"
+                className="col-span-2 md:col-span-2"
               />
 
               <InputForm
@@ -118,7 +128,7 @@ export default function Register() {
               require={true}
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
             <InputForm
               label="Contraseña"
@@ -128,7 +138,7 @@ export default function Register() {
               require={true}
               register={register}
               errors={errors}
-              className="col-span-2"
+              className="col-span-4 md:col-span-2"
             />
 
             <div className="col-span-4 flex flex-col items-end py-2">
@@ -149,19 +159,32 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="col-span-4 py-4">
-                <button
-                  className={`rounded-md px-4 py-2 w-full ${
-                    isValid
-                      ? "bg-accent cursor-pointer text-zinc-50"
-                      : "bg-accent/20 cursor-not-allowed text-txt"
-                  }`}
-                  type="submit"
-                  disabled={!isValid} // <-- Deshabilita si NO es válido
-                >
-                  Submit
-                </button>
-              </div>
+            <div className="col-span-4  md:col-start-3 md:col-span-2 py-4">
+              <button
+                className={` rounded-md px-4 py-2 w-full ${
+                  isValid
+                    ? "bg-accent cursor-pointer text-zinc-50"
+                    : "bg-accent/20 cursor-not-allowed text-txt"
+                }`}
+                type="submit"
+                disabled={!isValid} // <-- Deshabilita si NO es válido
+              >
+                Submit
+              </button>
+            </div>
+
+            <div className="h-8 col-span-4 mb-4">
+              {registerErrors.length > 0 && (
+                <div className="bg-err/20 p-2 rounded-md border border-err/50">
+                  {registerErrors.map((error: string, i: number) => (
+                    <div className="flex items-center justify-center gap-2" key={i}>
+                      <OctagonAlert />
+                      <p key={i}>{error}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </form>
         </div>
       </section>

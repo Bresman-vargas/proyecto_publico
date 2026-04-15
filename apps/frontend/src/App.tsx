@@ -13,7 +13,15 @@
   }
 
   function AppRouter() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, loading } = useAuth();
+
+    if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-bg">
+        <div className="animate-spin h-12 w-12 border-4 border-accent"></div>
+      </div>
+    );
+  }
 
     return (
       <Routes>
@@ -22,7 +30,6 @@
             key={index}
             path={route.path}
             element={
-              // Lógica de protección
               route.private && !isAuthenticated ? (
                 <Navigate to="/login" replace />
               ) : route.restricted && isAuthenticated ? (
@@ -34,7 +41,6 @@
           />
         ))}
 
-        {/* Redirecciones automáticas */}
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Routes>

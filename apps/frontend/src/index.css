@@ -32,7 +32,7 @@
 @layer base {
   :root {
     /* Acento (#007aff -> #005bb5) */
-    --color-accent: oklch(58.3% 0.238 261.2);
+    --color-accent: oklch(46.411% 0.30482 266.156);
     --color-accent-sec: oklch(78.563% 0.23995 141.141);
     --color-accent-ter: oklch(86.844% 0.19813 119.636);
     --color-accent-alt: oklch(33.016% 0.12957 320.378); 
@@ -57,8 +57,8 @@
 
   /* Modo Oscuro */
   .dark {
-    --color-accent: oklch(71.085% 0.17581 39.578); 
-    --color-accent-sec: oklch(63.798% 0.19795 254.409);
+    --color-accent: oklch(67.197% 0.12873 244.477); 
+    --color-accent-sec: oklch(87.022% 0.27046 145.001);
     --color-accent-ter: oklch(91.32% 0.11185 105.103);
     --color-accent-alt: oklch(88.583% 0.05612 41.66);
 
