@@ -1,3 +1,4 @@
+import { Lock } from "lucide-react";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 
@@ -19,12 +20,16 @@ export default function Prote() {
               {user ? (
                 <ul className="list-disc pl-5">
                   <li>
+                    <strong className="text-accent">Id:</strong>{" "}
+                    {user.id}
+                  </li>
+                  <li>
                     <strong className="text-accent">Nombre:</strong>{" "}
-                    {user.user.nombre}
+                    {user.nombre}
                   </li>
                   <li>
                     <strong className="text-accent">Email:</strong>{" "}
-                    {user.user.email}
+                    {user.email}
                   </li>
                 </ul>
               ) : (
@@ -34,9 +39,10 @@ export default function Prote() {
           </div>
           <div className="pt-4">
             <button
-              className="bg-accent/60 px-4 py-2 rounded-md cursor-pointer"
+              className="flex gap-2 bg-accent text-bg px-4 py-2 rounded-md cursor-pointer"
               onClick={async () => await logout()}
             >
+              <Lock/>
               Logout
             </button>
           </div>

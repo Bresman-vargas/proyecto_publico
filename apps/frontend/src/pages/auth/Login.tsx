@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, OctagonAlert } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@proyecto_publico/schemas";
 import { useAuth } from "../../context/AuthContext";
@@ -9,7 +9,9 @@ import InputForm from "../../components/InputForm";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+
+  const { login, isAuthenticated, errors: loginErrors, clearErrors } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -24,6 +26,10 @@ function Login() {
     if (isAuthenticated) navigate("/prote");
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    clearErrors();
+  }, []);
+
   const onSubmit = async (data: any) => {
     await login(data);
   };
@@ -31,20 +37,20 @@ function Login() {
   return (
     <main className="center h-lvh">
       <section className="bg-bg-sec p-4 w-4xl rounded-md">
-        <div className="grid grid-cols-2 gap-8">
-          <aside className="relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <aside className="relative hidden md:flex">
             <img
-              className="rounded-md"
-              src="https://placehold.co/600x600"
+              className="rounded-md w-full h-125 object-cover"
+              src="https://i.pinimg.com/236x/4c/88/a7/4c88a78e863f5f59c07e8670a25e33a2.jpg"
               alt=""
             />
-            <div
-              className="absolute top-3 left-3 bg-bg-sec px-4 py-1 rounded-md flex gap-2 cursor-pointer"
-              onClick={() => navigate(-1)}
+            <Link
+              to="/"
+              className="absolute top-3 left-3 bg-bg-sec/50 backdrop-blur-md px-4 py-1 rounded-md flex gap-2 cursor-pointer"
             >
               <ArrowLeft />
               Back
-            </div>
+            </Link>
           </aside>
           <div className="flex flex-col justify-center">
             <header className="pb-8 w-11/12">
@@ -78,7 +84,7 @@ function Login() {
                 <button
                   className={`rounded-md px-4 py-2 w-full ${
                     isValid
-                      ? "bg-accent cursor-pointer text-zinc-50"
+                      ? "bg-accent cursor-pointer text-bg"
                       : "bg-accent/20 cursor-not-allowed text-txt"
                   }`}
                   type="submit"
@@ -86,6 +92,19 @@ function Login() {
                 >
                   Submit
                 </button>
+              </div>
+
+              <div className="h-8">
+                {loginErrors.length > 0 && (
+                  <div className="bg-err/20 p-2 rounded-md border border-err/50">
+                    {loginErrors.map((error: string, i: number) => (
+                      <div className="flex items-center justify-center gap-2" key={i}>
+                        <OctagonAlert />
+                        <p key={i}>{error}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </form>
           </div>
