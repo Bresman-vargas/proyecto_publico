@@ -28,14 +28,14 @@ export default function InputForm({
           {label} {require && <span className="text-txt-sec">*</span>}
         </div>
         <input
-          className={`outline-none p-2 border-2 border-bg-ter rounded-md focus:outline-1 outline-err ${errors ? 'focus:outline-2' : ''}`}
+          className={`bg-bg/30 outline-none p-2 border-2 border-bg-ter rounded-md focus:outline-1 outline-err ${errors ? 'focus:outline-2' : ''}`}
           type={type}
           placeholder={placeholder}
           autoComplete="off"
           {...register(name)}
         />
       </label>
-      <div className="h-8">
+      <div className="h-8 flex items-center ">
         {errors[name] && (
           <span className="text-err text-sm">
             {errors[name]?.message as string}

@@ -1,10 +1,11 @@
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Forums from './pages/forums/Forums';
 import Home from './pages/Home'
 
 import NotFound from './pages/NotFound';
-import Prote from './pages/Prote';
-import Prueba from './pages/Prueba';
+import Feed from './pages/Feed';
+import Trending from './pages/Trending';
 
 interface RouteConfig {
   path: string;
@@ -19,7 +20,9 @@ export const routes: RouteConfig[] = [
   { path: "/register", component: Register, restricted: true},
 
   // --- RUTAS PROTEGIDAS ---
-  { path: "/prote", component: Prote, private: true},
-  { path: "/prueba", component: Prueba, private: true},
+  { path: "/feed", component: Feed},
+  { path: "/forums", component: Forums},
+  { path: "/trending", component: Trending},
+
   { path: "/not-found", component: NotFound}
 ];

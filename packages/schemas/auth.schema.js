@@ -18,7 +18,7 @@ export const loginSchema = z.object({
   password: z
     .string({ required_error: "Contraseña es requerida" })
     .min(3, "Más de 3 caracteres")
-    .max(255),
+    .max(20, "Menos de 20 caracteres")
 });
 
 //REGISTER SCHEMA
