@@ -23,7 +23,7 @@ function Login() {
   });
 
   useEffect(() => {
-    if (isAuthenticated) navigate("/prote");
+    if (isAuthenticated) navigate("/feed");
   }, [isAuthenticated]);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function Login() {
             />
             <Link
               to="/"
-              className="absolute top-3 left-3 bg-bg-sec/50 backdrop-blur-md px-4 py-1 rounded-md flex gap-2 cursor-pointer"
+              className="absolute top-3 left-3 bg-bg-sec px-4 py-1 rounded-md flex gap-2 cursor-pointer"
             >
               <ArrowLeft />
               Back

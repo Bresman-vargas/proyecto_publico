@@ -33,7 +33,7 @@ export default function Register() {
   const { registar, isAuthenticated, errors: registerErrors, clearErrors } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) navigate("/prote");
+    if (isAuthenticated) navigate("/feed");
   }, [isAuthenticated]);
 
   useEffect(() => {

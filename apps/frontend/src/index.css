@@ -57,8 +57,8 @@
 
   /* Modo Oscuro */
   .dark {
-    --color-accent: oklch(67.197% 0.12873 244.477); 
-    --color-accent-sec: oklch(87.022% 0.27046 145.001);
+    --color-accent: oklch(82.709% 0.13368 186.525); 
+    --color-accent-sec: oklch(78.305% 0.21531 146.735);
     --color-accent-ter: oklch(91.32% 0.11185 105.103);
     --color-accent-alt: oklch(88.583% 0.05612 41.66);
 
@@ -77,6 +77,6 @@
 
     /* Estados */
     --color-ok: oklch(76.5% 0.205 142);          
-    --color-err: oklch(62% 0.235 25);            
+    --color-err: oklch(63.084% 0.19388 21.23);            
   }
 }

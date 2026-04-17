@@ -9,7 +9,6 @@ import Cookies from "js-cookie";
 
 export const AuthContext = createContext();
 
-//verificamos que se pueda usar el contexto
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -63,7 +62,6 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await logoutRequest();
-
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {

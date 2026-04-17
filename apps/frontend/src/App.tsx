@@ -18,7 +18,7 @@
     if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-bg">
-        <div className="animate-spin h-12 w-12 border-4 border-accent"></div>
+        <div className="animate-spin size-12 border-4 border-accent"></div>
       </div>
     );
   }
@@ -33,7 +33,7 @@
               route.private && !isAuthenticated ? (
                 <Navigate to="/login" replace />
               ) : route.restricted && isAuthenticated ? (
-                <Navigate to="/prote" replace />
+                <Navigate to="/feed" replace />
               ) : (
                 <route.component />
               )

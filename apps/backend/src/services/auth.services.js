@@ -122,7 +122,7 @@ export const verifyTokenService = async (token) => {
           }
         resolve({
           id: user.id,
-          username: user.nombre,
+          nombre: user.nombre,
           email: user.email,
         });
       } catch (err) {
