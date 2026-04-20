@@ -109,7 +109,7 @@ const discussions: DiscussionData[] = [
 export default function Disscussions() {
   return (
     <section>
-      <div className="flex items-start justify-between gap-3 px-4 mb-4">
+      <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-4 mb-4">
         <div className="h-20">
           <h1 className="font-bold text-xl">Mis Discusiones</h1>
           <p className="text-txt-sec text-pretty">
@@ -117,7 +117,7 @@ export default function Disscussions() {
           </p>
         </div>
         <Link
-          className="text-nowrap px-4 py-2 bg-bg-sec text-ok rounded-md font-bold border border-border flex gap-4"
+          className="text-nowrap w-full md:w-fit px-4 py-2 bg-bg-sec text-ok rounded-md font-bold border border-border flex justify-center gap-4"
           to="/discussions-form"
         >
           <CirclePlus />
@@ -153,7 +153,7 @@ export default function Disscussions() {
               <section>
                 <p className="text-txt-sec">{dis.subtitle}</p>
                 <p className="text-base/normal">{dis.content}</p>
-                <div className="flex gap-2 my-4">
+                <div className="flex flex-wrap gap-2 my-4">
                   {dis.keywords.map((word, index) => (
                     <div
                       className="text-sm px-4 py-1 bg-accent/10 text-accent rounded-full border border-accent/50"
