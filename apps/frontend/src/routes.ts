@@ -8,6 +8,7 @@ import Trending from "./pages/Trending";
 import { lazy } from "react";
 import Discussions from "./pages/discussions/Discussions";
 import DiscussionForm from "./pages/discussions/DiscussionForm";
+import Prueba from "./pages/Prueba";
 
 interface RouteConfig {
   path: string;
@@ -27,6 +28,7 @@ export const routes: RouteConfig[] = [
   { path: "/discussions", component: Discussions, private: true },
   { path: "/discussions-form", component: DiscussionForm, private: true },
   { path: "/trending", component: Trending, private: true },
+  { path: "/papu", component: Prueba, private: true },
 
   { path: "/not-found", component: lazy(() => import("./pages/NotFound")) },
 ];
