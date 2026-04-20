@@ -23,7 +23,11 @@ const PageLoader = () => (
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) <PageLoader />;
+  const devMode = false; 
+
+  const canAccess = devMode || isAuthenticated;
+
+  if (loading && !devMode) <PageLoader />;
 
   const privateRoutes = routes.filter(r => r.private);
   const publicRoutes = routes.filter(r => !r.private);
@@ -37,7 +41,7 @@ function AppRouter() {
             key={`public-${index}`}
             path={route.path}
             element={
-              route.restricted && isAuthenticated ? (
+              route.restricted && canAccess ? (
                 <Navigate to="/feed" replace />
               ) : (
                 <route.component />
@@ -49,7 +53,7 @@ function AppRouter() {
         {/* PRIVADAS*/}
         <Route
           element={
-            isAuthenticated ? <Layout /> : <Navigate to="/login" replace />
+            canAccess ? <Layout /> : <Navigate to="/login" replace />
           }
         >
           {privateRoutes.map((route, index) => (
