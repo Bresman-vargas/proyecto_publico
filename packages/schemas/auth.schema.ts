@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 const MAX_NUMBER = 15;
-const msgMax = (n) => `Máximo ${n} caracteres`;
+const msgMax = (n : number) => `Máximo ${n} caracteres`;
 
 const optionalString = z
   .string()

@@ -1,38 +1,43 @@
-  import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-  import { routes } from "./routes";
-  import { AuthProvider, useAuth } from "./context/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { routes } from "./routes";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Suspense } from "react";
+import Layout from "./components/Layout";
 
-  function App() {
-    return (
-      <AuthProvider>
-        <BrowserRouter>
-          <AppRouter />
-        </BrowserRouter>
-      </AuthProvider>
-    );
-  }
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
 
-  function AppRouter() {
-    const { isAuthenticated, loading } = useAuth();
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-bg">
+    <div className="animate-spin size-12 border-4 border-accent border-t-transparent rounded-full"></div>
+  </div>
+);
 
-    if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-bg">
-        <div className="animate-spin size-12 border-4 border-accent"></div>
-      </div>
-    );
-  }
+function AppRouter() {
+  const { isAuthenticated, loading } = useAuth();
 
-    return (
+  if (loading) <PageLoader />;
+
+  const privateRoutes = routes.filter(r => r.private);
+  const publicRoutes = routes.filter(r => !r.private);
+
+  return (
+    <Suspense fallback={<PageLoader />}>
       <Routes>
-        {routes.map((route, index) => (
+        {/* PÚBLICAS*/}
+        {publicRoutes.map((route, index) => (
           <Route
-            key={index}
+            key={`public-${index}`}
             path={route.path}
             element={
-              route.private && !isAuthenticated ? (
-                <Navigate to="/login" replace />
-              ) : route.restricted && isAuthenticated ? (
+              route.restricted && isAuthenticated ? (
                 <Navigate to="/feed" replace />
               ) : (
                 <route.component />
@@ -41,10 +46,26 @@
           />
         ))}
 
+        {/* PRIVADAS*/}
+        <Route
+          element={
+            isAuthenticated ? <Layout /> : <Navigate to="/login" replace />
+          }
+        >
+          {privateRoutes.map((route, index) => (
+            <Route
+              key={`private-${index}`}
+              path={route.path}
+              element={<route.component />}
+            />
+          ))}
+        </Route>
+
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Routes>
-    );
-  }
+    </Suspense>
+  );
+}
 
 export default App;

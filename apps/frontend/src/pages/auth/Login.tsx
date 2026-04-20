@@ -10,7 +10,12 @@ import InputForm from "../../components/InputForm";
 function Login() {
   const navigate = useNavigate();
 
-  const { login, isAuthenticated, errors: loginErrors, clearErrors } = useAuth();
+  const {
+    login,
+    isAuthenticated,
+    errors: loginErrors,
+    clearErrors,
+  } = useAuth();
 
   const {
     register,
@@ -36,25 +41,30 @@ function Login() {
 
   return (
     <main className="center h-lvh">
-      <section className="bg-bg-sec p-4 w-4xl rounded-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <section className="bg-bg-sec p-4 w-4xl rounded-md border border-border">
+        <div className="grid grid-cols-1 md:grid-cols-2">
           <aside className="relative hidden md:flex">
             <img
-              className="rounded-md w-full h-125 object-cover"
+              className="rounded-l-md w-full h-130 object-cover"
               src="https://i.pinimg.com/236x/4c/88/a7/4c88a78e863f5f59c07e8670a25e33a2.jpg"
               alt=""
             />
             <Link
               to="/"
-              className="absolute top-3 left-3 bg-bg-sec px-4 py-1 rounded-md flex gap-2 cursor-pointer"
+              className="bg-bg absolute top-3 left-3 px-4 py-1 rounded-md flex gap-2 cursor-pointer"
             >
               <ArrowLeft />
               Back
             </Link>
           </aside>
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-center bg-bg p-8 border border-border md:rounded-r-lg">
             <header className="pb-8 w-11/12">
-              <h2 className="text-2xl py-2">¡Bienvenido de nuevo!</h2>
+              <h2 className="text-2xl py-2 flex items-center gap-4">
+                <Link to="/" className="text-txt md:hidden">
+                  <ArrowLeft />
+                </Link>
+                ¡Bienvenido de nuevo!
+              </h2>
               <p className="text-txt-sec text-pretty">
                 ¿No tienes una cuenta? {""}
                 <Link to="/register" className="text-accent underline">
@@ -68,6 +78,7 @@ function Login() {
                 label="Email"
                 placeholder="Prueba@Prueba.cl"
                 name="email"
+                require={true}
                 register={register}
                 errors={errors}
               />
@@ -76,6 +87,7 @@ function Login() {
                 placeholder="******"
                 name="password"
                 type="password"
+                require={true}
                 register={register}
                 errors={errors}
               />
@@ -98,7 +110,10 @@ function Login() {
                 {loginErrors.length > 0 && (
                   <div className="bg-err/20 p-2 rounded-md border border-err/50">
                     {loginErrors.map((error: string, i: number) => (
-                      <div className="flex items-center justify-center gap-2" key={i}>
+                      <div
+                        className="flex items-center justify-center gap-2"
+                        key={i}
+                      >
                         <OctagonAlert />
                         <p key={i}>{error}</p>
                       </div>
