@@ -24,11 +24,11 @@ export default function InputForm({
   return (
     <div className={className}>
       <label className="text-txt-sec flex flex-col gap-2">
-        <div className="flex gap-2">
-          {label} {require && <span className="text-txt-sec">*</span>}
+        <div className="flex gap-1">
+          {label}:{require && <span className="text-txt-sec">*</span>}
         </div>
         <input
-          className={`bg-bg/30 outline-none p-2 border-2 border-bg-ter rounded-md focus:outline-1 outline-err ${errors ? 'focus:outline-2' : ''}`}
+          className={`bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30`}
           type={type}
           placeholder={placeholder}
           autoComplete="off"

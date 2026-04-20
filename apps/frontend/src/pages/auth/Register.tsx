@@ -30,26 +30,31 @@ export default function Register() {
     },
   });
 
-  const { registar, isAuthenticated, errors: registerErrors, clearErrors } = useAuth();
+  const {
+    registar,
+    isAuthenticated,
+    errors: registerErrors,
+    clearErrors,
+  } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) navigate("/feed");
   }, [isAuthenticated]);
 
   useEffect(() => {
-      clearErrors();
-    }, []);
+    clearErrors();
+  }, []);
 
   const onSubmit = async (data: any) => {
     await registar(data);
   };
   return (
     <main className="flex justify-center md:items-center  md:h-lvh">
-      <section className="bg-bg-sec p-4 w-4xl rounded-md">
+      <section className="bg-bg-sec/50 p-4 w-4xl rounded-md border border-border">
         <div className="flex flex-col justify-center">
           <header className="pb-8 w-11/12">
             <h2 className="text-2xl py-2 flex items-center gap-4">
-              <Link to="/">
+              <Link to="/" className="text-txt">
                 <ArrowLeft />
               </Link>
               ¡Bienvenido de nuevo!
@@ -63,7 +68,7 @@ export default function Register() {
           </header>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-4 gap-x-4"
+            className="grid grid-cols-4 gap-x-4 bg-bg px-4 pt-8 rounded-md border border-border"
           >
             <InputForm
               label="Primer Nombre"
@@ -177,7 +182,10 @@ export default function Register() {
               {registerErrors.length > 0 && (
                 <div className="bg-err/20 p-2 rounded-md border border-err/50">
                   {registerErrors.map((error: string, i: number) => (
-                    <div className="flex items-center justify-center gap-2" key={i}>
+                    <div
+                      className="flex items-center justify-center gap-2"
+                      key={i}
+                    >
                       <OctagonAlert />
                       <p key={i}>{error}</p>
                     </div>
