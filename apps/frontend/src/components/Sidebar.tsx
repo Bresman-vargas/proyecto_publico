@@ -30,7 +30,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
     <>
       {expanded && (
         <div
-          className="fixed inset-0 bg-black/50 lg:hidden"
+          className="fixed inset-0 bg-accent/10 lg:hidden"
           onClick={() => setExpanded(false)}
         />
       )}
