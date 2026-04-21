@@ -12,6 +12,11 @@
   align-items: center;
 }
 
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-bg); 
+}
+
 @theme {
   --color-accent: var(--color-accent);
   --color-accent-alt: var(--color-accent-alt);
@@ -32,7 +37,7 @@
 @layer base {
   :root {
     /* Acento (#007aff -> #005bb5) */
-    --color-accent: oklch(46.411% 0.30482 266.156);
+    --color-accent: oklch(56.789% 0.219 267.897);
     --color-accent-sec: oklch(78.563% 0.23995 141.141);
     --color-accent-ter: oklch(86.844% 0.19813 119.636);
     --color-accent-alt: oklch(33.016% 0.12957 320.378);
@@ -57,7 +62,7 @@
 
   /* Modo Oscuro */
   .dark {
-    --color-accent: oklch(88.958% 0.12575 86.546);
+    --color-accent: oklch(74.857% 0.13133 255.428);
     --color-accent-sec: oklch(78.305% 0.21531 146.735);
     --color-accent-ter: oklch(91.32% 0.11185 105.103);
     --color-accent-alt: oklch(88.583% 0.05612 41.66);

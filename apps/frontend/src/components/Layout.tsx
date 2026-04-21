@@ -14,7 +14,7 @@ export default function Layout() {
         <Sidebar expanded={expanded} setExpanded={setExpanded} />
       </aside>
       <div className="flex-1 flex flex-col">
-        <Header className="sticky top-0 flex items-center justify-between px-5">
+        <Header className="sticky top-0 z-60 flex items-center justify-between px-5">
           <div
             className="flex items-center gap-4 w-full"
           >

@@ -3,10 +3,13 @@ import { useForm } from "react-hook-form";
 import { discussion } from "@proyecto_publico/schemas";
 import InputForm from "../../components/InputForm";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import SelectForm from "../../components/SelectForm";
 
 export default function DiscussionForm() {
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
   const {
     register,
     handleSubmit,
@@ -41,11 +44,14 @@ export default function DiscussionForm() {
             <Link to="/discussions" className="text-txt">
               <ArrowLeft />
             </Link>
-            <h1 className="text-2xl my-2">Crear una discusión</h1>
+            <h1 className="text-2xl my-2">
+              {isEditMode ? "Editar una discusión" : "Crear una discusión"}
+            </h1>
           </div>
           <p className="text-txt-sec text-pretty md:w-8/12">
-            En este formulario podrás crear tus propios discussions que la
-            comunidad podrá responder o comentar.
+            {isEditMode 
+              ? "Modifica los campos necesarios para actualizar la información de la discusión."
+              : "En este formulario podrás crear tus propios discussions que la comunidad podrá responder o comentar."}
           </p>
         </header>
         <form
@@ -56,6 +62,7 @@ export default function DiscussionForm() {
             className="col-span-2"
             label="Title"
             name="title"
+            placeholder="Ej: Reparación de veredas en Av. Litoral"
             errors={errors}
             register={register}
             require={true}
@@ -64,6 +71,7 @@ export default function DiscussionForm() {
             className="col-span-2"
             label="Subtitulo"
             name="subtitle"
+            placeholder="Breve resumen del problema o beneficio"
             errors={errors}
             register={register}
             require={true}
@@ -72,6 +80,7 @@ export default function DiscussionForm() {
             className="col-span-2"
             label="Detalle"
             name="content"
+            placeholder="Describe los puntos clave de tu propuesta aquí..."
             errors={errors}
             register={register}
             require={true}
@@ -79,6 +88,7 @@ export default function DiscussionForm() {
           <InputForm
             label="Foro"
             name="foro"
+            placeholder="Ej: Seguridad, Medio Ambiente, Obras"
             errors={errors}
             register={register}
             require={true}
@@ -101,9 +111,9 @@ export default function DiscussionForm() {
                   : "bg-accent/20 cursor-not-allowed text-txt"
               }`}
               type="submit"
-              disabled={!isValid} // <-- Deshabilita si NO es válido
+              disabled={!isValid}
             >
-              Submit
+              {isEditMode ? 'Editar discusión': 'Agregar discusión'}
             </button>
           </div>
         </form>

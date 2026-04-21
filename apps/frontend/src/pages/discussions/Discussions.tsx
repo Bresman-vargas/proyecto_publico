@@ -1,5 +1,5 @@
 import { CirclePlus, RotateCw, SquarePen } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link , useNavigate} from "react-router-dom";
 
 interface DiscussionData {
   id: string;
@@ -107,10 +107,15 @@ const discussions: DiscussionData[] = [
 ];
 
 export default function Disscussions() {
+  const navigate = useNavigate() 
+
+  const hanleEdit = (id: string | number) => {
+    navigate(`/discussions/edit/${id}`)
+  }
   return (
     <section>
-      <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-4 mb-4">
-        <div className="h-20">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+        <div className="h-20 flex flex-col justify-center">
           <h1 className="font-bold text-xl">Mis Discusiones</h1>
           <p className="text-txt-sec text-pretty">
             En está parte verás todas tus discusiones y su estado.
@@ -118,9 +123,9 @@ export default function Disscussions() {
         </div>
         <Link
           className="text-nowrap w-full md:w-fit px-4 py-2 bg-bg-sec text-ok rounded-md font-bold border border-border flex justify-center gap-4"
-          to="/discussions-form"
+          to="/discussions/new"
         >
-          <CirclePlus />
+          <CirclePlus/>
           Crear discussion
         </Link>
       </div>
@@ -143,10 +148,10 @@ export default function Disscussions() {
                     <span
                       className={`absolute -top-1 -right-1 size-3 rounded-full ${dis.isActive ? "bg-ok" : "bg-err"}`}
                     ></span>
-                    <RotateCw size={15} />
+                    <RotateCw size={15} className="hidden md:block" />
                     {dis.isActive ? "Activo" : "No activo"}
                   </span>
-                  <button className="bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer"><SquarePen/></button>
+                  <button onClick={() => hanleEdit(dis.id)} className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer"><SquarePen/></button>
                 </div>
               </section>
 

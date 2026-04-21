@@ -3,12 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { loginSchema } from "@proyecto_publico/schemas";
-import InputForm from "../components/InputForm";
+import InputForm from "../../components/InputForm";
 export default function Prueba() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors},
   } = useForm({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -51,7 +51,7 @@ export default function Prueba() {
             errors={errors}
           />
 
-            <button> semen </button>
+          <button> semen </button>
         </form>
       </section>
     </div>
