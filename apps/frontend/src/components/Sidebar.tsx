@@ -1,10 +1,12 @@
 import {
-  ArrowUpWideNarrow,
+  ChartBarDecreasing,
   ChevronFirst,
   ChevronLast,
-  Funnel,
   Lightbulb,
   Megaphone,
+  MessagesSquare,
+  Send,
+  Settings2,
   type LucideIcon,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -30,7 +32,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
     <>
       {expanded && (
         <div
-          className="fixed inset-0 bg-accent/10 lg:hidden"
+          className="fixed inset-0 bg-accent/10 lg:hidden cursor-pointer"
           onClick={() => setExpanded(false)}
         />
       )}
@@ -91,19 +93,13 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
 
         <div className="flex flex-col justify-between h-[calc(100vh-4rem)]">
           <SidebarContext.Provider value={{ expanded }}>
-            <nav className="p-4 flex flex-col gap-4">
+            <nav className="p-4 flex items-start flex-col gap-4">
               <p className="text-txt-sec">MAIN</p>
               <SidebarItem
-                ico={Funnel}
-                label="Feed"
-                link="/feed"
-                active={location.pathname === "/feed"}
-              />
-              <SidebarItem
-                ico={Megaphone}
-                label="Foros"
-                link="/forums"
-                active={location.pathname === "/forums"}
+                ico={Send}
+                label="Explore"
+                link="/explore"
+                active={location.pathname === "/explore"}
               />
               <SidebarItem
                 ico={Lightbulb}
@@ -112,10 +108,30 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
                 active={location.pathname === "/discussions"}
               />
               <SidebarItem
-                ico={ArrowUpWideNarrow}
-                label="Trending"
-                link="/trending"
-                active={location.pathname === "/trending"}
+                ico={MessagesSquare}
+                label="Comments"
+                link="/comments"
+                active={location.pathname === "/comments"}
+              />
+              <p className="text-txt-sec">ADMIN</p>
+              <SidebarItem
+                ico={Megaphone}
+                label="Foros"
+                link="/forums"
+                active={location.pathname === "/forums"}
+              />
+              <SidebarItem
+                ico={ChartBarDecreasing}
+                label="Encuentas"
+                link="/poll"
+                active={location.pathname === "/poll"}
+              />
+              <p className="border-b border-border w-full "></p>
+              <SidebarItem
+                ico={Settings2}
+                label="Settings"
+                link="/settings"
+                active={location.pathname === "/settings"}
               />
             </nav>
 
@@ -155,7 +171,7 @@ function SidebarItem({ ico: Icon, label, active = false, link }: ItemPros) {
   return (
     <Link
       to={link}
-      className={`min-w-10 px-2 center py-2 flex gap-4 rounded-md border border-border ${active ? "text-accent bg-bg-sec " : ""}`}
+      className={`hover:border-accent/50 w-full min-w-10 px-2 center py-2 flex gap-4 rounded-md border border-border ${active ? "text-accent bg-bg-sec " : ""}`}
     >
       <Icon />
       <span

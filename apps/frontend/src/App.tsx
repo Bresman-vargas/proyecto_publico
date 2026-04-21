@@ -23,7 +23,7 @@ const PageLoader = () => (
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth();
 
-  const devMode = true; 
+  const devMode = false; 
 
   const canAccess = devMode || isAuthenticated;
 
@@ -42,7 +42,7 @@ function AppRouter() {
             path={route.path}
             element={
               route.restricted && canAccess ? (
-                <Navigate to="/feed" replace />
+                <Navigate to="/explore" replace />
               ) : (
                 <route.component />
               )
