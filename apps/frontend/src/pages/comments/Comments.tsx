@@ -2,151 +2,15 @@ import {
   ArrowBigDown,
   ArrowBigUp,
   Dot,
-  Ellipsis,
   Flame,
-  Hourglass
+  Hourglass,
+  Maximize2,
+  SquarePen,
+  Trash2,
 } from "lucide-react";
-
-interface Comentario {
-  id: string;
-  nombre: string;
-  apellido_paterno: string;
-  fecha_creacion: Date;
-  fecha_edicion: Date | null;
-  texto: string;
-  votos_up: number;
-  votos_down: number;
-  avatar_url: string;
-  editado: boolean;
-  estado: "aprobado" | "pendiente" | "rechazado";
-  respuestas?: Comentario[]; // <-- Nueva propiedad opcional
-}
-
-const comentariosData: Comentario[] = [
-  {
-    id: "1",
-    nombre: "Bresman",
-    apellido_paterno: "Pérez",
-    fecha_creacion: new Date("2026-04-20T10:30:00"),
-    fecha_edicion: null,
-    texto: "Me parece una excelente iniciativa para mejorar la transparencia en Santo Domingo. ¡Hacia falta un espacio así!",
-    votos_up: 25,
-    votos_down: 2,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bresman",
-    editado: false,
-    estado: "aprobado",
-    respuestas: [
-      {
-        id: "1-1",
-        nombre: "Javiera",
-        apellido_paterno: "González",
-        fecha_creacion: new Date("2026-04-20T11:15:00"),
-        fecha_edicion: null,
-        texto: "¡Totalmente! Hacía falta algo así en la muni.",
-        votos_up: 8,
-        votos_down: 0,
-        avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Javiera",
-        editado: false,
-        estado: "aprobado",
-        respuestas: [
-          {
-            id: "1-1-1",
-            nombre: "Andrés",
-            apellido_paterno: "Soto",
-            fecha_creacion: new Date("2026-04-20T12:00:00"),
-            fecha_edicion: null,
-            texto: "Ojalá que el soporte técnico sea rápido y no se caiga cuando subamos reportes.",
-            votos_up: 3,
-            votos_down: 1,
-            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Andres",
-            editado: false,
-            estado: "aprobado",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "2",
-    nombre: "Roberto",
-    apellido_paterno: "Díaz",
-    fecha_creacion: new Date("2026-04-21T09:10:00"),
-    fecha_edicion: null,
-    texto: "El soporte para React en la plataforma móvil está funcionando muy fluido. La integración con Tailwind v4 se nota en la velocidad de carga de los estilos.",
-    votos_up: 42,
-    votos_down: 3,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
-    editado: false,
-    estado: "aprobado",
-  },
-  {
-    id: "3",
-    nombre: "Carla",
-    apellido_paterno: "Méndez",
-    fecha_creacion: new Date("2026-04-21T11:45:00"),
-    fecha_edicion: new Date("2026-04-21T12:00:00"),
-    texto: "¿Alguien sabe si se pueden adjuntar fotos de baches en las calles? Intenté subir una pero me dio un error de formato.",
-    votos_up: 12,
-    votos_down: 1,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carla",
-    editado: true,
-    estado: "aprobado",
-    respuestas: [
-      {
-        id: "3-1",
-        nombre: "Soporte Muni",
-        apellido_paterno: "Técnico",
-        fecha_creacion: new Date("2026-04-21T12:15:00"),
-        fecha_edicion: null,
-        texto: "Hola Carla, por ahora solo aceptamos JPG y PNG hasta 5MB. Estamos trabajando para habilitar formatos HEIC de iPhone.",
-        votos_up: 15,
-        votos_down: 0,
-        avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
-        editado: false,
-        estado: "aprobado",
-      }
-    ]
-  },
-  {
-    id: "4",
-    nombre: "Sebastián",
-    apellido_paterno: "Tapia",
-    fecha_creacion: new Date("2026-04-21T13:20:00"),
-    fecha_edicion: null,
-    texto: "La sección de votación ciudadana debería tener un filtro por sector (Litoral vs Campo). Sería más útil para los vecinos.",
-    votos_up: 56,
-    votos_down: 4,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sebastian",
-    editado: false,
-    estado: "aprobado",
-  },
-  {
-    id: "5",
-    nombre: "Usuario",
-    apellido_paterno: "Anónimo",
-    fecha_creacion: new Date("2026-04-21T14:05:00"),
-    fecha_edicion: null,
-    texto: "Este comentario está pendiente de revisión por el sistema de moderación de contenido.",
-    votos_up: 0,
-    votos_down: 0,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anon",
-    editado: false,
-    estado: "pendiente",
-  },
-  {
-    id: "6",
-    nombre: "Valentina",
-    apellido_paterno: "Ríos",
-    fecha_creacion: new Date("2026-04-21T15:30:00"),
-    fecha_edicion: null,
-    texto: "Me gusta mucho el modo oscuro de la app, se nota el trabajo en la UI con Ionic. ¡Sigan así!",
-    votos_up: 19,
-    votos_down: 0,
-    avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Valentina",
-    editado: false,
-    estado: "aprobado",
-  }
-];
+import { useState } from "react";
+import { comentariosData, type Comentario } from "./HarcoComments";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Comments() {
   return (
@@ -187,6 +51,10 @@ function CommentItem({
   comment: Comentario;
   isReply?: boolean;
 }) {
+  const [showReplies, setShowReplies] = useState(false);
+  const hasReplies = comment.respuestas && comment.respuestas.length > 0;
+  const {user} = useAuth();
+
   return (
     <div className={`flex flex-col ${isReply ? "mt-2" : ""}`}>
       <div
@@ -212,28 +80,58 @@ function CommentItem({
               </div>
             )}
           </div>
-          <Ellipsis className="cursor-pointer" />
+          <div>
+            {comment.id_user === user.id && (
+              <div className="flex gap-2">
+                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <Maximize2 size={15} />
+                </button>
+                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <SquarePen size={15} />
+                </button>
+                <button className="hover:text-err bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            )}
+          </div>
         </header>
         <aside className="my-4">{comment.texto}</aside>
         <footer className="flex justify-between">
           <div className="flex gap-2">
-            <div className="flex items-center gap-2 text-txt-sec bg-bg-sec px-2 rounded-md">
+            <button className="flex items-center gap-2 text-txt-sec bg-bg-sec px-2 rounded-md cursor-pointer hover:text-ok">
               <ArrowBigUp size={20} />
               {comment.votos_up}
-            </div>
-            <div className="flex items-center gap-2 text-txt-sec bg-bg-sec px-2 rounded-md">
+            </button>
+            <button className="flex items-center gap-2 text-txt-sec bg-bg-sec px-2 rounded-md cursor-pointer hover:text-err">
               <ArrowBigDown size={20} />
               {comment.votos_up}
-            </div>
+            </button>
           </div>
-          {!isReply && <p className="text-accent cursor-pointer">Respuestas</p>}
+          {hasReplies && (
+            <button
+              onClick={() => setShowReplies(!showReplies)}
+              className="text-accent text-xs font-semibold hover:underline cursor-pointer"
+            >
+              {showReplies
+                ? "Ocultar respuestas"
+                : `${comment.respuestas?.length} Respuestas`}
+            </button>
+          )}
         </footer>
       </div>
-      {comment.respuestas && comment.respuestas.length > 0 && (
-        <div className="ml-4 mt-2 border-l-2 border-border pl-4">
-          {comment.respuestas.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} isReply={true} />
-          ))}
+      {showReplies && hasReplies && (
+        <div className="relative ml-6 mt-2 isolate">
+          <div className="absolute left-0 top-0 bottom-0 w-1 h-full border-l-2 border-accent z-10" />
+
+          <div>
+            {comment.respuestas?.map((reply) => (
+              <div key={reply.id} className="relative pl-6">
+                <div className="absolute left-0 top-0 w-5 h-20 border-l-2 border-b-2 rounded-bl-2xl border-accent -z-10" />
+                <CommentItem comment={reply} isReply={true} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
