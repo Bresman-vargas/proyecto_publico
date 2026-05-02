@@ -48,7 +48,7 @@ export default function ThemeToggle() {
         <p className="text-txt-sec">Customize your workspace theme</p>
       </header>
 
-      <aside className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+      <aside className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
         {themes.map((t) => {
           const isLight = t.id === "light";
           const isDark = t.id === "dark";
@@ -67,18 +67,18 @@ export default function ThemeToggle() {
                   className={`mt-20 col-start-3 col-span-4 flex h-40 w-full rounded-tl-md border-l border-t
                   ${isLight ? "bg-white border-zinc-200" : ""}
                   ${isDark ? "bg-black border-zinc-800" : ""}
-                  ${isSystem ? "bg-[linear-gradient(135deg,white_50%,black_50%)] border-zinc-400" : ""} 
+                  ${isSystem ? "bg-[linear-gradient(135deg,white_50%,black_50%)] border-zinc-500" : ""} 
                 `}
                 >
                   {/* Sidebar Esquematizado */}
                   <aside
                     className={`flex flex-col justify-between w-16 border-r
-                    ${isLight ? "border-zinc-300" : isDark ? "border-zinc-900" : "border-zinc-300"}`}
+                    ${isLight ? "border-zinc-300" : isDark ? "border-zinc-900" : "border-zinc-400"}`}
                   >
                     <div className="flex flex-col">
                       <header
                         className={`flex items-center gap-3 h-5 border-b px-2 py-1 
-                        ${isLight ? "border-zinc-300" : isDark ? "border-zinc-900" : "border-zinc-300"}`}
+                        ${isLight ? "border-zinc-300" : isDark ? "border-zinc-900" : "border-zinc-400"}`}
                       >
                         {/* Usamos tu color accent real */}
                         <div className="bg-accent h-1.5 w-3"></div>
@@ -102,9 +102,9 @@ export default function ThemeToggle() {
                     </div>
                     <footer
                       className={`flex items-center gap-2 px-2 h-5 w-full border-t
-                      ${isLight ? "border-zinc-200" : isDark ? "border-zinc-900" : "border-zinc-200"}`}
+                      ${isLight ? "border-zinc-200" : isDark ? "border-zinc-900" : "border-zinc-400"}`}
                     >
-                      <div className="bg-accent h-1 w-1/2 "></div>
+                      <div className="bg-accent h-1 w-full"></div>
                     </footer>
                   </aside>
 
@@ -112,7 +112,7 @@ export default function ThemeToggle() {
                   <div className="flex flex-col flex-1">
                     <header
                       className={`flex items-center justify-between px-2 w-full h-5 border-b
-                      ${isLight ? "border-zinc-200" : isDark ? "border-zinc-900" : "border-zinc-400"}`}
+                      ${isLight ? "border-zinc-200" : isDark ? "border-zinc-900" : "border-zinc-500"}`}
                     >
                       <div
                         className={`h-1 w-1/4  ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
@@ -125,17 +125,17 @@ export default function ThemeToggle() {
 
                     <main className="p-3 flex flex-col gap-3">
                       {/* titulo*/}
-                      <div className="flex">
+                      <div className="flex justify-between">
                         <div className="flex flex-col gap-1">
                           <div
-                            className={`h-1.5 w-3/4  ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
+                            className={`h-1.5 w-10  ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
                           ></div>
                           <div
-                            className={`h-1.5 w-full  opacity-50 ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
+                            className={`h-1.5 w-20  opacity-50 ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
                           ></div>
                         </div>
 
-                        <div className="  bg-accent h-3 w-3 shadow-lg"></div>
+                        <div className=" rounded-md bg-accent h-3 w-9 shadow-lg"></div>
                       </div>
                       {/* grid*/}
                       <div className="grid grid-cols-2 gap-2">
@@ -154,7 +154,7 @@ export default function ThemeToggle() {
                         >
                           <div className="bg-accent/20 h-1 w-full "></div>
                           <div
-                            className={`h-1 w-2/3  ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}
+                            className={`h-1 w-2/3  ${isLight ? " bg-zinc-200" : isDark ?  " bg-zinc-900/50" : "bg-zinc-900"}`}
                           ></div>
                         </div>
                       </div>
@@ -178,7 +178,7 @@ export default function ThemeToggle() {
                   </div>
                 </div>
                 {theme === t.id && (
-                  <div className="bg-accent/80 text-white  h-6 px-3 flex items-center justify-center">
+                  <div className="bg-accent/80 text-white  h-6 px-3 flex items-center justify-center rounded-md">
                     <svg
                       width="14"
                       height="14"
