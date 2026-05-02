@@ -6,6 +6,9 @@ import { loginSchema } from "@proyecto_publico/schemas";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
 import InputForm from "../../components/InputForm";
+import light from "../../../public/362shots_so.png";
+import dark from "../../../public/252shots_so.png";
+import { useTheme } from "../../context/ThemeContext";
 
 function Login() {
   const navigate = useNavigate();
@@ -39,16 +42,26 @@ function Login() {
     await login(data);
   };
 
+  const { theme } = useTheme();
+
   return (
     <main className="center h-lvh">
       <section className="bg-bg-sec p-4 w-4xl rounded-md border border-border">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <aside className="relative hidden md:flex">
-            <img
-              className="rounded-l-md w-full h-130 object-cover"
-              src="https://i.pinimg.com/236x/4c/88/a7/4c88a78e863f5f59c07e8670a25e33a2.jpg"
-              alt=""
-            />
+            {theme === "light" ? (
+              <img
+                className="rounded-l-md w-full h-130 object-cover object-left"
+                src={light}
+                alt=""
+              />
+            ) : (
+              <img
+                className="rounded-l-md w-full h-130 object-cover object-left"
+                src={dark}
+                alt=""
+              />
+            )}
             <Link
               to="/"
               className="bg-bg absolute top-3 left-3 px-4 py-1 rounded-md flex gap-2 cursor-pointer"
