@@ -38,7 +38,7 @@ export default function DiscussionForm() {
 
   return (
     <section className="center">
-      <div className="bg-bg-sec/50 p-4 rounded-md border border-border">
+      <div className="bg-bg-sec/50 p-4 rounded-md border border-border" >
         <header className="mb-8 col-span-2">
           <div className="flex  items-center gap-4">
             <Link to="/discussions" className="text-txt">
@@ -50,7 +50,7 @@ export default function DiscussionForm() {
           </div>
           <p className="text-txt-sec text-pretty md:w-8/12">
             {isEditMode 
-              ? "Modifica los campos necesarios para actualizar la información de la discusión."
+              ? "Modifica los campos necesarios para actualizar la información de la discusión dentro de este foro."
               : "En este formulario podrás crear tus propios discussions que la comunidad podrá responder o comentar."}
           </p>
         </header>
