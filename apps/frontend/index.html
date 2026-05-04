@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-CL" class="">
+<html lang="es-CL">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,15 @@
     <meta name="keywords" content="Santo Domingo, Chile, municipalidad, foro ciudadano, reclamos, propuestas, comunidad, participación" />
     <meta name="author" content="Municipalidad de Santo Domingo" />
     
+    <script>
+      const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
     <link href="/src/style.css" rel="stylesheet">
   </head>
   <body class="bg-bg text-txt">
