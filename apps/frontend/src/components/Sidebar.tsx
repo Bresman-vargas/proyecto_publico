@@ -125,6 +125,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
                 label="Encuentas"
                 link="/surveys"
                 active={location.pathname === "/surveys"}
+                
               />
               <p className="border-b border-border w-full "></p>
               <SidebarItem

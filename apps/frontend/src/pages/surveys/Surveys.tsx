@@ -16,7 +16,7 @@ export default function SurveysList() {
           <h1 className="font-bold text-xl">Registros de Votación</h1>
           <p className="text-txt-sec text-pretty">
             En esta sección verás todas las encuestas y el registro de votos
-            emitidos.
+            emitidos. 
           </p>
         </div>
         <Link

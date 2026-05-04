@@ -15,7 +15,7 @@ export default function SurveyForm() {
   const isEditMode = Boolean(id);
 
   const {
-    register,
+    register, 
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<EncuestaFormData>({

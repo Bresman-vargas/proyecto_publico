@@ -18,13 +18,13 @@ export const surveys: SurveyData[] = [
     descripcionEncuesta:
       "Propuesta para renovar los routers y switches del laboratorio principal para soportar nuevas topologías.",
     cantVotos: "4500",
-    apellidoPaternoVotante: "Morales",
+    apellidoPaternoVotante: "Morales ",
     voto: "favor",
     fechaVoto: "2026-05-01T10:30:00Z",
   },
   {
     id: "srv_002",
-    title: "Migración a Entorno Linux",
+    title: "Migración a Entorno Linux ",
     nombreAdmin: "Roberto Soto",
     descripcionEncuesta:
       "Evaluar la transición de los equipos de la biblioteca hacia distribuciones Linux para optimizar el rendimiento y la seguridad.",
