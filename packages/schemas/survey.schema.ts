@@ -16,7 +16,7 @@ export const surveySchema = z.object({
     .string()
     .trim()
     .min(1, "La descripción no puede estar vacía")
-    .max(500, "La descripción no puede tener más de 500 caracteres"),
+    .max(500, "La descripción no puede tener  más de 500 caracteres"),
 
   nombreVotante: z
     .string({ required_error: "El nombre del votante es requerido" })

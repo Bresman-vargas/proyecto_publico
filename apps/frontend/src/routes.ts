@@ -47,3 +47,5 @@ export const routes: RouteConfig[] = [
   { path: "/surveys/new", component: SurveyForm, private:true},
   { path: "/surveys/edit/:id", component: SurveyForm, private: true }
 ];
+
+
