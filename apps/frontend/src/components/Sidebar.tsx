@@ -123,8 +123,9 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
               <SidebarItem
                 ico={ChartBarDecreasing}
                 label="Encuentas"
-                link="/poll"
-                active={location.pathname === "/poll"}
+                link="/surveys"
+                active={location.pathname === "/surveys"}
+                
               />
               <p className="border-b border-border w-full "></p>
               <SidebarItem

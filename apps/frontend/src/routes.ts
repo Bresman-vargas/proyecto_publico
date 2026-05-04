@@ -3,7 +3,6 @@ import Register from "./pages/auth/Register";
 import Forums from "./pages/forums/Forums";
 import Home from "./pages/Home";
 
-
 import { lazy } from "react";
 import Discussions from "./pages/discussions/Discussions";
 import DiscussionForm from "./pages/discussions/DiscussionForm";
@@ -12,6 +11,8 @@ import Explore from "./pages/Explore";
 import Comments from "./pages/comments/Comments";
 import Settings from "./pages/Settings";
 import Poll from "./pages/Poll";
+import Surveys from "./pages/surveys/Surveys";
+import SurveyForm from "./pages/surveys/SurveyForm";
 
 interface RouteConfig {
   path: string;
@@ -41,4 +42,10 @@ export const routes: RouteConfig[] = [
   { path: "/poll", component: Poll, private: true },
 
   { path: "/not-found", component: lazy(() => import("./pages/NotFound")) },
+  { path: "/surveys", component: Surveys, private: true },
+
+  { path: "/surveys/new", component: SurveyForm, private:true},
+  { path: "/surveys/edit/:id", component: SurveyForm, private: true }
 ];
+
+

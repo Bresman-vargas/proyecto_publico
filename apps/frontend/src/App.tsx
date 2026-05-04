@@ -18,12 +18,12 @@ const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen bg-bg">
     <div className="animate-spin size-12 border-4 border-accent border-t-transparent rounded-full"></div>
   </div>
-);
+); 
 
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth();
 
-  const devMode = false; 
+  const devMode = true; 
 
   const canAccess = devMode || isAuthenticated;
 
