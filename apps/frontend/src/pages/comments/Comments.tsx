@@ -108,16 +108,22 @@ function CommentItem({
               {comment.votos_up}
             </button>
           </div>
-          {hasReplies && (
-            <button
-              onClick={() => setShowReplies(!showReplies)}
-              className="text-accent text-xs font-semibold hover:underline cursor-pointer"
-            >
-              {showReplies
-                ? "Ocultar respuestas"
-                : `${comment.respuestas?.length} Respuestas`}
-            </button>
-          )}
+          <div className="flex items-center gap-5">
+            {hasReplies && (
+              <button
+                onClick={() => setShowReplies(!showReplies)}
+                className="text-accent text-xs font-semibold hover:underline cursor-pointer"
+              >
+                {showReplies
+                  ? "Ocultar respuestas"
+                  : `${comment.respuestas?.length} Respuestas`}
+              </button>
+            )}
+
+            {comment.id_user != user.id && (
+              <p className="font-semibold text-xs text-txt-sec">Responder</p>
+            )}
+          </div>
         </footer>
       </div>
       {showReplies && hasReplies && (
