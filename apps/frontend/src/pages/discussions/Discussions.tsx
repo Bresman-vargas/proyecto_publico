@@ -15,7 +15,7 @@ export default function Disscussions() {
         <div className="h-20 flex flex-col justify-center">
           <h1 className="font-bold text-xl">Mis Discusiones</h1>
           <p className="text-txt-sec text-pretty">
-            En está parte verás todas tus discusiones y su estado.
+            En esta parte verás todas tus discusiones y su estado.
           </p>
         </div>
         <Link

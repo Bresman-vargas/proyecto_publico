@@ -4,13 +4,11 @@ import {
   Dot,
   Flame,
   Hourglass,
-  Maximize2,
-  SquarePen,
-  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { comentariosData, type Comentario } from "./HarcoComments";
 
+//import { useAuth } from "../../context/AuthContext";
 
 export default function Comments() {
   return (
@@ -82,6 +80,20 @@ function CommentItem({
           </div>
           <div>
             
+            {/*{comment.id_user === user.id && (
+              <div className="flex gap-2">
+                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <Maximize2 size={15} />
+                </button>
+                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <SquarePen size={15} />
+                </button>
+                <button className="hover:text-err bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            )} */}
+
           </div>
         </header>
         <aside className="my-4">{comment.texto}</aside>
@@ -96,16 +108,22 @@ function CommentItem({
               {comment.votos_up}
             </button>
           </div>
-          {hasReplies && (
-            <button
-              onClick={() => setShowReplies(!showReplies)}
-              className="text-accent text-xs font-semibold hover:underline cursor-pointer"
-            >
-              {showReplies
-                ? "Ocultar respuestas"
-                : `${comment.respuestas?.length} Respuestas`}
-            </button>
-          )}
+          <div className="flex items-center gap-5">
+            {hasReplies && (
+              <button
+                onClick={() => setShowReplies(!showReplies)}
+                className="text-accent text-xs font-semibold hover:underline cursor-pointer"
+              >
+                {showReplies
+                  ? "Ocultar respuestas"
+                  : `${comment.respuestas?.length} Respuestas`}
+              </button>
+            )}
+
+            {comment.id_user != user.id && (
+              <p className="font-semibold text-xs text-txt-sec">Responder</p>
+            )}
+          </div>
         </footer>
       </div>
       {showReplies && hasReplies && (
