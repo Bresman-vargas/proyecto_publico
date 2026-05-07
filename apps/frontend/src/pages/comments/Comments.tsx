@@ -8,7 +8,7 @@ import {
 import { useState } from "react";
 import { comentariosData, type Comentario } from "./HarcoComments";
 
-//import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Comments() {
   return (
@@ -51,7 +51,7 @@ function CommentItem({
 }) {
   const [showReplies, setShowReplies] = useState(false);
   const hasReplies = comment.respuestas && comment.respuestas.length > 0;
-  //const {user} = useAuth();
+  const {user} = useAuth();
 
   return (
     <div className={`flex flex-col ${isReply ? "mt-2" : ""}`}>
@@ -79,21 +79,6 @@ function CommentItem({
             )}
           </div>
           <div>
-            
-            {/*{comment.id_user === user.id && (
-              <div className="flex gap-2">
-                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
-                  <Maximize2 size={15} />
-                </button>
-                <button className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
-                  <SquarePen size={15} />
-                </button>
-                <button className="hover:text-err bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer">
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            )} */}
-
           </div>
         </header>
         <aside className="my-4">{comment.texto}</aside>
