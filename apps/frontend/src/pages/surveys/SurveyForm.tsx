@@ -15,7 +15,7 @@ export default function SurveyForm() {
   const isEditMode = Boolean(id);
 
   const {
-    register, 
+    register,
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<EncuestaFormData>({
@@ -23,125 +23,89 @@ export default function SurveyForm() {
     mode: "onChange",
     defaultValues: {
       title: "",
-      descripcionEncuesta: "",
-      nombreAdmin: "",
-      nombreVotante: "",
-      apellidoPaternoVotante: "",
-      apellidoMaternoVotante: "",
-      voto: undefined,
+      description: "",
+      dateStart: new Date(),
+      dateEnd: new Date(),
     },
   });
 
   const onSubmit = (data: EncuestaFormData) => {
     console.log("Encuesta enviada:", data);
   };
-
   return (
-    <main className="center">
-      <section className="bg-bg-sec/50 p-4 border border-border rounded-md">
+    <section className="center">
+      <div className="bg-bg-sec/50 p-4 rounded-md border border-border">
         <header className="mb-8 col-span-2">
-          <div className="flex items-center gap-4">
+          <div className="flex  items-center gap-4">
             <Link to="/surveys" className="text-txt">
               <ArrowLeft />
             </Link>
-            <h1 className="text-2xl my-2 text-blue-400">
-              {isEditMode ? "Editar una Encuesta" : "Crear una Encuesta"}
+            <h1 className="text-2xl my-2">
+              {isEditMode ? "Editar una encuesta" : "Crear una encuesta"}
             </h1>
           </div>
           <p className="text-txt-sec text-pretty md:w-8/12">
             {isEditMode
-              ? "Modifica los campos necesarios para actualizar la información de la encuesta."
-              : "Creación de la encuesta con la propuesta."}
+              ? "Modifica los campos necesarios para actualizar la información de la encuesta dentro de este foro."
+              : "En este formulario podrás crear tus propias encuestas que la comunidad podrá votar y decidir."}
           </p>
         </header>
-
         <form
-          className="grid grid-cols-4 gap-x-4 px-4 pt-8"
+          className="grid grid-cols-2 gap-x-4 bg-bg border border-border px-4 rounded-md py-8"
           onSubmit={handleSubmit(onSubmit)}
         >
           <InputForm
-            label="Título de Encuesta"
+            className="col-span-2"
+            label="Title"
             name="title"
-            placeholder="Escribe el título"
-            register={register}
+            placeholder=""
             errors={errors}
+            register={register}
             require={true}
-            className="col-span-2"
           />
-
           <TextAreaForm
-            label="Descripción"
-            name="descripcionEncuesta"
-            placeholder="Escribe la descripción"
-            register={register}
-            errors={errors}
-            require={true}
             className="col-span-2"
-          />
-
-          <h2 className="text-blue-400 text-2xl col-span-4">
-            Verificación Admin
-          </h2>
-
-          <InputForm
-            label="Campo 1"
-            name="nombreAdmin"
-            placeholder="placeholder"
-            register={register}
+            label="Description"
+            name="description"
+            placeholder=""
             errors={errors}
+            register={register}
             require={true}
           />
+          <label>
+            <p className="mb-3">Fecha inicio</p>
+            <input
+              type="date"
+              name=""
+              id=""
+              className="w-full outline-0 px-4 py-1 bg-bg-sec border border-border rounded-md"
+            />
+          </label>
 
-          <InputForm
-            label="Campo 2"
-            name="adminCampo2"
-            placeholder="placeholder"
-            register={register}
-            errors={errors}
-            require={true}
-          />
-
-          <InputForm
-            label="Campo 3"
-            name="adminCampo3"
-            placeholder="placeholder"
-            register={register}
-            errors={errors}
-            require={true}
-          />
-
-          <InputForm
-            label="Campo 4"
-            name="adminCampo4"
-            placeholder="placeholder"
-            register={register}
-            errors={errors}
-          />
-
-          <h2 className="text-blue-400 text-2xl">Voto</h2>
-
-          <div>
-            <label>
-              <span>A favor</span>
-              <input type="radio" value="favor" {...register("voto")} />
-            </label>
-
-            <label>
-              <span>En contra</span>
-              <input type="radio" value="contra" {...register("voto")} />
-            </label>
+          <label>
+            <p className="mb-3">Fecha término</p>
+            <input
+              type="date"
+              name=""
+              id=""
+              className="w-full outline-0 px-4 py-1 bg-bg-sec border border-border rounded-md"
+            />
+          </label>
+          <div className="py-4 col-span-2">
+            <button
+              className={`rounded-md px-4 py-2 w-full ${
+                isValid
+                  ? "bg-accent cursor-pointer text-bg"
+                  : "bg-accent/20 cursor-not-allowed text-txt"
+              }`}
+              type="submit"
+              disabled={!isValid}
+            >
+              {isEditMode ? "Editar encuesta" : "Agregar encuesta"}
+            </button>
           </div>
-
-          <div>{errors.voto && <span>{errors.voto.message}</span>}</div>
         </form>
-        <button
-          type="submit"
-          disabled={!isValid}
-          className="right-full hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer"
-        >
-          Mandar
-        </button>
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }

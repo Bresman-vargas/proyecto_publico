@@ -1,48 +1,45 @@
 import * as z from "zod";
+const MAXTEXT = 25;
 export const surveySchema = z.object({
   title: z
-    .string({ required_error: "El título es requerido" })
+    .string({ required_error: "El título es requerido." })
     .trim()
-    .min(1, "No puede estar vacío")
-    .max(100, "El título no puede tener más de 100 caracteres"),
+    .min(1, "No puede estar vacío.")
+    .max(MAXTEXT, `El título no puede tener más de ${MAXTEXT} caracteres.`),
 
-  nombreAdmin: z
-    .string({ required_error: "El nombre del administrador es requerido" })
+  description: z
+    .string({ required_error: "La descripción es obligatoria." })
     .trim()
-    .min(1, "No puede estar vacío")
-    .max(50, "El nombre del administrador no puede tener más de 50 caracteres"),
+    .min(1, "No puede estar vació.")
+    .max(125, "Máximo 125 caracteres."),
 
-  descripcionEncuesta: z
-    .string()
+  option1: z
+    .string({ required_error: "El título es requerido." })
     .trim()
-    .min(1, "La descripción no puede estar vacía")
-    .max(500, "La descripción no puede tener  más de 500 caracteres"),
+    .min(1, "No puede estar vacío.")
+    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
 
-  nombreVotante: z
-    .string({ required_error: "El nombre del votante es requerido" })
+  option2: z
+    .string({ required_error: "El título es requerido." })
     .trim()
-    .min(1, "No puede estar vacío")
-    .max(50, "El nombre del votante no puede tener más de 50 caracteres"),
+    .min(1, "No puede estar vacío.")
+    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
 
-  apellidoPaternoVotante: z
-    .string({ required_error: "El apellido paterno del votante es requerido" })
+  option3: z.string().trim().max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
+
+  option4: z
+    .string({ required_error: "El título es requerido." })
     .trim()
-    .min(1, "No puede estar vacío")
-    .max(
-      50,
-      "El apellido paterno del votante no puede tener más de 50 caracteres",
-    ),
+    .min(1, "No puede estar vacío.")
+    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
 
-  apellidoMaternoVotante: z
-    .string({ required_error: "El apellido paterno del votante es requerido" })
+  option5: z
+    .string({ required_error: "El título es requerido." })
     .trim()
-    .min(1, "No puede estar vacío")
-    .max(
-      50,
-      "El apellido paterno del votante no puede tener más de 50 caracteres",
-    ),
+    .min(1, "No puede estar vacío.")
+    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
 
-  voto: z.enum(["favor", "contra"], {
-    required_error: "Debes seleccionar una opción de voto",
-  }),
+  dateStart: z.date(),
+
+  dateEnd: z.date(),
 });
