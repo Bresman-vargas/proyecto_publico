@@ -23,7 +23,7 @@ const PageLoader = () => (
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth();
 
-  const devMode = true; 
+  const devMode = false; 
 
   const canAccess = devMode || isAuthenticated;
 
