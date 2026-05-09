@@ -13,31 +13,18 @@ export const surveySchema = z.object({
     .min(1, "No puede estar vació.")
     .max(125, "Máximo 125 caracteres."),
 
-  option1: z
-    .string({ required_error: "El título es requerido." })
-    .trim()
-    .min(1, "No puede estar vacío.")
-    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
-
-  option2: z
-    .string({ required_error: "El título es requerido." })
-    .trim()
-    .min(1, "No puede estar vacío.")
-    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
-
-  option3: z.string().trim().max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
-
-  option4: z
-    .string({ required_error: "El título es requerido." })
-    .trim()
-    .min(1, "No puede estar vacío.")
-    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
-
-  option5: z
-    .string({ required_error: "El título es requerido." })
-    .trim()
-    .min(1, "No puede estar vacío.")
-    .max(MAXTEXT, `Máximo ${MAXTEXT} caracteres.`),
+  options: z
+    .array(
+      z.object({
+        texto: z
+          .string()
+          .trim()
+          .min(1, "La opción no puede estar vacía")
+          .max(50, "Máximo 50 caracteres"),
+      }),
+    )
+    .min(2, "Debes agregar al menos 2 opciones")
+    .max(5, "Puedes agregar máximo 5 opciones"),
 
   dateStart: z.date(),
 
