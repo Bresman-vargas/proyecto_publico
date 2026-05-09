@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useParams } from "react-router-dom";
@@ -17,6 +17,7 @@ export default function SurveyForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
   } = useForm<EncuestaFormData>({
     resolver: zodResolver(surveySchema),
@@ -24,9 +25,25 @@ export default function SurveyForm() {
     defaultValues: {
       title: "",
       description: "",
+      options: [{ texto: "" }, { texto: "" }],
       dateStart: new Date(),
       dateEnd: new Date(),
     },
+  });
+
+  const addOption = () => {
+    if (fields.length >= 5) return;
+    append({ texto: "" });
+  };
+
+  const removeOption = (index: number) => {
+    if (fields.length <= 2) return;
+    remove(index);
+  };
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
   });
 
   const onSubmit = (data: EncuestaFormData) => {
@@ -91,6 +108,68 @@ export default function SurveyForm() {
               className="w-full outline-0 px-4 py-1 bg-bg-sec border border-border rounded-md"
             />
           </label>
+
+          <section className="col-span-2 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg">Opciones de voto</h2>
+
+              {fields.length < 5 && (
+                <button
+                  type="button"
+                  onClick={addOption}
+                  className="cursor-pointer rounded-md px-4 py-2 bg-accent text-bg"
+                >
+                  Agregar opción
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {fields.map((field, index) => (
+                <div key={field.id}>
+                  <label className="text-txt-sec flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                      <span>
+                        Opción {index + 1}:{index < 2 && " *"}
+                      </span>
+
+                      {index >= 2 && (
+                        <button
+                          type="button"
+                          onClick={() => removeOption(index)}
+                          className="cursor-pointer text-err text-sm rounded-md px-4 py-2"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+
+                    <input
+                      className="bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30"
+                      placeholder={`Opción ${index + 1}`}
+                      {...register(`options.${index}.texto`)}
+                    />
+                  </label>
+
+                  <div className="h-8 flex items-center">
+                    {errors.options?.[index]?.texto && (
+                      <span className="text-err text-sm">
+                        {errors.options[index]?.texto?.message as string}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {fields.length >= 5 && (
+              <p className="text-txt-sec text-sm mt-2">
+                Máximo 5 opciones permitidas.
+              </p>
+            )}
+          </section>
+
+
           <div className="py-4 col-span-2">
             <button
               className={`rounded-md px-4 py-2 w-full ${
