@@ -1,4 +1,4 @@
- import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface TextAreaProps {
   label: string;
@@ -9,6 +9,7 @@ interface TextAreaProps {
   className?: string;
   require?: boolean;
   rows?: number;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export default function TextAreaForm({
@@ -20,6 +21,7 @@ export default function TextAreaForm({
   className,
   require = false,
   rows = 4,
+  onChange,
 }: TextAreaProps) {
   return (
     <div className={className}>
@@ -27,16 +29,15 @@ export default function TextAreaForm({
         <div className="flex gap-1">
           {label}:{require && <span className="text-txt-sec">*</span>}
         </div>
-
         <textarea
           className="bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30 resize-none"
           placeholder={placeholder}
           autoComplete="off"
           rows={rows}
           {...register(name)}
+          onChange={onChange ?? register(name).onChange}
         />
       </label>
-
       <div className="h-8 flex items-center">
         {errors[name] && (
           <span className="text-err text-sm">

@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import { lazy } from "react";
 import Discussions from "./pages/discussions/Discussions";
 import DiscussionForm from "./pages/discussions/DiscussionForm";
-import Prueba from "./pages/forums/Prueba";
+import newForum from "./pages/forums/newForum";
 import Explore from "./pages/Explore";
 import Comments from "./pages/comments/Comments";
 import Settings from "./pages/Settings";
@@ -37,7 +37,7 @@ export const routes: RouteConfig[] = [
   { path: "/settings", component: Settings, private: true },
 
   { path: "/forums", component: Forums, private: true },
-  { path: "/papu", component: Prueba, private: true },
+  { path: "/newforum", component: newForum, private: true },
 
   { path: "/poll", component: Poll, private: true },
 
