@@ -137,7 +137,8 @@ export default function Forums() {
     );
   });
 
-  const abrirModal = (foro: ForumData) => {
+  const abrirModal = (e: React.MouseEvent, foro: ForumData) => {
+    e.preventDefault(); // evita que el Link del card navegue al hacer click en editar
     setForoEditando(foro);
     reset({
       titulo: foro.titulo,
@@ -186,16 +187,17 @@ export default function Forums() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-bg-sec p-4">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
         {forosFiltrados.length === 0 ? (
           <p className="text-txt-sec col-span-2 text-center py-10">
             No se encontraron foros para "{busqueda}"
           </p>
         ) : (
           forosFiltrados.map((foro) => (
-            <section
+            <Link
+              to={`/forums/${foro.id}`}
               key={foro.id}
-              className="w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden"
+              className="w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors"
             >
               <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
                 <div className="flex items-start justify-between">
@@ -204,7 +206,7 @@ export default function Forums() {
                     <h2 className="font-bold text-xl">{foro.titulo}</h2>
                   </div>
                   <button
-                    onClick={() => abrirModal(foro)}
+                    onClick={(e) => abrirModal(e, foro)}
                     className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-accent bg-bg hover:bg-accent/10 transition-colors flex-shrink-0"
                   >
                     <Pencil size={14} />
@@ -224,14 +226,14 @@ export default function Forums() {
                 <p className="py-5">{foro.descripcion}</p>
               </div>
 
-              <aside className="row-start-1 flex flex-col w-full w-fit justify-between">
+              <aside className="row-start-1 flex flex-col w-full justify-between">
                 <img
                   src={foro.imagen}
                   alt={foro.titulo}
                   className="w-full h-48 md:h-full object-cover"
                 />
               </aside>
-            </section>
+            </Link>
           ))
         )}
       </section>
@@ -270,7 +272,6 @@ export default function Forums() {
                   register("titulo").onChange(e);
                 }}
               />
-
               <SelectForm
                 label="Categoría"
                 name="categoria"
@@ -280,7 +281,6 @@ export default function Forums() {
                 placeholder="Selecciona una categoría"
                 require
               />
-
               <TextAreaForm
                 label="Descripción"
                 name="descripcion"
@@ -292,7 +292,6 @@ export default function Forums() {
                   register("descripcion").onChange(e);
                 }}
               />
-
               <InputForm
                 label="URL de Imagen"
                 name="imagen"
@@ -301,7 +300,6 @@ export default function Forums() {
                 errors={errors}
                 require
               />
-
               <div className="flex justify-end gap-3 mt-2">
                 <button
                   type="button"
