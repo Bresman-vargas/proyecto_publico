@@ -2,6 +2,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Forums from "./pages/forums/Forums";
 import Home from "./pages/Home";
+import ForumDetail from "./pages/forums/ForumDetails";
 
 import { lazy } from "react";
 import Discussions from "./pages/discussions/Discussions";
@@ -45,7 +46,9 @@ export const routes: RouteConfig[] = [
   { path: "/surveys", component: Surveys, private: true },
 
   { path: "/surveys/new", component: SurveyForm, private:true},
-  { path: "/surveys/edit/:id", component: SurveyForm, private: true }
+  { path: "/surveys/edit/:id", component: SurveyForm, private: true },
+  { path: "/forum", component: ForumDetail, private: true },
+  { path: "/forums/:id", component: ForumDetail, private: true }
 ];
 
 
