@@ -9,6 +9,7 @@ interface InputProps {
   errors: FieldErrors<any>;
   className?: string;
   require?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function InputForm({
@@ -20,6 +21,7 @@ export default function InputForm({
   errors,
   className,
   require = false,
+  onChange,
 }: InputProps) {
   return (
     <div className={className}>
@@ -28,14 +30,15 @@ export default function InputForm({
           {label}:{require && <span className="text-txt-sec">*</span>}
         </div>
         <input
-          className={`bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30`}
+          className="bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30"
           type={type}
           placeholder={placeholder}
           autoComplete="off"
           {...register(name)}
+          onChange={onChange ?? register(name).onChange}
         />
       </label>
-      <div className="h-8 flex items-center ">
+      <div className="h-8 flex items-center">
         {errors[name] && (
           <span className="text-err text-sm">
             {errors[name]?.message as string}
