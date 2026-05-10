@@ -27,7 +27,7 @@ El proyecto emplea un stack moderno para garantizar escalabilidad y una experien
 ## 📸 Evidencias Visuales y Prototipado
 
 ### Vista General
-<video src="https://github.com/user-attachments/assets/3a3d7eb6-6e9d-4015-b0be-317a53b72ca3" controls width="600">
+<video src="https://github.com/user-attachments/assets/3a3d7eb6-6e9d-4015-b0be-317a53b72ca3" width="600"></video>
 
 ### Diseño en Figma
 El diseño de la interfaz y la experiencia de usuario se centralizó en Figma.
