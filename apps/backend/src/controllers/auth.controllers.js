@@ -46,6 +46,7 @@ export const register = async (req, res) => {
       email: user.email,
     });
   } catch (error) {
+    console.error("ERROR REAL:", error);
     if (error.message === "ALREADY_REGISTERED_USER") {
       return res.status(401).json({ message: "Usuario ya registrado" });
     }
@@ -85,3 +86,12 @@ export const verifyToken = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const getRegions = async (req, res) => {
+  try {
+    const regions = await authService.getAllRegions();
+    return res.status(200).json(regions);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}

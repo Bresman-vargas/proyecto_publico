@@ -1,9 +1,8 @@
-import { createPool } from "mysql2/promise";
+import pg from "pg";
+const { Pool } = pg;
+import { DB_CONFIG } from "./config.js";
+export const pool = new Pool(DB_CONFIG);
 
-export const pool = createPool({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "root",
-  database: "proyecto_publico",
+pool.on("error", (err) => {
+  console.error("Error inesperado en el pool de Postgres", err);
 });

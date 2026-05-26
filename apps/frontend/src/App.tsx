@@ -3,6 +3,7 @@ import { routes } from "./routes";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Suspense } from "react";
 import Layout from "./components/Layout";
+import Loader from "./components/Loader";
 
 function App() {
   return (
@@ -14,26 +15,16 @@ function App() {
   );
 }
 
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-bg">
-    <div className="animate-spin size-12 border-4 border-accent border-t-transparent rounded-full"></div>
-  </div>
-); 
-
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth();
 
-  const devMode = true; 
+  if (loading) return <Loader className="h-screen"/>;
 
-  const canAccess = devMode || isAuthenticated;
-
-  if (loading && !devMode) <PageLoader />;
-
-  const privateRoutes = routes.filter(r => r.private);
-  const publicRoutes = routes.filter(r => !r.private);
+  const privateRoutes = routes.filter((r) => r.private);
+  const publicRoutes = routes.filter((r) => !r.private);
 
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<Loader className="h-screen"/>}>
       <Routes>
         {/* PÚBLICAS*/}
         {publicRoutes.map((route, index) => (
@@ -41,7 +32,7 @@ function AppRouter() {
             key={`public-${index}`}
             path={route.path}
             element={
-              route.restricted && canAccess ? (
+              route.restricted && isAuthenticated ? (
                 <Navigate to="/explore" replace />
               ) : (
                 <route.component />
@@ -52,9 +43,7 @@ function AppRouter() {
 
         {/* PRIVADAS*/}
         <Route
-          element={
-            canAccess ? <Layout /> : <Navigate to="/login" replace />
-          }
+          element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
         >
           {privateRoutes.map((route, index) => (
             <Route

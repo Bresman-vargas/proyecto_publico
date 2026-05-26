@@ -9,6 +9,7 @@ import InputForm from "../../components/InputForm";
 import light from "../../../public/362shots_so.png";
 import dark from "../../../public/252shots_so.png";
 import { useTheme } from "../../context/ThemeContext";
+import ButtonLoading from "../../components/ButtonLoading";
 
 function Login() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function Login() {
     isAuthenticated,
     errors: loginErrors,
     clearErrors,
+    loading,
   } = useAuth();
 
   const {
@@ -106,17 +108,9 @@ function Login() {
               />
 
               <div className="py-4">
-                <button
-                  className={`rounded-md px-4 py-2 w-full ${
-                    isValid
-                      ? "bg-accent cursor-pointer text-bg"
-                      : "bg-accent/20 cursor-not-allowed text-txt"
-                  }`}
-                  type="submit"
-                  disabled={!isValid} // <-- Deshabilita si NO es válido
-                >
-                  Submit
-                </button>
+                <ButtonLoading loading={loading} isValid={isValid}>
+                  Crear cuenta
+                </ButtonLoading>{" "}
               </div>
 
               <div className="h-8">

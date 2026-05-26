@@ -19,7 +19,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "1",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-20T10:30:00"),
     fecha_edicion: null,
@@ -57,7 +57,7 @@ export const comentariosData: Comentario[] = [
           {
             id: "1-2-1",
             nombre: "Bresman",
-            id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+            id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
             apellido_paterno: "Pérez",
             fecha_creacion: new Date("2026-04-20T12:00:00"),
             fecha_edicion: null,
@@ -75,7 +75,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "2",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-21T09:10:00"),
     fecha_edicion: null,
@@ -101,7 +101,7 @@ export const comentariosData: Comentario[] = [
           {
             id: "2-1-1",
             nombre: "Bresman",
-            id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+            id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
             apellido_paterno: "Pérez",
             fecha_creacion: new Date("2026-04-21T10:30:00"),
             fecha_edicion: null,
@@ -119,7 +119,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "3",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-21T11:45:00"),
     fecha_edicion: null,
@@ -146,7 +146,7 @@ export const comentariosData: Comentario[] = [
           {
             id: "3-1-1",
             nombre: "Bresman",
-            id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+            id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
             apellido_paterno: "Pérez",
             fecha_creacion: new Date("2026-04-21T12:45:00"),
             fecha_edicion: null,
@@ -164,7 +164,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "4",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-21T13:20:00"),
     fecha_edicion: null,
@@ -191,7 +191,7 @@ export const comentariosData: Comentario[] = [
           {
             id: "4-1-1",
             nombre: "Bresman",
-            id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+            id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
             apellido_paterno: "Pérez",
             fecha_creacion: new Date("2026-04-21T15:00:00"),
             fecha_edicion: null,
@@ -209,7 +209,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "5",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-22T08:30:00"),
     fecha_edicion: null,
@@ -236,7 +236,7 @@ export const comentariosData: Comentario[] = [
           {
             id: "5-1-1",
             nombre: "Bresman",
-            id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+            id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
             apellido_paterno: "Pérez",
             fecha_creacion: new Date("2026-04-22T10:00:00"),
             fecha_edicion: null,
@@ -253,7 +253,7 @@ export const comentariosData: Comentario[] = [
   {
     id: "6",
     nombre: "Bresman",
-    id_user: "fe475a03-d51d-4ca0-8f94-060d9a46530d", 
+    id_user: "e7853eda-20a1-4694-b9b1-4cb6b1c8c03f", 
     apellido_paterno: "Pérez",
     fecha_creacion: new Date("2026-04-22T15:30:00"),
     fecha_edicion: null,

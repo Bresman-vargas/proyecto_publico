@@ -45,7 +45,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
       >
         <header className="border-b border-border h-15 flex items-center justify-between px-4">
           {expanded && (
-            <div className="flex items-center h-full">
+            <Link to="/explore" className="flex items-center h-full">
               <div className="text-accent">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
                   </g>
                 </svg>
               </div>
-            </div>
+            </Link>
           )}
 
           <div

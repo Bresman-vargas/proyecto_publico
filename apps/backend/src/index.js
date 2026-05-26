@@ -1,5 +1,5 @@
 import app from "./app.js";
-import { PORT } from "./cofing.js";
+import { PORT } from "./config.js";
 
 async function main() {
   try {

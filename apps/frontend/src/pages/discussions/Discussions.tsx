@@ -1,27 +1,90 @@
-import { RotateCw, SquarePen, Search, SearchX, Lightbulb } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { discussions } from "./HarcoDiscussions";
-import { useState, useMemo } from "react";
+import { Search, Lightbulb, CirclePlus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { type DiscussionData, HarcoDiscussions } from "./HarcoDiscussions";
+import { useState, useEffect, useMemo } from "react";
+import * as discussionsApi from "../../api/discussions";
+import { useAuth } from "../../context/AuthContext";
+import DiscussionCard from "../../components/DiscussionsCard";
+import Loader from "../../components/Loader";
 
-export default function Disscussions() {
+export default function Discussions() {
+  const { user, devMode } = useAuth();
   const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [discussions, setDiscussions] = useState<DiscussionData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const filteredDiscussions = useMemo(() => {
-    return discussions.filter((dis) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        dis.title.toLowerCase().includes(searchLower) ||
-        dis.subtitle.toLowerCase().includes(searchLower) ||
-        dis.category.toLowerCase().includes(searchLower) ||
-        dis.keywords.some((kw) => kw.toLowerCase().includes(searchLower))
-      );
-    });
-  }, [searchTerm]);
+    if (!searchTerm.trim()) return discussions;
 
-  const hanleEdit = (id: string | number) => {
+    const lowerSearch = searchTerm.toLowerCase();
+    
+    return discussions.filter((dis) => {
+      const matchTitle = dis.title?.toLowerCase().includes(lowerSearch);
+      const matchCategory = dis.category?.toLowerCase().includes(lowerSearch);
+      const matchKeywords = dis.keywords?.some((word) =>
+        word.toLowerCase().includes(lowerSearch)
+      );
+      
+      return matchTitle || matchCategory || matchKeywords;
+    });
+  }, [searchTerm, discussions]);
+
+  const fetchDiscussions = async () => {
+    if (!user?.id) return;
+    try {
+      setLoading(true);
+      const response = await discussionsApi.discussionsByUser(user.id);
+      setDiscussions(response);
+    } catch (err) {
+      setError("No se pudieron cargar las discusiones.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (devMode) {
+      setDiscussions(HarcoDiscussions);
+      setLoading(false);
+      return;
+    }
+    fetchDiscussions();
+  }, [user, devMode]);
+
+  const handledEdit = (id: string) => {
+    if (devMode) return;
     navigate(`/discussions/edit/${id}`);
   };
+
+  const handledDelete = async (id: string) => {
+    if (devMode) return;
+    try {
+      await discussionsApi.delateDiscussion(id);
+      await fetchDiscussions();
+    } catch (error) {
+      console.error("No se pudo eliminar:", error);
+    }
+  };
+
+  const handledActive = async (id: string) => {
+    if (devMode) return;
+
+    try {
+      setLoading(true);
+      await discussionsApi.editDiscussionState(id);
+      await fetchDiscussions();
+    } catch (error) {
+      console.error("No se pudo alternar el estado:", error);
+    }
+  };
+
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
+
+  if (error) return <div className="p-4 text-err text-center">{error}</div>;
+
   return (
     <section>
       <header className="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
@@ -31,8 +94,8 @@ export default function Disscussions() {
             En esta parte verás todas tus discusiones y su estado.
           </p>
         </div>
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          <div className="relative w-100">
+        <div className="flex items-center flex-col md:flex-row gap-3 w-full md:w-auto">
+          <div className="relative w-full xl:w-100">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-sec"
               size={18}
@@ -45,112 +108,73 @@ export default function Disscussions() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          {!devMode && (
+            <Link
+              to="/discussions/new"
+              className="border text-nowrap w-full md:w-fit border-border px-5 py-2 bg-bg font-bold rounded-md flex justify-center gap-4 capitalize"
+            >
+              <CirclePlus className="text-accent" /> Crear un foro
+            </Link>
+          )}
         </div>
       </header>
       {filteredDiscussions.length > 0 ? (
-        <div className="bg-bg-sec p-4 rounded-md grid grid-cols-1 xl:grid-cols-2 gap-8">
-          {filteredDiscussions.map((dis, index) => (
-            <section
-              className="rounded-md text-base/9 flex flex-col justify-start"
-              key={index}
+        <div className="bg-bg-sec p-4 rounded-md grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {filteredDiscussions.map((dis) => (
+            <DiscussionCard
+              key={dis.id}
+              dis={dis}
+              devMode={devMode}
+              onActiveToggle={handledActive}
+              onEdit={handledEdit}
+              onDelete={handledDelete}
             >
-              <header className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border">
-                <section className="flex justify-between items-center gap-4">
-                  <h1 className="text-xl font-bold text-pretty">{dis.title}</h1>
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`text-nowrap relative cursor-pointer font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm ${dis.isActive ? "text-ok" : "text-err"}`}
-                    >
-                      <span
-                        className={`absolute -top-1 -right-1 animate-ping size-3 rounded-full ${dis.isActive ? "bg-ok" : "bg-err"}`}
-                      ></span>
-                      <span
-                        className={`absolute -top-1 -right-1 size-3 rounded-full ${dis.isActive ? "bg-ok" : "bg-err"}`}
-                      ></span>
-                      <RotateCw size={15} className="hidden md:block" />
-                      {dis.isActive ? "Activo" : "No activo"}
-                    </span>
-                    <button
-                      onClick={() => hanleEdit(dis.id)}
-                      className="hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer"
-                    >
-                      <SquarePen />
-                    </button>
-                  </div>
-                </section>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 bg-bg-sec px-4 m-2 border border-border rounded-b-md animate-in fade-in duration-300">
+                <p className="font-bold text-nowrap truncate">Estado:</p>
+                <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
+                  {dis.is_active ? "Activo" : "Inactivo"}
+                </p>
+                <p className="font-bold text-nowrap truncate">Creado:</p>
+                <p className="text-txt-sec text-nowrap truncate">
+                  {formatDate(dis.created_at)}
+                </p>
 
-                <section>
-                  <p className="text-txt-sec">{dis.subtitle}</p>
-                  <p className="text-base/normal">{dis.content}</p>
-                  <div className="flex flex-wrap gap-2 my-4">
-                    {dis.keywords.map((word, index) => (
-                      <div
-                        className="text-sm px-4 py-1 bg-accent/10 text-accent rounded-full border border-accent/50"
-                        key={index}
-                      >
-                        #{word}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              </header>
-              <section className="bg-bg border border-border rounded-b-md">
-                <div className="bg-bg col-span-4 text-center border-b border-border rounded-t-md font-bold text-txt-sec">
-                  Detalle
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 bg-bg-sec px-4 m-2 border border-border rounded-b-md">
-                  {/* Fila 1 */}
-                  <p className="font-bold text-nowrap truncate">Estado:</p>
-                  <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
-                    {dis.isActive ? "Activo" : "Inactivo"}
-                  </p>
-                  <p className="font-bold text-nowrap truncate">Creado:</p>
-                  <p className="text-txt-sec text-nowrap truncate">
-                    {formatDate(dis.createdAt)}
-                  </p>
+                <p className="font-bold">Razón:</p>
+                <p className="border-r lg:border-border border-transparent text-txt-sec truncate">
+                  {dis.reason}
+                </p>
+                <p className="font-bold text-nowrap truncate">Editado:</p>
+                <p className="text-txt-sec text-nowrap truncate">
+                  {formatDate(dis.updated_at)}
+                </p>
 
-                  {/* Fila 2 */}
-                  <p className="font-bold">Razón:</p>
-                  <p className="border-r lg:border-border border-transparent text-txt-sec truncate">
-                    {dis.reason}
-                  </p>
-                  <p className="font-bold text-nowrap truncate">Editado:</p>
-                  <p className="text-txt-sec text-nowrap truncate">
-                    {formatDate(dis.updatedAt)}
-                  </p>
-
-                  {/* Fila 3 */}
-                  <p className="font-bold text-nowrap truncate">Resuelto:</p>
-                  <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
-                    {formatDate(dis.resolvedAt) || "Pendiente"}
-                  </p>
-                  <p className="font-bold">Foro:</p>
-                  <p className="text-txt-sec text-nowrap truncate ">
-                    {dis.category}
-                  </p>
-                </div>
-              </section>
-            </section>
+                <p className="font-bold text-nowrap truncate">Resuelto:</p>
+                <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
+                  {formatDate(dis.resolvedAt) || "Pendiente"}
+                </p>
+                <p className="font-bold">Foro:</p>
+                <p className="text-txt-sec text-nowrap truncate">
+                  {dis.category}
+                </p>
+              </div>
+            </DiscussionCard>
           ))}
         </div>
       ) : (
         <div className="bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
           <div className="bg-bg p-4 mb-4 rounded-full">
-            <Lightbulb
-              size={60}
-              className="text-txt/30"
-            />
+            <Lightbulb size={60} className="text-txt/30" />
           </div>
           <h2 className="text-xl font-bold text-txt">
-            {discussions.length > 0
-              ? "Aún no tienes discusiones"
-              : `No hay resultados para "${searchTerm}"`}
+            {searchTerm !== ""
+              ? `No hay resultados para "${searchTerm}"`
+              : "Aún no tienes discusiones"}
           </h2>
 
           <p className="text-txt-sec mt-2">
-            {discussions.length > 0
-              ? "Comienza creando tu primera discusión para interactuar con la comunidad."
-              : "Intenta ajustar los términos de búsqueda o filtros."}
+            {searchTerm !== ""
+              ? "Intenta ajustar los términos de búsqueda o filtros."
+              : "Comienza creando tu primera discusión para interactuar con la comunidad."}
           </p>
 
           {searchTerm && (

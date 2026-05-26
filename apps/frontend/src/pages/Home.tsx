@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import CardLandig from "../components/CardLandig";
 import HeaderLandig from "../components/HeaderLandig";
 function Home() {
@@ -14,9 +15,9 @@ function Home() {
               Tu voz construye nuestra comuna.
             </p>
             <div className="py-4">
-              <button className="bg-bg-sec px-4 py-2 rounded-md border border-border">
+              <Link to="/explore" className="bg-bg-sec px-4 py-2 rounded-md border border-border">
                 Sumar mi voz
-              </button>
+              </Link>
             </div>
           </div>
         </div>
