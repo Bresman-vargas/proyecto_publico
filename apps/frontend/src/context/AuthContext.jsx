@@ -17,11 +17,22 @@ export const useAuth = () => {
   return context;
 };
 
+const DEV_MODE = false; // Cambiar a false en producción
+
+const MOCK_USER = {
+  id: "dev-user-123",
+  username: "Developer_Harco",
+  email: "dev@harco.com",
+  role: "admin",
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(DEV_MODE ? MOCK_USER : null);
   const [errors, setErrors] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    DEV_MODE ? true : false,
+  );
+  const [loading, setLoading] = useState(DEV_MODE ? false : true);
 
   useEffect(() => {
     if (errors.length > 0) {
@@ -38,30 +49,41 @@ export const AuthProvider = ({ children }) => {
   };
 
   const registar = async (data) => {
+    setLoading(true);
     try {
       const res = await registerRequest(data);
       setUser(res.data);
       setIsAuthenticated(true);
+      setLoading(false);
     } catch (error) {
-      const errorMsg = error.response.data.message;
+      const errorMsg = error.response?.data?.message || "Error al registrar";
       setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
+      setIsAuthenticated(false);
+      setLoading(false);
     }
   };
 
   const login = async (data) => {
+    setLoading(true);
     try {
       const res = await loginRequest(data);
       setUser(res.data);
       setIsAuthenticated(true);
+      setLoading(false);
     } catch (error) {
-      const errorMsg = error.response.data.message;
+      const errorMsg =
+        error.response?.data?.message || "Error al iniciar sesión";
       setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
+      setIsAuthenticated(false);
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      await logoutRequest();
+      if (!DEV_MODE) {
+        await logoutRequest();
+      }
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
@@ -70,23 +92,31 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (DEV_MODE) {
+      return;
+    }
     const checkLogin = async () => {
+      const cookies = Cookies.get();
+
+      if (!cookies.token) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        setUser(null);
+        return;
+      }
+
       try {
         const res = await verifyTokenRequest();
-
         if (!res.data) {
           setIsAuthenticated(false);
-          setUser(null);
-          setLoading(false);
-          return;
+        } else {
+          setIsAuthenticated(true);
+          setUser(res.data);
         }
-
-        setIsAuthenticated(true);
-        setUser(res.data);
-        setLoading(false);
       } catch (error) {
         setIsAuthenticated(false);
         setUser(null);
+      } finally {
         setLoading(false);
       }
     };
@@ -104,7 +134,8 @@ export const AuthProvider = ({ children }) => {
         errors,
         isAuthenticated,
         user,
-        loading
+        loading,
+        devMode: DEV_MODE,
       }}
     >
       {children}

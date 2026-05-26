@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { TOKEN_SECRET } from "../cofing.js";
+import { TOKEN_SECRET } from "../config.js";
 
 export const auth = (req, res, next) => {
   try {

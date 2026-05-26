@@ -5,6 +5,7 @@ import {
   register,
   logout,
   verifyToken,
+  getRegions,
 } from "../controllers/auth.controllers.js";
 import { validateSchema } from "../middleware/validator.middleware.js";
 import { loginSchema, registerSchema } from "@proyecto_publico/schemas";
@@ -15,7 +16,6 @@ auth_router.post("/login", validateSchema(loginSchema), login);
 auth_router.post("/register", validateSchema(registerSchema), register);
 auth_router.post("/logout", logout);
 auth_router.get("/verify", verifyToken);
+auth_router.get("/regiones", getRegions);
 
-//prueba-pull-bresman
-//prueba-pull-julian
 export default auth_router;

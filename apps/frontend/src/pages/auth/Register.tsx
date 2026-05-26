@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
 import { ArrowLeft, OctagonAlert } from "lucide-react";
+import ButtonLoading from "../../components/ButtonLoading";
+import SelectForm from "../../components/SelectForm";
+
 export default function Register() {
   const navigate = useNavigate();
   const {
@@ -32,6 +35,7 @@ export default function Register() {
 
   const {
     registar,
+    loading,
     isAuthenticated,
     errors: registerErrors,
     clearErrors,
@@ -48,6 +52,12 @@ export default function Register() {
   const onSubmit = async (data: any) => {
     await registar(data);
   };
+
+  const categoryOptions = [
+    { value: 1, label: "Visble" },
+    { value: 0, label: "Oculto" },
+  ];
+  
   return (
     <main className="flex justify-center md:items-center  md:h-lvh">
       <section className="bg-bg-sec/50 p-4 w-4xl rounded-md border border-border">
@@ -135,6 +145,15 @@ export default function Register() {
               errors={errors}
               className="col-span-4 md:col-span-2"
             />
+            <SelectForm
+              label="Visibilidad"
+              name="id_region"
+              register={register}
+              errors={errors}
+              options={categoryOptions}
+              require={true}
+
+            />
             <InputForm
               label="Contraseña"
               placeholder="******"
@@ -165,17 +184,9 @@ export default function Register() {
             </div>
 
             <div className="col-span-4  md:col-start-3 md:col-span-2 py-4">
-              <button
-                className={` rounded-md px-4 py-2 w-full ${
-                  isValid
-                    ? "bg-accent cursor-pointer text-zinc-50"
-                    : "bg-accent/20 cursor-not-allowed text-txt"
-                }`}
-                type="submit"
-                disabled={!isValid} // <-- Deshabilita si NO es válido
-              >
-                Submit
-              </button>
+              <ButtonLoading loading={loading} isValid={isValid}>
+                Registrar
+              </ButtonLoading>
             </div>
 
             <div className="h-8 col-span-4 mb-4">

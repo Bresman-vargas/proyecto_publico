@@ -3,18 +3,18 @@ import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessToken } from "../libs/jwt.js";
 import jwt from "jsonwebtoken";
-import { TOKEN_SECRET } from "../cofing.js";
+import { TOKEN_SECRET } from "../config.js";
 
 export const loginUser = async (email, password) => {
-  const [users] = await pool.query("SELECT * FROM usuarios WHERE email = ?", [
+  const { rows } = await pool.query("SELECT * FROM usuarios WHERE email = $1", [
     email,
   ]);
 
-  if (users.length === 0) {
+  const user = rows[0];
+
+  if (!user) {
     throw new Error("USER_NOT_FOUND");
   }
-
-  const user = users[0];
 
   const isMatch = await bcrypt.compare(password, user.password_hash);
 
@@ -52,17 +52,20 @@ export const registerUser = async (dataUser) => {
     acepta_terminos,
   } = dataUser;
 
-  const [existingUser] = await pool.query(
-    "SELECT * FROM usuarios WHERE rut_cuerpo = ? or email = ?",
+  const { rows } = await pool.query(
+    "SELECT * FROM usuarios WHERE rut_cuerpo = $1 OR email = $2",
     [rut_cuerpo, email],
   );
 
-  if (existingUser.length > 0) {
+  if (rows.length > 0) {
     throw new Error("ALREADY_REGISTERED_USER");
   }
 
   const userId = uuidv4();
   const password_hash = await bcrypt.hash(password, 10);
+
+  const aceptaTerminosNumeric =
+    acepta_terminos === true || acepta_terminos === "true" ? 1 : 0;
 
   await pool.query(
     `
@@ -70,7 +73,7 @@ export const registerUser = async (dataUser) => {
           id, nombre, nombre2, apellido_paterno, apellido_materno, 
           rut_cuerpo, rut_dv, email, id_region, id_comuna, 
           password_hash, acepta_terminos
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       `,
     [
       userId,
@@ -84,7 +87,7 @@ export const registerUser = async (dataUser) => {
       id_region,
       id_comuna,
       password_hash,
-      acepta_terminos,
+      aceptaTerminosNumeric,
     ],
   );
 
@@ -111,23 +114,24 @@ export const verifyTokenService = async (token) => {
       if (error) return resolve(null);
 
       try {
-        const [users] = await pool.query(
-          "SELECT * FROM usuarios WHERE id = ?",
+        const { rows } = await pool.query(
+          "SELECT id, nombre, email FROM usuarios WHERE id = $1",
           [decoded.id],
         );
-        const user = users[0];
 
-        if (!user) {
-            throw new Error("NOT FOUND");
-          }
-        resolve({
-          id: user.id,
-          nombre: user.nombre,
-          email: user.email,
-        });
+        if (rows.length === 0) return resolve(null);
+
+        resolve(rows[0]);
       } catch (err) {
         reject(err);
       }
     });
   });
+};
+
+export const getAllRegions = async () => {
+  const { rows } = await pool.query(
+    `SELECT * FROM regiones;`,
+  );
+  return rows;
 };

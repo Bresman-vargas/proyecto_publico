@@ -21,7 +21,7 @@ Funciones que actúan como **verificaciones intermedias**. Su uso principal es l
 ###  Router
 Es el encargado de **definir los endpoints** del backend. Mapea las URLs que el frontend puede solicitar y las vincula con sus respectivos controladores y middlewares.
 
-### Schemas
+### /Packege/Schemas
 Se encargan de las **validaciones de datos**. Aseguran que la información recibida cumpla con el formato correcto (tipos de datos, campos obligatorios, longitud) antes de intentar interactuar con la base de datos, usando **Zod 3**.
 
 ###  Libs 

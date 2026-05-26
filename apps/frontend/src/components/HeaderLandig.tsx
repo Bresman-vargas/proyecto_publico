@@ -4,7 +4,7 @@ export default function HeaderLandig() {
   return (
     <header className="bg-bg-sec text-text">
       <section className="container flex justify-between w-full p-2">
-        <div className="flex items-center">
+        <Link to="/home" className="flex items-center">
           <div className="text-accent">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +35,7 @@ export default function HeaderLandig() {
               </g>
             </svg>
           </div>
-        </div>
+        </Link>
         <div className="flex flex-wrap gap-3">
           <Link to="/login" className="center bg-bg px-4 py-1 rounded-md">
             Login

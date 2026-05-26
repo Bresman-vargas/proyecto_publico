@@ -1,6 +1,6 @@
 import { ArrowLeft, MessageSquarePlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { discussions } from "../discussions/HarcoDiscussions";
+import { HarcoDiscussions } from "../discussions/HarcoDiscussions";
 
 const foro = {
   categoria: "Medio Ambiente",
@@ -73,7 +73,7 @@ export default function ForumDetail() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {discussions.map((dis) => (
+          {HarcoDiscussions.map((dis) => (
             <article
               key={dis.id}
               className="bg-bg-sec border border-border rounded-md p-4 flex flex-col gap-3 hover:border-accent/50 transition-colors cursor-pointer"
@@ -86,12 +86,12 @@ export default function ForumDetail() {
                 </div>
                 <span
                   className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border flex-shrink-0 ${
-                    dis.isActive
+                    dis.is_active
                       ? "bg-green-500/10 text-green-600 border-green-500/40"
                       : "bg-gray-500/10 text-gray-500 border-gray-400/40"
                   }`}
                 >
-                  ● {dis.isActive ? "Activa" : "Cerrada"}
+                  ● {dis.is_active ? "Activa" : "Cerrada"}
                 </span>
               </div>
 
