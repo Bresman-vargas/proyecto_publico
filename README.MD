@@ -19,8 +19,7 @@ El proyecto emplea un stack moderno para garantizar escalabilidad y una experien
 
 *   **Frontend:** React.js (Vite) + Tailwind CSS (v4) + TypeScript.
 *   **Backend:** Node.js + Express.
-*   **Base de Datos:** MySQL.
-*   **Gestión de Monorepo:** npm workspaces.
+*   **Base de Datos:** Postgrest en Supabase.
 
 ---
 
@@ -49,7 +48,7 @@ El diseño de la interfaz y la experiencia de usuario se centralizó en Figma.
     ```
 2.  Instala las dependencias de todo el proyecto:
     ```bash
-    npm install
+    pnpm install
     ```
 
 ---
@@ -58,4 +57,10 @@ El diseño de la interfaz y la experiencia de usuario se centralizó en Figma.
 
 Para iniciar el entorno de desarrollo del frontend directamente desde la raíz del proyecto, utiliza el siguiente comando:
 ```bash
-npm run dev -w frontend
+pnpm -F frontend dev
+```
+Para iniciar el entorno de desarrollo del backend directamente desde la raíz del proyecto:
+```bash
+pnpm -F backend dev
+```
+
