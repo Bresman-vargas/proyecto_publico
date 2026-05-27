@@ -110,8 +110,8 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
               <SidebarItem
                 ico={MessagesSquare}
                 label="My Comments"
-                link="/comments"
-                active={location.pathname === "/comments"}
+                link="/user-comments"
+                active={location.pathname === "/user-comments"}
               />
               <p className="text-txt-sec">ADMIN</p>
               <SidebarItem

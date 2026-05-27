@@ -1,6 +1,7 @@
 import { Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import type { JSX } from "react";
+import { AccentSelector } from "../components/AccentSelector";
 type Theme = "light" | "dark" | "system";
 
 export default function ThemeToggle() {
@@ -178,7 +179,7 @@ export default function ThemeToggle() {
                   </div>
                 </div>
                 {theme === t.id && (
-                  <div className="bg-accent/80 text-white  h-6 px-3 flex items-center justify-center rounded-md">
+                  <div className="bg-accent/80 text-bg  h-6 px-3 flex items-center justify-center rounded-md">
                     <svg
                       width="14"
                       height="14"
@@ -197,6 +198,9 @@ export default function ThemeToggle() {
           );
         })}
       </aside>
+      <div className="border-b border-border pb-8">
+        <AccentSelector/>
+      </div>
     </section>
   );
 }

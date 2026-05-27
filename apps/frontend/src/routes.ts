@@ -9,11 +9,11 @@ import Discussions from "./pages/discussions/Discussions";
 import DiscussionForm from "./pages/discussions/DiscussionForm";
 import newForum from "./pages/forums/newForum";
 import Explore from "./pages/Explore";
-import Comments from "./pages/comments/Comments";
+import UserComments from "./pages/comments/UserComments";
 import Settings from "./pages/Settings";
-import Poll from "./pages/Poll";
 import Surveys from "./pages/surveys/Surveys";
 import SurveyForm from "./pages/surveys/SurveyForm";
+import Comments from "./pages/comments/Comments";
 
 interface RouteConfig {
   path: string;
@@ -34,21 +34,21 @@ export const routes: RouteConfig[] = [
   { path: "/discussions/new", component: DiscussionForm, private: true },
   { path: "/discussions/edit/:id", component: DiscussionForm, private: true },
 
-  { path: "/comments", component: Comments, private: true },
-  { path: "/settings", component: Settings, private: true },
-
-  { path: "/forums", component: Forums, private: true },
-  { path: "/newforum", component: newForum, private: true },
-
-  { path: "/poll", component: Poll, private: true },
-
-  { path: "/not-found", component: lazy(() => import("./pages/NotFound")) },
+  { path: "/user-comments", component: UserComments, private: true },
+  { path: "/comments/:id", component: Comments, private: true },
+  
   { path: "/surveys", component: Surveys, private: true },
-
   { path: "/surveys/new", component: SurveyForm, private:true},
   { path: "/surveys/edit/:id", component: SurveyForm, private: true },
+  
+  { path: "/forums", component: Forums, private: true },
   { path: "/forum", component: ForumDetail, private: true },
-  { path: "/forums/:id", component: ForumDetail, private: true }
+  { path: "/newforum", component: newForum, private: true },
+  { path: "/forums/:id", component: ForumDetail, private: true },
+  
+  { path: "/settings", component: Settings, private: true },
+
+  { path: "/not-found", component: lazy(() => import("./pages/NotFound")) }
 ];
 
 

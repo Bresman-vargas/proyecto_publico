@@ -129,9 +129,3 @@ export const verifyTokenService = async (token) => {
   });
 };
 
-export const getAllRegions = async () => {
-  const { rows } = await pool.query(
-    `SELECT * FROM regiones;`,
-  );
-  return rows;
-};

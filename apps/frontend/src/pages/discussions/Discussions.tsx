@@ -59,6 +59,11 @@ export default function Discussions() {
     navigate(`/discussions/edit/${id}`);
   };
 
+  const handledComents = (id: string) => {
+    if (devMode) return;
+    navigate(`/comments/${id}`);
+  };
+
   const handledDelete = async (id: string) => {
     if (devMode) return;
     try {
@@ -128,6 +133,7 @@ export default function Discussions() {
               onActiveToggle={handledActive}
               onEdit={handledEdit}
               onDelete={handledDelete}
+              onExpand={handledComents}
             >
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 bg-bg-sec px-4 m-2 border border-border rounded-b-md animate-in fade-in duration-300">
                 <p className="font-bold text-nowrap truncate">Estado:</p>
@@ -162,8 +168,8 @@ export default function Discussions() {
         </div>
       ) : (
         <div className="bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
-          <div className="bg-bg p-4 mb-4 rounded-full">
-            <Lightbulb size={60} className="text-txt/30" />
+          <div className="bg-accent/10 p-4 mb-4 rounded-full">
+            <Lightbulb size={36} className="text-accent" />
           </div>
           <h2 className="text-xl font-bold text-txt">
             {searchTerm !== ""
@@ -171,7 +177,7 @@ export default function Discussions() {
               : "Aún no tienes discusiones"}
           </h2>
 
-          <p className="text-txt-sec mt-2">
+          <p className="text-txt-sec mt-2 w-100 text-center text-pretty">
             {searchTerm !== ""
               ? "Intenta ajustar los términos de búsqueda o filtros."
               : "Comienza creando tu primera discusión para interactuar con la comunidad."}

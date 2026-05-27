@@ -197,7 +197,7 @@ export default function DiscussionForm() {
                 value={currentKeyword}
                 onChange={(e) => setCurrentKeyword(e.target.value)}
                 placeholder="Ej: Iluminación"
-                className="flex-1 p-2 bg-bg-sec border border-border rounded-md focus:outline-none focus:border-accent"
+                className="flex-1 p-2 bg-bg-sec/40 border border-border rounded-md focus:outline focus:outline-accent/20"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
