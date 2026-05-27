@@ -53,10 +53,6 @@ export default function Register() {
     await registar(data);
   };
 
-  const categoryOptions = [
-    { value: 1, label: "Visble" },
-    { value: 0, label: "Oculto" },
-  ];
   
   return (
     <main className="flex justify-center md:items-center  md:h-lvh">
@@ -144,15 +140,6 @@ export default function Register() {
               register={register}
               errors={errors}
               className="col-span-4 md:col-span-2"
-            />
-            <SelectForm
-              label="Visibilidad"
-              name="id_region"
-              register={register}
-              errors={errors}
-              options={categoryOptions}
-              require={true}
-
             />
             <InputForm
               label="Contraseña"

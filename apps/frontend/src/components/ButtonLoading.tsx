@@ -19,7 +19,7 @@ export default function ButtonLoading ({
 
   const stateStyles =
     isValid && !loading
-      ? "bg-accent cursor-pointer text-zinc-50 hover:opacity-90 shadow-md active:scale-[0.98]"
+      ? "bg-accent cursor-pointer text-bg hover:opacity-90 shadow-md active:scale-[0.98]"
       : "bg-accent/20 cursor-not-allowed text-txt";
 
   return (

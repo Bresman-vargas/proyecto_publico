@@ -8,6 +8,7 @@ interface DiscussionCardProps {
   onActiveToggle: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete?: (id: string) => void;
+  onExpand: (id: string) => void;
   children?: React.ReactNode;
 }
 
@@ -17,18 +18,27 @@ export default function DiscussionCard({
   onActiveToggle,
   onEdit,
   onDelete,
+  onExpand,
   children,
 }: DiscussionCardProps) {
-  // Cada tarjeta maneja de forma independiente sus opciones y su colapso
   const [showOptions, setShowOptions] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <section className="rounded-md text-base/9 flex flex-col justify-start">
-      <header className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border">
+      {/* Añadimos el onExpand aquí para que responda al clic en la cabecera, pero sin afectar los botones */}
+      <header
+        onClick={() => onExpand(dis.id)}
+        className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border cursor-pointer"
+      >
         <section className="flex justify-between items-center gap-4">
           <h1 className="text-xl font-bold text-pretty">{dis.title}</h1>
-          <div className="flex items-start gap-4">
+
+          {/* Al contenedor de acciones le agregamos un onClick que frena la propagación hacia el header */}
+          <div
+            className="flex items-start gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <span
               onClick={() => onActiveToggle(dis.id)}
               className={`text-nowrap relative font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm transition-all ${
@@ -95,7 +105,7 @@ export default function DiscussionCard({
           <p className="text-txt-sec">{dis.subtitle}</p>
           <p className="text-base/normal">{dis.content}</p>
           <div className="flex flex-wrap gap-2 my-4">
-            {dis.keywords.map((word : string, index: number) => (
+            {dis.keywords.map((word: string, index: number) => (
               <div
                 className="text-sm px-4 py-1 bg-accent/10 text-accent rounded-full border border-accent/50"
                 key={index}
@@ -116,7 +126,6 @@ export default function DiscussionCard({
           {isExpanded ? <>Ver menos</> : <>Ver más</>}
         </button>
 
-        {/* Renderizado condicional del Children con animaciones intactas */}
         {isExpanded && children}
       </section>
     </section>

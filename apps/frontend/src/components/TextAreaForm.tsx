@@ -1,7 +1,7 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
 interface TextAreaProps {
-  label: string;
+  label?: string;
   placeholder?: string;
   name: string;
   register: UseFormRegister<any>;

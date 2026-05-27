@@ -36,116 +36,59 @@
 
 @layer base {
   :root {
-    /* Acento (#007aff -> #005bb5) */
-    --color-accent: oklch(52.313% 0.24845 271.736);
-    --color-accent-sec: oklch(78.563% 0.23995 141.141);
-    --color-accent-ter: oklch(86.844% 0.19813 119.636);
-    --color-accent-alt: oklch(33.016% 0.12957 320.378);
-
-    /* Fondos (bg) */
     --color-bg: oklch(100% 0 0);
     --color-bg-sec: oklch(96.2% 0.006 285);
     --color-bg-ter: oklch(91.8% 0.007 285);
 
-    /* Textos (txt) */
     --color-txt: oklch(0% 0 0);
     --color-txt-sec: oklch(34.8% 0.015 285);
     --color-txt-dim: oklch(62.6% 0.01 285);
-
-    /* Bordes */
     --color-border: oklch(87.863% 0.05088 285.286);
 
-    /* Estados */
-    --color-ok: oklch(56.147% 0.12681 142.132);
-    --color-err: oklch(59.9% 0.235 25);
+    --color-ok: oklch(66.528% 0.17335 141.993);
+    --color-err: oklch(52.596% 0.20053 23.982);
   }
 
-  /* Modo Oscuro */
   .dark {
-    --color-accent: oklch(65.525% 0.14517 266.152);
-    --color-accent-sec: oklch(78.305% 0.21531 146.735);
-    --color-accent-ter: oklch(91.32% 0.11185 105.103);
-    --color-accent-alt: oklch(88.583% 0.05612 41.66);
-
-    /* Fondos */
     --color-bg: oklch(0% 0 0);
     --color-bg-sec: oklch(14.5% 0 0);
     --color-bg-ter: oklch(41.13% 0.00995 285.893);
 
-    /* Textos */
     --color-txt: oklch(100% 0 0);
     --color-txt-sec: oklch(73.5% 0.015 285);
     --color-txt-dim: oklch(17.764% 0.00002 271.152);
-
-    /* Bordes */
     --color-border: oklch(24.995% 0.00302 16.842);
-
-    /* Estados */
-    --color-ok: oklch(76.5% 0.205 142);
-    --color-err: oklch(63.084% 0.19388 21.23);
   }
 
-  .theme-blue {
-    --color-bg: oklch(20% 0.04 250);
-    --color-bg-sec: oklch(25% 0.05 250);
-    --color-bg-ter: oklch(30% 0.06 250);
-
-    --color-txt: oklch(95% 0.02 250);
-    --color-txt-sec: oklch(85% 0.03 250);
-    --color-txt-dim: oklch(65% 0.04 250);
-
-    --color-accent: oklch(70% 0.15 250);
-    --color-border: oklch(35% 0.08 250);
-    
-    --color-ok: oklch(80% 0.12 150);
-    --color-err: oklch(70% 0.15 25);
+  /* Variante Azul Extendido */
+  .accent-blue {
+    --color-accent: oklch(50% 0.25 271.7);
+  }
+  .dark.accent-blue {
+    --color-accent: oklch(70% 0.25 271.7); 
   }
 
-  .theme-yellow {
-    --color-bg: oklch(94% 0.03 85);
-    --color-bg-sec: oklch(90% 0.05 85);
-    --color-bg-ter: oklch(85% 0.08 85);
-
-    --color-txt: oklch(25% 0.04 85);
-    --color-txt-sec: oklch(35% 0.06 85);
-    --color-txt-dim: oklch(50% 0.05 85);
-
-    --color-accent: oklch(65% 0.20 75);
-    --color-border: oklch(80% 0.10 85);
-
-    --color-ok: oklch(60% 0.15 145);
-    --color-err: oklch(55% 0.20 25);
+  /* Variante Naranja */
+  .accent-orange {
+    --color-accent: oklch(60% 0.15 50);
+  }
+  .dark.accent-orange {
+    --color-accent: oklch(75% 0.15 50);
   }
 
-  .theme-orange {
-    --color-bg: oklch(18% 0.03 35);
-    --color-bg-sec: oklch(22% 0.05 35);
-    --color-bg-ter: oklch(28% 0.07 35);
-
-    --color-txt: oklch(92% 0.02 35);
-    --color-txt-sec: oklch(85% 0.04 35);
-    --color-txt-dim: oklch(60% 0.05 35);
-
-    --color-accent: oklch(75% 0.18 55);
-    --color-border: oklch(35% 0.08 35);
-
-    --color-ok: oklch(80% 0.15 140);
-    --color-err: oklch(65% 0.22 28);
+  /* Variante Verde */
+  .accent-green {
+    --color-accent: oklch(50% 0.15 150);
+  }
+  .dark.accent-green {
+    --color-accent: oklch(70% 0.15 150);
   }
 
-  .theme-green {
-    --color-bg: oklch(15% 0.02 160);
-    --color-bg-sec: oklch(20% 0.03 160);
-    --color-bg-ter: oklch(25% 0.04 160);
-
-    --color-txt: oklch(90% 0.05 160);
-    --color-txt-sec: oklch(75% 0.08 160);
-    --color-txt-dim: oklch(50% 0.05 160);
-
-    --color-accent: oklch(78% 0.18 160);
-    --color-border: oklch(30% 0.06 160);
-
-    --color-ok: oklch(85% 0.15 150);
-    --color-err: oklch(60% 0.20 25);
+  /* Variante Amarillo / Dorado */
+  .accent-yellow {
+    --color-accent: oklch(60% 0.13 75);
+  }
+  .dark.accent-yellow {
+    --color-accent: oklch(80% 0.13 85);
   }
 }
