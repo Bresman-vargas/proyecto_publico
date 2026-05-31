@@ -51,3 +51,14 @@ export const voteComment = async (req, res) => {
     return res.status(500).json({ message: "Error al procesar el voto" });
   }
 };
+
+export const getCommentsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const comments = await commentService.getCommentsByUserService(userId);
+    return res.status(200).json(comments);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al obtener los comentarios del usuario" });
+  }
+};

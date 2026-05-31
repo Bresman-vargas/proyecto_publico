@@ -8,3 +8,13 @@ export const getRegions = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 }
+
+export const getComunas = async (req, res) => {
+  try {
+    const { id_region } = req.params;
+    const comunas = await utilService.getComunasByRegion(id_region);
+    return res.status(200).json(comunas);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

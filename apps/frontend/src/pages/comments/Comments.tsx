@@ -1,101 +1,109 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "../../api/axios"; // Ajusta la ruta si es necesario para tu axios configurado
-import { CommentItem, type Comentario } from "../../components/CommentItem"; // Ajusta la ruta a tu componente
-import { MessageSquarePlus} from "lucide-react";
+import { MessagesSquare } from "lucide-react";
+import { getCommentsByDiscussionRequest } from "../../api/comments";
+import { CommentItem } from "../../components/CommentItem";
+import CommentForm from "../../components/CommentForm";
 import Loader from "../../components/Loader";
 
-function buildCommentTree(flatComments: Comentario[]): Comentario[] {
-  const map: { [key: string]: Comentario } = {};
-  const roots: Comentario[] = [];
-
-  // 1. Inicializar el mapa con copias limpias y la propiedad respuestas vacía
-  flatComments.forEach((comment) => {
-    map[comment.id] = { ...comment, respuestas: [] };
-  });
-
-  // 2. Estructurar la relación Padre -> Hijo
-  flatComments.forEach((comment) => {
-    const mappedComment = map[comment.id];
-    
-    if (mappedComment.parent_comment_id) {
-      // Si tiene padre, lo metemos en la propiedad respuestas del padre
-      const parent = map[mappedComment.parent_comment_id];
-      if (parent) {
-        parent.respuestas = parent.respuestas || [];
-        parent.respuestas.push(mappedComment);
-      }
-    } else {
-      // Si no tiene padre, es un comentario raíz
-      roots.push(mappedComment);
-    }
-  });
-
-  return roots;
-}
-
 export default function Comments() {
-  const { id } = useParams<{ id: string }>();
-  const [comments, setComments] = useState<Comentario[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { id } = useParams(); 
+  const [commentsFlat, setCommentsFlat] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Estado para la carga al agregar un nuevo comentario
+
+  const fetchComments = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const res = await getCommentsByDiscussionRequest(id);
+      setCommentsFlat(res.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`/discussions/${id}/comments`);
-        const structuredTree = buildCommentTree(response.data);
-        setComments(structuredTree);
-        setError(null);
-      } catch (err) {
-        console.error("Error al cargar los comentarios:", err);
-        setError("No se pudieron cargar los comentarios de esta discusión.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchComments();
-    }
+    fetchComments();
   }, [id]);
 
-  if (loading) return <Loader className="h-[calc(100vh-8rem)]"/>
+  // Convierte la lista plana a la jerarquía de árbol
+  const estructurarArbol = (lista: any[]) => {
+    const mapa = new Map(lista.map((c) => [c.id, { ...c, respuestas: [] }]));
+    const raices: any[] = [];
 
-  if (error) return <div>{error}</div>;
+    for (const item of mapa.values()) {
+      if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
+        mapa.get(item.parent_comment_id).respuestas.push(item);
+      } else {
+        raices.push(item);
+      }
+    }
+    return raices;
+  };
+
+  // Callback para cuando se presiona el botón y se empieza el proceso de subida en CommentForm
+  const handleCommentSubmitting = () => {
+    setIsSubmitting(true);
+  };
+
+  // Callback ejecutado cuando CommentForm crea exitosamente el comentario en la Base de Datos
+  const handleNewCommentAdded = (newComment: any) => {
+    setCommentsFlat((prev) => [...prev, newComment]);
+    setIsSubmitting(false); // Quitamos el loader una vez añadido
+  };
+
+  if (loading) return <Loader />;
+
+  const comentariosEstructurados = estructurarArbol(commentsFlat);
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto p-4">
-      <h2 className="text-xl font-bold border-b border-border pb-2 text-txt">
-        Comentarios de la discusión
-      </h2>
+    <div className="max-w-3xl mx-auto p-4 flex flex-col gap-6">
+      <h1 className="text-xl font-bold">Conversación</h1>
 
-      {/* 3. Renderizado Condicional: No hay comentarios */}
-      {comments.length === 0 ? (
-        <section className="flex flex-col items-center justify-center p-12 bg-bg-sec border-2 border-dashed border-border rounded-md text-center gap-4 my-4">
-          <div className="p-4 bg-accent/10 text-accent rounded-full">
-            <MessageSquarePlus size={36} />
-          </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-bold text-txt">Aún no hay comentarios</h3>
-            <p className="text-txt-sec text-sm max-w-sm">
-              Nadie ha iniciado el debate en este foro todavía. ¡Aprovecha la oportunidad y sé el primero en expresar tu opinión!
-            </p>
-          </div>
-          {/* Aquí podrías poner el botón o el formulario directamente para crear el primer comentario */}
-          <button className="mt-2 px-4 py-2 bg-accent text-bg font-semibold rounded-md shadow-sm hover:bg-accent/90 transition-colors text-sm cursor-pointer">
-            Escribir un comentario
-          </button>
-        </section>
-      ) : (
-        /* 4. Renderizado Condicional: Sí hay comentarios */
-        <div className="flex flex-col gap-4 p-4 bg-bg-sec border border-border rounded-md">
-          {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} />
-          ))}
+      {/* Formulario Principal para Comentarios Raíz */}
+      {id && (
+        <div className="bg-bg-sec p-4 rounded-md">
+          <CommentForm 
+            discussionId={id} 
+            onCommentCreated={handleNewCommentAdded}
+            onSubmitting={handleCommentSubmitting}
+            // Puedes pasar un prop opcional si quieres controlar el envío desde el hijo,
+            // o simplemente dejas que cargue visualmente en la lista de abajo con el bloque de isSubmitting
+          />
         </div>
       )}
+
+      {/* Si se está enviando un nuevo comentario, muestra el Loader arriba de la sección */}
+      {isSubmitting && (
+        <div className="flex justify-center py-4">
+          <Loader />
+        </div>
+      )}
+
+      {/* Renderizado del Árbol de Comentarios o Mensaje de Vacío */}
+      <section className="flex flex-col gap-4">
+        {comentariosEstructurados.length > 0 ? (
+          comentariosEstructurados.map((comment) => (
+            <CommentItem comment={comment} key={comment.id} />
+          ))
+        ) : (
+          /* Estado Vacío Adaptado */
+          <div className="bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
+            <div className="bg-accent/10 p-4 mb-4 rounded-full text-accent">
+              <MessagesSquare size={36} />
+            </div>
+            <h2 className="text-xl font-bold text-txt">
+              Aún no hay comentarios
+            </h2>
+            <p className="text-txt-sec mt-2 w-100 text-center text-pretty">
+              Sé el primero en iniciar la conversación escribiendo un comentario público arriba.
+            </p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
