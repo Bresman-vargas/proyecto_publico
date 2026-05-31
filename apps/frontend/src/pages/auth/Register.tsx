@@ -4,16 +4,36 @@ import { registerSchema } from "@proyecto_publico/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, OctagonAlert } from "lucide-react";
 import ButtonLoading from "../../components/ButtonLoading";
 import SelectForm from "../../components/SelectForm";
+import { getRegionesRequest, getComunasByRegionRequest } from "../../api/util";
+
+interface RegionOption {
+  id: number;
+  nombre: string;
+}
+
+interface ComunaOption {
+  id: number;
+  nombre: string;
+}
 
 export default function Register() {
   const navigate = useNavigate();
+  const [regiones, setRegiones] = useState<{ value: number; label: string }[]>(
+    [],
+  );
+  const [comunas, setComunas] = useState<{ value: number; label: string }[]>(
+    [],
+  );
+
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -26,8 +46,8 @@ export default function Register() {
       rut_cuerpo: undefined,
       rut_dv: "",
       email: "",
-      id_region: 5,
-      id_comuna: 65,
+      id_region: undefined as unknown as number,
+      id_comuna: undefined as unknown as number,
       acepta_terminos: false,
       password: "",
     },
@@ -41,19 +61,72 @@ export default function Register() {
     clearErrors,
   } = useAuth();
 
+  // Monitoreamos el valor
+  const selectedRegion = watch("id_region");
+
+  // Cargar regiones al montar
+  useEffect(() => {
+    const loadRegiones = async () => {
+      try {
+        const res = await getRegionesRequest();
+        const formattedRegiones = res.data.map((reg: RegionOption) => ({
+          value: reg.id,
+          label: reg.nombre,
+        }));
+        setRegiones(formattedRegiones);
+      } catch (error) {
+        console.error("Error cargando regiones:", error);
+      }
+    };
+    loadRegiones();
+  }, []);
+
+  // Cargar comunas
+  useEffect(() => {
+    const loadComunas = async () => {
+      if (!selectedRegion) {
+        setComunas([]);
+        setValue("id_comuna", undefined as unknown as number, {
+          shouldValidate: true,
+        });
+        return;
+      }
+      try {
+        const res = await getComunasByRegionRequest(Number(selectedRegion));
+        const formattedComunas = res.data.map((com: ComunaOption) => ({
+          value: com.id,
+          label: com.nombre,
+        }));
+        setComunas(formattedComunas);
+        // Reiniciamos el valor de comuna al cambiar la región
+        setValue("id_comuna", undefined as unknown as number, {
+          shouldValidate: true,
+        });
+      } catch (error) {
+        console.error("Error cargando comunas:", error);
+      }
+    };
+    loadComunas();
+  }, [selectedRegion, setValue]);
+
   useEffect(() => {
     if (isAuthenticated) navigate("/feed");
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     clearErrors();
-  }, []);
+  }, [clearErrors]);
 
   const onSubmit = async (data: any) => {
-    await registar(data);
+    // Forzamos que los ids viajen como tipo numérico hacia la API y Zod
+    const payload = {
+      ...data,
+      id_region: Number(data.id_region),
+      id_comuna: Number(data.id_comuna),
+    };
+    await registar(payload);
   };
 
-  
   return (
     <main className="flex justify-center md:items-center  md:h-lvh">
       <section className="bg-bg-sec/50 p-4 w-4xl rounded-md border border-border">
@@ -141,6 +214,63 @@ export default function Register() {
               errors={errors}
               className="col-span-4 md:col-span-2"
             />
+
+            {/* SELECT DE REGIONES */}
+            <SelectForm
+              label="Región"
+              require={true}
+              placeholder="Seleccione Región"
+              options={regiones}
+              register={register}
+              errors={errors}
+              className="col-span-4 md:col-span-2"
+              // Interceptamos el registro nativo pasándole el tipado numérico en el cambio
+              {...register("id_region", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+            />
+
+            {/* SELECT DE COMUNAS (Deshabilitado implícitamente o controlado si no hay región) */}
+            <div className="col-span-4 md:col-span-2">
+              <label className="text-txt-sec flex flex-col gap-2">
+                <div className="flex gap-1">
+                  Comuna:<span className="text-txt-sec">*</span>
+                </div>
+                <select
+                  disabled={!selectedRegion}
+                  className={`bg-bg-sec/40 p-2 border border-border rounded-md focus:outline-1 outline-accent/30 cursor-pointer appearance-none ${
+                    !selectedRegion ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  {...register("id_comuna", {
+                    setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                  })}
+                  defaultValue=""
+                >
+                  <option value="" disabled className="bg-bg">
+                    {!selectedRegion
+                      ? "Primero seleccione una región"
+                      : "Seleccione Comuna"}
+                  </option>
+                  {comunas.map((opt) => (
+                    <option
+                      key={opt.value}
+                      value={opt.value}
+                      className="bg-bg-sec text-txt-sec"
+                    >
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="h-8 flex items-center">
+                {errors.id_comuna && (
+                  <span className="text-err text-sm">
+                    {errors.id_comuna?.message as string}
+                  </span>
+                )}
+              </div>
+            </div>
+
             <InputForm
               label="Contraseña"
               placeholder="******"

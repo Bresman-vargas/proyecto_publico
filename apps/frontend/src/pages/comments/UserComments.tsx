@@ -1,12 +1,68 @@
-import { Flame, Hourglass, MessagesSquare } from "lucide-react";
-import { comentariosData } from "./HarcoComments";
-
+import { MessagesSquare } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { getCommentsByUserRequest } from "../../api/comments";
 import { CommentItem } from "../../components/CommentItem";
+import Loader from "../../components/Loader";
 
 export default function UserComments() {
+  const { user } = useAuth();
+  const [commentsTree, setCommentsTree] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchUserComments = async () => {
+      if (!user || !user.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const res = await getCommentsByUserRequest(user.id);
+        const datosPlanos = res.data;
+
+        // --- FUNCIÓN PARA CONVERTIR LISTA PLANA A ÁRBOL DE RESPUESTAS ---
+        const mapearComentariosAArbol = (listaPlana: any[]) => {
+          // 1. Mapeamos cada comentario agregándole un array vacío de respuestas por defecto
+          const mapa = new Map(
+            listaPlana.map((c) => [c.id, { ...c, respuestas: [] }]),
+          );
+
+          const raices: any[] = [];
+
+          // 2. Armamos la estructura de hijos y nietos
+          for (const item of mapa.values()) {
+            if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
+              // Si tiene un padre y ese padre está en nuestra lista, lo metemos en sus respuestas
+              const padre = mapa.get(item.parent_comment_id);
+              padre.respuestas.push(item);
+            } else {
+              // Si no tiene padre (es un comentario raíz) o el padre no es de este usuario,
+              // se considera un elemento principal en esta sección para que no desaparezca de la vista.
+              raices.push(item);
+            }
+          }
+
+          return raices;
+        };
+
+        setCommentsTree(mapearComentariosAArbol(datosPlanos));
+      } catch (error) {
+        console.error("Error al cargar tus comentarios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserComments();
+  }, [user]);
+
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
+
   return (
     <div className="flex justify-center">
-      <div className="max-w-3xl">
+      <div className="max-w-3xl w-full">
         <header className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
           <div className="h-20 flex flex-col justify-center">
             <h1 className="text-xl font-bold">Mis comentarios</h1>
@@ -14,20 +70,11 @@ export default function UserComments() {
               En esta sección podrás ver tus comentarios
             </p>
           </div>
-          <div className="grid grid-cols-2 md:flex gap-4">
-            <button className="flex justify-center gap-2 text-txt-sec hover:text-accent cursor-pointer bg-bg border border-border px-4 py-1 rounded-md">
-              <Flame /> Más famosos
-            </button>
-            <button className="flex justify-center gap-2 text-txt-sec hover:text-accent cursor-pointer bg-bg border border-border px-4 py-1 rounded-md">
-              <Hourglass />
-              Más reciente
-            </button>
-          </div>
         </header>
 
-        {comentariosData.length > 0 ? (
+        {commentsTree.length > 0 ? (
           <section className="bg-bg-sec p-4 rounded-md grid grid-cols-1 gap-4">
-            {comentariosData.map((comment) => (
+            {commentsTree.map((comment) => (
               <CommentItem comment={comment} key={comment.id} />
             ))}
           </section>

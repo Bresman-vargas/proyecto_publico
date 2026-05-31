@@ -6,3 +6,11 @@ export const getAllRegions = async () => {
   );
   return rows;
 };
+
+export const getComunasByRegion = async (id_region) => {
+  const { rows } = await pool.query(
+    `SELECT * FROM comunas WHERE id_region = $1;`,
+    [id_region]
+  );
+  return rows;
+};
