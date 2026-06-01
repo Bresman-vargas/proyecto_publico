@@ -51,7 +51,7 @@
 
   .dark {
     --color-bg: oklch(0% 0 0);
-    --color-bg-sec: oklch(14.5% 0 0);
+    --color-bg-sec: oklch(17.304% 0.00002 271.152);
     --color-bg-ter: oklch(41.13% 0.00995 285.893);
 
     --color-txt: oklch(100% 0 0);

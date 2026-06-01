@@ -21,32 +21,32 @@ export default function CommentForm({
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!content.trim() || !user?.id) return;
+  if (!content.trim() || !user?.id) return;
 
-    try {
-      if (onSubmitting) onSubmitting();
-      setLoading(true);
+  try {
+    // 1. Encendemos loaders si existen
+    if (onSubmitting) onSubmitting();
+    setLoading(true);
 
-      const payload = {
-        content: content.trim(),
-        discussion_id: discussionId,
-        user_id: user.id,
-        parent_comment_id: parentCommentId,
-      };
+    const payload = {
+      content: content.trim(),
+      discussion_id: discussionId,
+      user_id: user.id,
+      parent_comment_id: parentCommentId,
+    };
 
-      const res = await createCommentRequest(payload);
-      onCommentCreated(res.data);
-      setContent("");
-    } catch (error) {
-      console.error("Error al publicar el comentario:", error);
-      // Opcional: Si falla la petición, forzamos apagar el loader del componente padre pasando un objeto vacío o manejando un callback de error
-      onCommentCreated(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+    await createCommentRequest(payload);
+    setContent("");
+    onCommentCreated(true); 
+
+  } catch (error) {
+    console.error("Error al publicar el comentario:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full mt-2">

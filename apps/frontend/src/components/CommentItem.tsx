@@ -29,13 +29,14 @@ export interface Comentario {
 interface CommentItemProps {
   comment: Comentario;
   isReply?: boolean;
-  onCommentAdded?: () => void; 
+  onRefresh: () => void;
 }
 
 export function CommentItem({
   comment,
   isReply = false,
-  onCommentAdded,
+  onRefresh
+  
 }: CommentItemProps) {
   const [showReplies, setShowReplies] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -55,23 +56,18 @@ export function CommentItem({
     try {
       setIsSubmitting(true);
 
-      // Enviamos el objeto al endpoint POST /comments que creamos en el backend
       await axios.post("/comments", {
         content: replyContent,
         discussion_id: comment.discussion_id,
-        user_id: user.id, // ID del usuario autenticado
-        parent_comment_id: comment.id, // 👈 El ID de este comentario pasa a ser el padre
+        user_id: user.id, 
+        parent_comment_id: comment.id, 
       });
 
       setReplyContent("");
       setIsReplying(false);
 
-      // Notificar al componente padre (Comments.tsx) para volver a pedir los datos actualizados
-      if (onCommentAdded) {
-        onCommentAdded();
-      }
+      onRefresh();
 
-      // Abrimos automáticamente la sección de respuestas para ver la nuestra
       setShowReplies(true);
     } catch (error) {
       console.error("Error al responder el comentario:", error);
@@ -128,7 +124,7 @@ export function CommentItem({
           </div>
         </header>
 
-        <aside className="my-4 text-base/normal text-pretty">
+        <aside className="my-4 text-wrap">
           {comment.content}
         </aside>
 
@@ -213,7 +209,7 @@ export function CommentItem({
                 <CommentItem
                   comment={reply}
                   isReply={true}
-                  onCommentAdded={onCommentAdded}
+                  onRefresh={onRefresh}
                 />
               </div>
             ))}

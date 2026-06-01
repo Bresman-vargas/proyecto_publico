@@ -20,7 +20,7 @@ export default function ForumDetail() {
 
       {/* Banner + Avatar */}
       <div className="relative">
-        <div className="w-full h-24 rounded-md bg-gradient-to-r from-accent/40 to-accent/10 border border-border" />
+        <div className="w-full h-24 rounded-md bg-linear-to-r from-accent/40 to-accent/10 border border-border" />
         <Link
           to="/explore"
           className="absolute top-3 right-3 flex items-center gap-2 text-white text-sm bg-black/30 hover:bg-black/50 px-3 py-1 rounded-md transition-colors"
@@ -85,7 +85,7 @@ export default function ForumDetail() {
                   <p className="text-txt-sec text-sm">{dis.subtitle}</p>
                 </div>
                 <span
-                  className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border flex-shrink-0 ${
+                  className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border shrink-0 ${
                     dis.is_active
                       ? "bg-green-500/10 text-green-600 border-green-500/40"
                       : "bg-gray-500/10 text-gray-500 border-gray-400/40"

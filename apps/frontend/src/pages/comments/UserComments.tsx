@@ -7,58 +7,53 @@ import Loader from "../../components/Loader";
 
 export default function UserComments() {
   const { user } = useAuth();
-  const [commentsTree, setCommentsTree] = useState<any[]>([]);
+  const [commentsFlat, setCommentsFlat] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const fetchUserComments = async (isSilent = false) => {
+    if (!user || !user.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!isSilent) setLoading(true);
+      const res = await getCommentsByUserRequest(user.id);
+      setCommentsFlat(res.data);
+    } catch (error) {
+      console.error("Error al cargar tus comentarios:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserComments = async () => {
-      if (!user || !user.id) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const res = await getCommentsByUserRequest(user.id);
-        const datosPlanos = res.data;
-
-        // --- FUNCIÓN PARA CONVERTIR LISTA PLANA A ÁRBOL DE RESPUESTAS ---
-        const mapearComentariosAArbol = (listaPlana: any[]) => {
-          // 1. Mapeamos cada comentario agregándole un array vacío de respuestas por defecto
-          const mapa = new Map(
-            listaPlana.map((c) => [c.id, { ...c, respuestas: [] }]),
-          );
-
-          const raices: any[] = [];
-
-          // 2. Armamos la estructura de hijos y nietos
-          for (const item of mapa.values()) {
-            if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
-              // Si tiene un padre y ese padre está en nuestra lista, lo metemos en sus respuestas
-              const padre = mapa.get(item.parent_comment_id);
-              padre.respuestas.push(item);
-            } else {
-              // Si no tiene padre (es un comentario raíz) o el padre no es de este usuario,
-              // se considera un elemento principal en esta sección para que no desaparezca de la vista.
-              raices.push(item);
-            }
-          }
-
-          return raices;
-        };
-
-        setCommentsTree(mapearComentariosAArbol(datosPlanos));
-      } catch (error) {
-        console.error("Error al cargar tus comentarios:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserComments();
+    fetchUserComments(false);
   }, [user]);
 
+  const handleRefreshComments = async () => {
+    await fetchUserComments(true);
+  };
+
   if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
+
+
+  const estructurarArbol = (lista: any[]) => {
+    const listaValida = lista.filter((c) => c && c.id);
+    const mapa = new Map(listaValida.map((c) => [c.id, { ...c, respuestas: [] }]));
+    const raices: any[] = [];
+
+    for (const item of mapa.values()) {
+      if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
+        mapa.get(item.parent_comment_id).respuestas.push(item);
+      } else {
+        raices.push(item);
+      }
+    }
+    return raices;
+  };
+
+  const comentariosEstructurados = estructurarArbol(commentsFlat);
 
   return (
     <div className="flex justify-center">
@@ -72,16 +67,20 @@ export default function UserComments() {
           </div>
         </header>
 
-        {commentsTree.length > 0 ? (
+        {comentariosEstructurados.length > 0 ? (
           <section className="bg-bg-sec p-4 rounded-md grid grid-cols-1 gap-4">
-            {commentsTree.map((comment) => (
-              <CommentItem comment={comment} key={comment.id} />
+            {comentariosEstructurados.map((comment) => (
+              <CommentItem 
+                comment={comment} 
+                key={comment.id} 
+                onRefresh={handleRefreshComments} 
+              />
             ))}
           </section>
         ) : (
           <div className="bg-bg-sec rounded-md p-10 flex flex-col items-center justify-center border-2 border-border border-dashed">
-            <div className="bg-bg p-4 mb-4 rounded-full text-txt/30">
-              <MessagesSquare size={60} />
+            <div className="bg-accent/10 p-4 mb-4 rounded-full">
+              <MessagesSquare size={36} className="text-accent"/>
             </div>
             <h2 className="text-xl font-bold text-txt">
               Aún no tienes comentarios
