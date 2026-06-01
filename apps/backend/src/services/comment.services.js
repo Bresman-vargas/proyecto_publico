@@ -3,13 +3,24 @@ import { v4 as uuidv4 } from "uuid";
 
 export const createCommentService = async (data) => {
   const { content, discussion_id, user_id, parent_comment_id = null } = data;
-  const commentId = uuidv4(); // Generación limpia en Node.js compatible con commentSchema
+  const commentId = uuidv4();
 
-  const { rows } = await pool.query(
+  // 1. Insertamos el comentario
+  await pool.query(
     `INSERT INTO comments (id, content, discussion_id, user_id, parent_comment_id, upvotes, downvotes)
-     VALUES ($1, $2, $3, $4, $5, 0, 0)
-     RETURNING *;`,
+     VALUES ($1, $2, $3, $4, $5, 0, 0);`,
     [commentId, content, discussion_id, user_id, parent_comment_id],
+  );
+
+  // 2. Consultamos el comentario recién creado trayendo los datos del usuario (Igual que en el GET)
+  const { rows } = await pool.query(
+    `SELECT 
+        c.*,
+        CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario
+     FROM comments c
+     INNER JOIN usuarios u ON c.user_id = u.id
+     WHERE c.id = $1;`,
+    [commentId],
   );
 
   return rows[0];
@@ -18,13 +29,31 @@ export const createCommentService = async (data) => {
 // Obtener todos los comentarios de una discusión con el nombre del usuario mapeado
 export const getCommentsByDiscussionService = async (discussionId) => {
   const { rows } = await pool.query(
-    `SELECT 
-        c.*,
-        CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario
-     FROM comments c
-     INNER JOIN usuarios u ON c.user_id = u.id
-     WHERE c.discussion_id = $1
-     ORDER BY c.created_at ASC;`,
+    `WITH RECURSIVE CheckedComments AS (
+        SELECT 
+            c.*,
+            CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
+            ARRAY[c.id::text] AS path,
+            c.created_at AS root_date 
+        FROM comments c
+        INNER JOIN usuarios u ON c.user_id = u.id
+        WHERE c.discussion_id = $1 AND c.parent_comment_id IS NULL
+
+        UNION ALL
+
+        SELECT 
+            c.*,
+            CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
+            p.path || c.id::text AS path,
+            p.root_date 
+        FROM comments c
+        INNER JOIN usuarios u ON c.user_id = u.id
+        INNER JOIN CheckedComments p ON c.parent_comment_id = p.id
+    )
+    SELECT * FROM CheckedComments 
+    ORDER BY 
+    root_date DESC, 
+    path ASC;`,
     [discussionId],
   );
   return rows;

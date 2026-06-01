@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useCallback, createContext, useContext, useState, useEffect } from "react";
 import {
   registerRequest,
   loginRequest,
@@ -44,9 +44,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [errors]);
 
-  const clearErrors = () => {
+  const clearErrors = useCallback(() => {
     setErrors([]);
-  };
+  }, []);
 
   const registar = async (data) => {
     setLoading(true);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setLoading(false);
     } catch (error) {
-      const errorMsg = error.response?.data?.message || "Error al registrar";
+      const errorMsg = error.response?.data?.message;
       setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
       setIsAuthenticated(false);
       setLoading(false);
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     } catch (error) {
       const errorMsg =
-        error.response?.data?.message || "Error al iniciar sesión";
+        error.response?.data?.message;
       setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
       setIsAuthenticated(false);
       setLoading(false);

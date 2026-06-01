@@ -115,7 +115,7 @@ export default function Register() {
 
   useEffect(() => {
     clearErrors();
-  }, [clearErrors]);
+  }, []);
 
   const onSubmit = async (data: any) => {
     // Forzamos que los ids viajen como tipo numérico hacia la API y Zod
