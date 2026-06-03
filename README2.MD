@@ -27,12 +27,12 @@ Para el desarrollo de la plataforma se tomaron en cuenta 2 roles principales:
 
 | Requerimientos Funcionales | Requerimientos No Funcionales |
 | :--- | :--- |
-|  El ciudadano puede crear una nueva discusión (reclamo o propuesta) dentro de un foro temático específico. | **RNF 1:** El sistema debe poseer una alta facilidad de uso, permitiendo que un ciudadano publique una discusión en menos de 2 minutos. |
-|  El ciudadano es capaz de comentar en discusiones existentes y votar (Upvote/Downvote) en los comentarios de otros. | **RNF 2:** El sistema debe reflejar los votos y nuevos comentarios con un tiempo de respuesta inferior a 2 segundos en la interfaz. |
-|  El ciudadano puede editar o eliminar sus propias discusiones y comentarios. | **RNF 3:** La plataforma web debe ser completamente responsiva, garantizando una correcta visualización en dispositivos móviles y de escritorio. |
-|  El administrador tiene la capacidad de crear, editar y cerrar foros temáticos y encuestas. | **RNF 4:** El acceso a las rutas y acciones administrativas debe estar protegido mediante autenticación con tokens JWT (JSON Web Tokens). |
-|  El administrador puede cambiar el estado de una discusión (Activo/Inactivo) indicando si el reclamo ha sido resuelto. | **RNF 5:** Las contraseñas de los usuarios deben ser almacenadas utilizando encriptación unidireccional (Bcrypt). |
-|  El sistema debe validar que la información ingresada en los formularios cumpla con los formatos correctos (RUT, email, longitud de texto) antes de procesarla. | **RNF 6:** El sistema debe implementarse utilizando una arquitectura de monorepo para facilitar el despliegue conjunto de API y Cliente. |
+|  El ciudadano puede crear una nueva discusión (reclamo o propuesta) dentro de un foro temático específico. |  El sistema debe poseer una alta facilidad de uso, permitiendo que un ciudadano publique una discusión en menos de 2 minutos. |
+|  El ciudadano es capaz de comentar en discusiones existentes y votar (Upvote/Downvote) en los comentarios de otros. |  El sistema debe reflejar los votos y nuevos comentarios con un tiempo de respuesta inferior a 2 segundos en la interfaz. |
+|  El ciudadano puede editar o eliminar sus propias discusiones y comentarios. |  La plataforma web debe ser completamente responsiva, garantizando una correcta visualización en dispositivos móviles y de escritorio. |
+|  El administrador tiene la capacidad de crear, editar y cerrar foros temáticos y encuestas. |  El acceso a las rutas y acciones administrativas debe estar protegido mediante autenticación con tokens JWT (JSON Web Tokens). |
+|  El administrador puede cambiar el estado de una discusión (Activo/Inactivo) indicando si el reclamo ha sido resuelto. |  Las contraseñas de los usuarios deben ser almacenadas utilizando encriptación unidireccional (Bcrypt). |
+|  El sistema debe validar que la información ingresada en los formularios cumpla con los formatos correctos (RUT, email, longitud de texto) antes de procesarla. |  El sistema debe implementarse utilizando una arquitectura de monorepo para facilitar el despliegue conjunto de API y Cliente. |
 
 ## 1.2 Justificación del problema y análisis del usuario objetivo
 
