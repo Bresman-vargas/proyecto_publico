@@ -6,6 +6,7 @@
 *   **Módulo de Discusión:** Los ciudadanos pueden iniciar hilos de conversación dentro de los foros creados.
 *   **Sistema de Comentarios:** Interacción multinivel en cada discusión.
 
+INTEGRANTES : BRESMAN JOHAN GARZON VARGAS | JULIAN ANTONIO SILVA DONOSO | VICENTE ANTONIO MERY ARANCIBIA
 
 # Santo Domingo Conecta - Plataforma de Participación Ciudadana
 
