@@ -7,6 +7,7 @@ import discussion_router from "./routes/discussions.routes.js";
 import util_router from "./routes/util.routes.js";
 import comment_router from "./routes/comments.routes.js";
 import survey_router from "./routes/surveys.routes.js";
+import forums_router from "./routes/forums.routes.js";
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use("/api", util_router);
 app.use("/api", comment_router);
 app.use("/api", survey_router);
 
+app.use("/api", forums_router);
 
 export default app;

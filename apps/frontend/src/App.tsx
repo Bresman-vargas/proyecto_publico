@@ -16,9 +16,7 @@ function App() {
 }
 
 function AppRouter() {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) return <Loader className="h-screen"/>;
+  const { isAuthenticated } = useAuth();
 
   const privateRoutes = routes.filter((r) => r.private);
   const publicRoutes = routes.filter((r) => !r.private);

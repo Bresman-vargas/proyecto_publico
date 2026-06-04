@@ -33,6 +33,8 @@ export default function DiscussionForm() {
     setValue,
     watch,
     reset,
+    setError: setFormError, // <-- Añadir esto
+    clearErrors: clearFormErrors, // <-- Añadir esto
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(discussionSchema),
@@ -79,11 +81,40 @@ export default function DiscussionForm() {
   }, [isEditMode, id, reset]);
 
   const addKeyword = () => {
-    if (currentKeyword.trim() && keywords.length < 4) {
-      const updatedKeywords = [...keywords, currentKeyword.trim()];
-      setValue("keywords", updatedKeywords, { shouldValidate: true });
-      setCurrentKeyword("");
+    const trimmedWord = currentKeyword.trim();
+
+    // 1. Validar que no esté vacía
+    if (!trimmedWord) {
+      setFormError("keywords", {
+        type: "manual",
+        message: "La palabra clave no puede estar vacía",
+      });
+      return;
     }
+
+    // 2. Validar el máximo de caracteres compatible con la Base de Datos
+    if (trimmedWord.length > 50) {
+      setFormError("keywords", {
+        type: "manual",
+        message: "Cada palabra clave no puede superar los 50 caracteres",
+      });
+      return;
+    }
+
+    // 3. Validar el máximo de elementos permitidos
+    if (keywords.length >= 4) {
+      setFormError("keywords", {
+        type: "manual",
+        message: "Máximo 4 palabras clave",
+      });
+      return;
+    }
+
+    // Si todo está bien, agregamos la palabra y limpiamos los errores previos de keywords
+    const updatedKeywords = [...keywords, trimmedWord];
+    setValue("keywords", updatedKeywords, { shouldValidate: true });
+    setCurrentKeyword("");
+    clearFormErrors("keywords");
   };
 
   const removeKeyword = (indexToRemove: number) => {
@@ -117,7 +148,7 @@ export default function DiscussionForm() {
     { value: "0", label: "Oculto" },
   ];
 
-  if (loading) return <Loader className="h-[calc(100vh-8rem)]"/>;
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
 
   if (error) return <div>{error}</div>;
 
@@ -195,7 +226,14 @@ export default function DiscussionForm() {
               <input
                 type="text"
                 value={currentKeyword}
-                onChange={(e) => setCurrentKeyword(e.target.value)}
+                maxLength={52} // <-- Evita que escriban infinitamente
+                onChange={(e) => {
+                  setCurrentKeyword(e.target.value);
+                  // Si el usuario reduce el texto a un tamaño válido, quitamos el error visual
+                  if (e.target.value.trim().length <= 50) {
+                    clearFormErrors("keywords");
+                  }
+                }}
                 placeholder="Ej: Iluminación"
                 className="flex-1 p-2 bg-bg-sec/40 border border-border rounded-md focus:outline focus:outline-accent/20"
                 onKeyDown={(e) => {
@@ -215,7 +253,7 @@ export default function DiscussionForm() {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {keywords.map((word, index) => (
                 <span
                   key={index}
@@ -232,8 +270,15 @@ export default function DiscussionForm() {
                 </span>
               ))}
             </div>
+            
+            {/* RENDERIZADO DE ERROR MEJORADO */}
             {errors.keywords && (
-              <p className="text-err text-xs mt-1">{errors.keywords.message}</p>
+              <p className="text-err text-xs mt-1">
+                {/* Si el error viene de Zod como un array de fallos internos, busca el mensaje interno, si no muestra el mensaje raíz */}
+                {Array.isArray(errors.keywords) 
+                  ? (errors.keywords.find((err) => err)?.message || "Alguna palabra clave no es válida")
+                  : (errors.keywords.message as string)}
+              </p>
             )}
           </div>
 

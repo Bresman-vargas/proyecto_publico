@@ -12,7 +12,9 @@ export const createDiscussion = async (req, res) => {
 
 export const getDiscussionsByUser = async (req, res) => {
   try {
-    const discussion = await discussionService.getAllDiscussionByUserService(req.params.userId);
+    const discussion = await discussionService.getAllDiscussionByUserService(
+      req.params.userId,
+    );
     return res.status(200).json(discussion);
   } catch (error) {
     return res
@@ -37,27 +39,36 @@ export const getDiscussion = async (req, res) => {
 
 export const updateDiscussion = async (req, res) => {
   try {
-    const updated = await discussionService.updateDiscussionService(req.params.id, req.body);
+    const updated = await discussionService.updateDiscussionService(
+      req.params.id,
+      req.body,
+    );
     return res.status(200).json(updated);
   } catch (error) {
     if (error.message === "DISCUSSION_NOT_FOUND") {
       return res.status(404).json({ message: "Discusión no encontrada" });
     }
-    console.log(error)
-    return res.status(500).json({ message: "Error al actualizar la discusión" });
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Error al actualizar la discusión" });
   }
 };
 
 export const updateState = async (req, res) => {
   try {
-    const updated = await discussionService.updateDiscussionStateService(req.params.id);
+    const updated = await discussionService.updateDiscussionStateService(
+      req.params.id,
+    );
     return res.status(200).json(updated);
   } catch (error) {
     if (error.message === "DISCUSSION_NOT_FOUND") {
       return res.status(404).json({ message: "Discusión no encontrada" });
     }
-    console.log(error)
-    return res.status(500).json({ message: "Error al actualizar la discusión" });
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Error al actualizar la discusión" });
   }
 };
 
@@ -70,5 +81,16 @@ export const deleteDiscussion = async (req, res) => {
       return res.status(404).json({ message: "Discusión no encontrada" });
     }
     return res.status(500).json({ message: "Error al eliminar la discusión" });
+  }
+};
+
+export const getDiscussionsByForum = async (req, res) => {
+  try {
+    const { forumId } = req.params;
+    const discussions =
+      await discussionService.getDiscussionsByForumService(forumId);
+    res.json(discussions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

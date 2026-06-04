@@ -187,7 +187,7 @@ export default function Forums() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
         {forosFiltrados.length === 0 ? (
           <p className="text-txt-sec col-span-2 text-center py-10">
             No se encontraron foros para "{busqueda}"

@@ -10,6 +10,7 @@
     <meta name="author" content="Municipalidad de Santo Domingo" />
     
     <script>
+      // 1. Lógica existente para el Tema (Oscuro/Claro)
       const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       
       if (theme === 'dark') {
@@ -17,6 +18,10 @@
       } else {
         document.documentElement.classList.remove('dark');
       }
+
+      // 2. NUEVA LÓGICA: Inyección inmediata del Color de Acento
+      const accent = localStorage.getItem('accent') || 'blue';
+      document.documentElement.classList.add(`accent-${accent}`);
     </script>
     <link href="/src/style.css" rel="stylesheet">
   </head>

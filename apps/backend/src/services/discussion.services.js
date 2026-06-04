@@ -90,3 +90,11 @@ export const deleteDiscussionService = async (id) => {
   if (rows.length === 0) throw new Error("DISCUSSION_NOT_FOUND");
   return rows[0];
 };
+
+export const getDiscussionsByForumService = async (forumId) => {
+  const result = await pool.query(
+    "SELECT * FROM discussions WHERE forum_id = $1 ORDER BY created_at DESC",
+    [forumId]
+  );
+  return result.rows;
+};
