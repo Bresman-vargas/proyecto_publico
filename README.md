@@ -203,7 +203,8 @@ const api = axios.create({
 Funciones implementadas por dominio en `/api`:
 
 * **`forums.ts`:** `getForumsRequest()`, `createForumRequest()`
-* **`discussions.ts`:** `getDiscussionsByForum()`, `createDiscussion()`, `editDiscussion()`, `deleteDiscussion()`
+* **`discussions.ts`:** `getDiscussionsByForum()`, `getDiscussionId()`, `discussionsByUser()`, `createDiscussion()`, `editDiscussion()`, `editDiscussionState()`, `delateDiscussion()`
+* **`comments.ts`:** `getCommentsByDiscussion()`, `getCommentsByUser()`, `createComment()`, `voteComment()`, `deleteComment()`
 * **`auth.ts`:** `loginRequest()`, `registerRequest()`, `logoutRequest()`, `verifyTokenRequest()`
 
 Vistas conectadas a la API:
@@ -218,16 +219,18 @@ Vistas conectadas a la API:
 * Generación de token JWT en login/register almacenado en cookie HttpOnly
 * Rutas protegidas en frontend mediante `AuthContext` — redirige a `/login` si no hay sesión activa
 * **Diferenciación de roles:** El campo `role` del usuario (`"admin"` / `"user"`) controla el acceso a vistas administrativas
-* El `Sidebar` muestra la sección ADMIN solo cuando `user.role === "admin"`
+* El `Sidebar` muestra la sección ADMIN solo cuando `user.role === "admin"`, ocultando `/forums` y `/surveys` a usuarios ciudadanos
+* El `AppRouter` en `App.tsx` envuelve las rutas privadas en un componente `Layout` que verifica `isAuthenticated` antes de renderizar
 
 ---
 
 ## 2.6 Validación de usuarios y seguridad
 
-* **Validación de inputs:** Esquemas Zod compartidos en `@proyecto_publico/schemas` para foros y discusiones
+* **Validación de inputs:** Esquemas Zod compartidos en `@proyecto_publico/schemas` para foros, discusiones y comentarios, usados tanto en frontend (formularios) como en backend (middlewares)
 * **Hash de contraseñas:** `bcryptjs` para encriptación unidireccional antes de insertar en base de datos
 * **Protección SQL:** Consultas parametrizadas con `$1, $2` en todos los servicios, bloqueando inyección SQL
 * **CORS:** Configurado para aceptar solo requests desde `FRONTEND_URL` definida en variables de entorno
+* **Cookies seguras:** Token JWT almacenado en cookie con `httpOnly` para prevenir acceso desde JavaScript
 
 ---
 
