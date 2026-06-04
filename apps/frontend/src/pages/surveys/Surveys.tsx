@@ -1,42 +1,97 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CirclePlus, SquarePen } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { surveys } from "./HardcodeSurveys";
+import { useNavigate } from "react-router-dom";
+import * as surveysApi from "../../api/surveys";
+import { useAuth } from "../../context/AuthContext";
+import Loader from "../../components/Loader";
+
+type SurveyOption = {
+  id: string;
+  texto: string;
+  votes: number;
+};
+
+type Survey = {
+  id: string;
+  title: string;
+  description: string;
+  user_id: string | null;
+  is_active?: boolean;
+  date_start?: string | null;
+  date_end?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  options: SurveyOption[];
+};
 
 export default function Surveys() {
   const [activeTab, setActiveTab] = useState<"crear" | "vista">("crear");
-  const navigate = useNavigate();
-  const [openSurveyId, setOpenSurveyId] = useState<string | number | null>(
-    null,
-  );
+  const [openSurveyId, setOpenSurveyId] = useState<string | null>(null);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const loggedAdmin = "Vicente Mery";
-  const mySurveys = surveys.filter((sur) => sur.nombreAdmin === loggedAdmin);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const fetchSurveys = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await surveysApi.getSurveys();
+      setSurveys(data);
+    } catch (err) {
+      console.error("Error al cargar encuestas:", err);
+      setError("No se pudieron cargar las encuestas.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSurveys();
+  }, []);
+
+  const mySurveys = surveys.filter((sur) => sur.user_id === user?.id);
   const visibleSurveys = activeTab === "crear" ? mySurveys : surveys;
-  //const canEdit = activeTab === "crear";
-  const handleEdit = (id: string | number) => {
+
+  const handleEdit = (id: string) => {
     navigate(`/surveys/edit/${id}`);
   };
 
-  const toggleSurvey = (id: string | number) => {
+  const toggleSurvey = (id: string) => {
     setOpenSurveyId((currentId) => (currentId === id ? null : id));
+  };
+
+  const getTotalVotes = (options: SurveyOption[]) => {
+    return options.reduce((total, option) => total + option.votes, 0);
   };
 
   const getOptionPercentage = (votes: number, totalVotes: number) => {
     if (!totalVotes || totalVotes <= 0) return 0;
-
     return Math.round((votes / totalVotes) * 100);
   };
 
-  const getWinningOption = (
-    options: { id: string; text: string; votes: number }[],
-  ) => {
+  const getWinningOption = (options: SurveyOption[]) => {
     if (!options.length) return null;
 
     return options.reduce((winner, current) =>
       current.votes > winner.votes ? current : winner,
     );
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <section className="w-full rounded-md border border-border bg-bg-sec p-4">
+        <p className="text-err">{error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full rounded-md border border-border bg-bg-sec p-4">
@@ -56,7 +111,7 @@ export default function Surveys() {
         <button
           type="button"
           onClick={() => setActiveTab("vista")}
-          className={`px-4 py-2 text-sm font-medium ${
+          className={`cursor-pointer px-4 py-2 text-sm font-medium ${
             activeTab === "vista"
               ? "border-b-2 border-accent text-accent"
               : "text-txt-sec hover:text-txt"
@@ -68,328 +123,248 @@ export default function Surveys() {
 
       <div className="rounded-md bg-bg p-4">
         {activeTab === "crear" && (
-          <div>
-            <section className="flex flex-col">
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
-                <div className="">
-                  <h2 className="text-lg font-semibold text-txt">
-                    Crear nueva encuesta
-                  </h2>
-                  <p className="text-txt-sec">
-                    Aquí puedes poner el formulario para crear la encuesta.
-                  </p>
-                </div>
-                <Link
-                  className="text-nowrap w-full md:w-fit px-4 py-2 bg-bg-sec text-ok rounded-md font-bold border border-border flex justify-center gap-4"
-                  to="/surveys/new"
-                >
-                  <CirclePlus />
-                  Crear Encuesta
-                </Link>
+          <section className="flex flex-col">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-txt">
+                  Crear nueva encuesta
+                </h2>
+                <p className="text-txt-sec">
+                  Aquí puedes crear y administrar tus encuestas.
+                </p>
               </div>
 
-              <div className="bg-bg-sec p-4 rounded-md grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {visibleSurveys.map((sur, index) => (
-                  <section
-                    className="rounded-md text-base/9 flex flex-col justify-start"
-                    key={index}
-                  >
-                    <header className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border">
-                      <section className="flex justify-between items-start gap-4 mb-2">
-                        <h1 className="text-xl font-bold text-pretty">
-                          {sur.title}
-                        </h1>
-                        <div className="flex items-center gap-4">
-                          <span
-                            className="text-nowrap relative cursor-pointer font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm text-accent"
-                            title="Opción más votada"
-                          >
-                            <span className="absolute -top-1 -right-1 animate-ping size-3 rounded-full bg-accent"></span>
-                            <span className="absolute -top-1 -right-1 size-3 rounded-full bg-accent"></span>
-                            Más votada:{" "}
-                            {getWinningOption(sur.options)?.text ?? "Sin votos"}
-                          </span>
-                          <button
-                            onClick={() => handleEdit(sur.id)}
-                            className=" hover:text-accent bg-bg-sec p-2 rounded-md border border-border text-txt-sec cursor-pointer"
-                            title="Editar registro"
-                          >
-                            <SquarePen size={20} />
-                          </button>
-                        </div>
-                      </section>
+              <button
+                type="button"
+                onClick={() => navigate("/surveys/new")}
+                className="flex w-full cursor-pointer justify-center gap-4 rounded-md border border-border bg-bg-sec px-4 py-2 font-bold text-ok md:w-fit"
+              >
+                <CirclePlus />
+                Crear Encuesta
+              </button>
+            </div>
 
-                      <section>
-                        <p className="text-base/normal text-txt-sec mt-2">
-                          {sur.descripcionEncuesta}
-                        </p>
-                      </section>
-                    </header>
+            <div className="grid grid-cols-1 gap-8 rounded-md bg-bg-sec p-4 xl:grid-cols-2">
+              {visibleSurveys.length === 0 && (
+                <p className="col-span-2 text-txt-sec">
+                  Aún no tienes encuestas creadas.
+                </p>
+              )}
 
-                    <section className="bg-bg border border-border rounded-b-md p-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleSurvey(sur.id)}
-                        className="w-full rounded-md border border-border bg-bg-sec px-4 py-2 text-sm font-bold text-txt-sec hover:text-accent cursor-pointer"
-                      >
-                        {openSurveyId === sur.id
-                          ? "Mostrar menos"
-                          : "Mostrar más"}
-                      </button>
-
-                      {openSurveyId === sur.id && (
-                        <div className="mt-4 rounded-md border border-border bg-bg-sec p-4">
-                          <h3 className="mb-3 text-center font-bold text-txt-sec">
-                            Resultados de la encuesta
-                          </h3>
-
-                          <div className="space-y-4">
-                            {sur.options.map((option) => {
-                              const winner = getWinningOption(sur.options);
-                              const isWinner = winner?.id === option.id;
-                              const percentage = getOptionPercentage(
-                                option.votes,
-                                sur.cantVotos,
-                              );
-
-                              return (
-                                <div
-                                  key={option.id}
-                                  className={`rounded-md border p-3 ${
-                                    isWinner
-                                      ? "border-accent bg-accent/10"
-                                      : "border-border bg-bg"
-                                  }`}
-                                >
-                                  <div className="mb-1 flex justify-between gap-4 text-sm">
-                                    <span
-                                      className={
-                                        isWinner ? "font-bold text-accent" : ""
-                                      }
-                                    >
-                                      {option.text}
-                                    </span>
-
-                                    <span className="text-txt-sec">
-                                      {option.votes} votos · {percentage}%
-                                    </span>
-                                  </div>
-
-                                  <div className="h-4 w-full rounded-full bg-bg-sec border border-border overflow-hidden">
-                                    <div
-                                      className={
-                                        isWinner
-                                          ? "h-full bg-accent"
-                                          : "h-full bg-txt-sec/40"
-                                      }
-                                      style={{ width: `${percentage}%` }}
-                                    />
-                                  </div>
-
-                                  {isWinner && (
-                                    <p className="mt-2 text-sm font-bold text-accent">
-                                      Opción más votada
-                                    </p>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Administrador:</p>
-                              <p className="text-txt-sec">{sur.nombreAdmin}</p>
-                            </div>
-
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Total de votos:</p>
-                              <p className="text-txt-sec">{sur.cantVotos}</p>
-                            </div>
-
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Opción más votada:</p>
-                              <p className="text-txt-sec">
-                                {getWinningOption(sur.options)?.text ??
-                                  "Sin votos"}
-                              </p>
-                            </div>
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Fecha emisión:</p>
-                              <p className="text-txt-sec">
-                                {formatDate(sur.fechaVoto)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </section>
-                  </section>
-                ))}
-              </div>
-            </section>
-          </div>
+              {visibleSurveys.map((sur) => (
+                <SurveyCard
+                  key={sur.id}
+                  survey={sur}
+                  openSurveyId={openSurveyId}
+                  canEdit={true}
+                  onToggle={toggleSurvey}
+                  onEdit={handleEdit}
+                  getTotalVotes={getTotalVotes}
+                  getOptionPercentage={getOptionPercentage}
+                  getWinningOption={getWinningOption}
+                />
+              ))}
+            </div>
+          </section>
         )}
 
         {activeTab === "vista" && (
-          <div>
-            <section className="flex flex-col">
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-txt">
-                    Todas las encuestas
-                  </h2>
-                  <p className="text-txt-sec">
-                    Aquí puedes revisar las encuestas creadas por todos los
-                    administradores.
-                  </p>
-                </div>
+          <section className="flex flex-col">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-txt">
+                  Todas las encuestas
+                </h2>
+                <p className="text-txt-sec">
+                  Aquí puedes revisar las encuestas creadas por todos los
+                  administradores.
+                </p>
               </div>
+            </div>
 
-              <div className="bg-bg-sec p-4 rounded-md grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {surveys.map((sur, index) => (
-                  <section
-                    className="rounded-md text-base/9 flex flex-col justify-start"
-                    key={index}
-                  >
-                    <header className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border">
-                      <section className="flex justify-between items-start gap-4 mb-2">
-                        <h1 className="text-xl font-bold text-pretty">
-                          {sur.title}
-                        </h1>
+            <div className="grid grid-cols-1 gap-8 rounded-md bg-bg-sec p-4 xl:grid-cols-2">
+              {surveys.length === 0 && (
+                <p className="col-span-2 text-txt-sec">
+                  Aún no hay encuestas disponibles.
+                </p>
+              )}
 
-                        <div className="flex items-center gap-4">
-                          <span
-                            className="text-nowrap relative cursor-pointer font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm text-accent"
-                            title="Opción más votada"
-                          >
-                            <span className="absolute -top-1 -right-1 animate-ping size-3 rounded-full bg-accent"></span>
-                            <span className="absolute -top-1 -right-1 size-3 rounded-full bg-accent"></span>
-                            Más votada:{" "}
-                            {getWinningOption(sur.options)?.text ?? "Sin votos"}
-                          </span>
-                        </div>
-                      </section>
-
-                      <section>
-                        <p className="text-base/normal text-txt-sec mt-2">
-                          {sur.descripcionEncuesta}
-                        </p>
-                      </section>
-                    </header>
-
-                    <section className="bg-bg border border-border rounded-b-md p-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleSurvey(sur.id)}
-                        className="w-full rounded-md border border-border bg-bg-sec px-4 py-2 text-sm font-bold text-txt-sec hover:text-accent cursor-pointer"
-                      >
-                        {openSurveyId === sur.id
-                          ? "Mostrar menos"
-                          : "Mostrar más"}
-                      </button>
-
-                      {openSurveyId === sur.id && (
-                        <div className="mt-4 rounded-md border border-border bg-bg-sec p-4">
-                          <h3 className="mb-3 text-center font-bold text-txt-sec">
-                            Resultados de la encuesta
-                          </h3>
-
-                          <div className="space-y-4">
-                            {sur.options.map((option) => {
-                              const winner = getWinningOption(sur.options);
-                              const isWinner = winner?.id === option.id;
-                              const percentage = getOptionPercentage(
-                                option.votes,
-                                sur.cantVotos,
-                              );
-
-                              return (
-                                <div
-                                  key={option.id}
-                                  className={`rounded-md border p-3 ${
-                                    isWinner
-                                      ? "border-accent bg-accent/10"
-                                      : "border-border bg-bg"
-                                  }`}
-                                >
-                                  <div className="mb-1 flex justify-between gap-4 text-sm">
-                                    <span
-                                      className={
-                                        isWinner ? "font-bold text-accent" : ""
-                                      }
-                                    >
-                                      {option.text}
-                                    </span>
-
-                                    <span className="text-txt-sec">
-                                      {option.votes} votos · {percentage}%
-                                    </span>
-                                  </div>
-
-                                  <div className="h-4 w-full rounded-full bg-bg-sec border border-border overflow-hidden">
-                                    <div
-                                      className={
-                                        isWinner
-                                          ? "h-full bg-accent"
-                                          : "h-full bg-txt-sec/40"
-                                      }
-                                      style={{ width: `${percentage}%` }}
-                                    />
-                                  </div>
-
-                                  {isWinner && (
-                                    <p className="mt-2 text-sm font-bold text-accent">
-                                      Opción más votada
-                                    </p>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Administrador:</p>
-                              <p className="text-txt-sec">{sur.nombreAdmin}</p>
-                            </div>
-
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Total de votos:</p>
-                              <p className="text-txt-sec">{sur.cantVotos}</p>
-                            </div>
-
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Opción más votada:</p>
-                              <p className="text-txt-sec">
-                                {getWinningOption(sur.options)?.text ??
-                                  "Sin votos"}
-                              </p>
-                            </div>
-
-                            <div className="rounded-md border border-border bg-bg p-3">
-                              <p className="font-bold">Fecha emisión:</p>
-                              <p className="text-txt-sec">
-                                {formatDate(sur.fechaVoto)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </section>
-                  </section>
-                ))}
-              </div>
-            </section>
-          </div>
+              {surveys.map((sur) => (
+                <SurveyCard
+                  key={sur.id}
+                  survey={sur}
+                  openSurveyId={openSurveyId}
+                  canEdit={false}
+                  onToggle={toggleSurvey}
+                  onEdit={handleEdit}
+                  getTotalVotes={getTotalVotes}
+                  getOptionPercentage={getOptionPercentage}
+                  getWinningOption={getWinningOption}
+                />
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </section>
   );
 }
 
-const formatDate = (dateString: string | null) => {
+type SurveyCardProps = {
+  survey: Survey;
+  openSurveyId: string | null;
+  canEdit: boolean;
+  onToggle: (id: string) => void;
+  onEdit: (id: string) => void;
+  getTotalVotes: (options: SurveyOption[]) => number;
+  getOptionPercentage: (votes: number, totalVotes: number) => number;
+  getWinningOption: (options: SurveyOption[]) => SurveyOption | null;
+};
+
+function SurveyCard({
+  survey,
+  openSurveyId,
+  canEdit,
+  onToggle,
+  onEdit,
+  getTotalVotes,
+  getOptionPercentage,
+  getWinningOption,
+}: SurveyCardProps) {
+  const options = survey.options ?? [];
+  const totalVotes = getTotalVotes(options);
+  const winner = getWinningOption(options);
+
+  return (
+    <section className="flex flex-col justify-start rounded-md text-base/9">
+      <header className="rounded-t-md border-l border-r border-t border-border bg-bg p-4">
+        <section className="mb-2 flex items-start justify-between gap-4">
+          <h1 className="text-pretty text-xl font-bold">{survey.title}</h1>
+
+          <div className="flex items-center gap-4">
+            <span
+              className="relative flex cursor-pointer items-center gap-2 text-nowrap rounded-sm border border-border bg-bg-sec px-4 font-bold text-accent"
+              title="Opción más votada"
+            >
+              <span className="absolute -right-1 -top-1 size-3 animate-ping rounded-full bg-accent"></span>
+              <span className="absolute -right-1 -top-1 size-3 rounded-full bg-accent"></span>
+              Más votada: {winner?.texto ?? "Sin votos"}
+            </span>
+
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => onEdit(survey.id)}
+                className="cursor-pointer rounded-md border border-border bg-bg-sec p-2 text-txt-sec hover:text-accent"
+                title="Editar registro"
+              >
+                <SquarePen size={20} />
+              </button>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <p className="mt-2 text-base/normal text-txt-sec">
+            {survey.description}
+          </p>
+        </section>
+      </header>
+
+      <section className="rounded-b-md border border-border bg-bg p-3">
+        <button
+          type="button"
+          onClick={() => onToggle(survey.id)}
+          className="w-full cursor-pointer rounded-md border border-border bg-bg-sec px-4 py-2 text-sm font-bold text-txt-sec hover:text-accent"
+        >
+          {openSurveyId === survey.id ? "Mostrar menos" : "Mostrar más"}
+        </button>
+
+        {openSurveyId === survey.id && (
+          <div className="mt-4 rounded-md border border-border bg-bg-sec p-4">
+            <h3 className="mb-3 text-center font-bold text-txt-sec">
+              Resultados de la encuesta
+            </h3>
+
+            <div className="space-y-4">
+              {options.map((option) => {
+                const isWinner = winner?.id === option.id;
+                const percentage = getOptionPercentage(
+                  option.votes,
+                  totalVotes,
+                );
+
+                return (
+                  <div
+                    key={option.id}
+                    className={`rounded-md border p-3 ${
+                      isWinner
+                        ? "border-accent bg-accent/10"
+                        : "border-border bg-bg"
+                    }`}
+                  >
+                    <div className="mb-1 flex justify-between gap-4 text-sm">
+                      <span className={isWinner ? "font-bold text-accent" : ""}>
+                        {option.texto}
+                      </span>
+
+                      <span className="text-txt-sec">
+                        {option.votes} votos · {percentage}%
+                      </span>
+                    </div>
+
+                    <div className="h-4 w-full overflow-hidden rounded-full border border-border bg-bg-sec">
+                      <div
+                        className={
+                          isWinner ? "h-full bg-accent" : "h-full bg-txt-sec/40"
+                        }
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+
+                    {isWinner && (
+                      <p className="mt-2 text-sm font-bold text-accent">
+                        Opción más votada
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-md border border-border bg-bg p-3">
+                <p className="font-bold">Usuario creador:</p>
+                <p className="text-txt-sec">{survey.user_id ?? "Sin usuario"}</p>
+              </div>
+
+              <div className="rounded-md border border-border bg-bg p-3">
+                <p className="font-bold">Total de votos:</p>
+                <p className="text-txt-sec">{totalVotes}</p>
+              </div>
+
+              <div className="rounded-md border border-border bg-bg p-3">
+                <p className="font-bold">Opción más votada:</p>
+                <p className="text-txt-sec">{winner?.texto ?? "Sin votos"}</p>
+              </div>
+
+              <div className="rounded-md border border-border bg-bg p-3">
+                <p className="font-bold">Fecha emisión:</p>
+                <p className="text-txt-sec">
+                  {formatDate(survey.created_at ?? survey.date_start)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    </section>
+  );
+}
+
+const formatDate = (dateString?: string | null) => {
   if (!dateString) return "N/A";
+
   const date = new Date(dateString);
 
   return new Intl.DateTimeFormat("es-ES", {

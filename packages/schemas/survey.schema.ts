@@ -1,5 +1,5 @@
 import * as z from "zod";
-const MAXTEXT = 25;
+const MAXTEXT = 80;
 export const surveySchema = z.object({
   title: z
     .string({ required_error: "El título es requerido." })
@@ -10,7 +10,7 @@ export const surveySchema = z.object({
   description: z
     .string({ required_error: "La descripción es obligatoria." })
     .trim()
-    .min(1, "No puede estar vació.")
+    .min(1, "No puede estar vacío.")
     .max(125, "Máximo 125 caracteres."),
 
   options: z
@@ -26,7 +26,8 @@ export const surveySchema = z.object({
     .min(2, "Debes agregar al menos 2 opciones")
     .max(5, "Puedes agregar máximo 5 opciones"),
 
-  dateStart: z.date(),
+  dateStart: z.coerce.date(),
+  dateEnd: z.coerce.date(),
 
-  dateEnd: z.date(),
+  user_id: z.string().uuid("El usuario no es válido"),
 });
