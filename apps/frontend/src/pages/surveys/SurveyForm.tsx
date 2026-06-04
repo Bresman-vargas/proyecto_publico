@@ -1,23 +1,31 @@
 import { useForm, useFieldArray } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import InputForm from "../../components/InputForm";
 import TextAreaForm from "../../components/TextAreaForm";
 import { surveySchema } from "@proyecto_publico/schemas";
 
+import { useAuth } from "../../context/AuthContext";
+import * as surveysApi from "../../api/surveys";
+
 type EncuestaFormData = z.infer<typeof surveySchema>;
 
 export default function SurveyForm() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const isEditMode = Boolean(id);
 
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors, isValid },
   } = useForm<EncuestaFormData>({
     resolver: zodResolver(surveySchema),
@@ -28,8 +36,39 @@ export default function SurveyForm() {
       options: [{ texto: "" }, { texto: "" }],
       dateStart: new Date(),
       dateEnd: new Date(),
+      user_id: user?.id ?? "",
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
+
+  useEffect(() => {
+    if (!isEditMode || !id) return;
+
+    const loadSurvey = async () => {
+      try {
+        const survey = await surveysApi.getSurveyId(id);
+
+        reset({
+          title: survey.title,
+          description: survey.description,
+          options: survey.options?.map((option: { texto: string }) => ({
+            texto: option.texto,
+          })) ?? [{ texto: "" }, { texto: "" }],
+          dateStart: new Date(survey.date_start),
+          dateEnd: new Date(survey.date_end),
+          user_id: survey.user_id,
+        });
+      } catch (error) {
+        console.error("Error al cargar encuesta:", error);
+      }
+    };
+
+    loadSurvey();
+  }, [isEditMode, id, reset]);
 
   const addOption = () => {
     if (fields.length >= 5) return;
@@ -41,32 +80,54 @@ export default function SurveyForm() {
     remove(index);
   };
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "options",
-  });
+  const onSubmit = async (data: EncuestaFormData) => {
+    try {
+      if (!user?.id) {
+        console.error("No hay usuario autenticado");
+        return;
+      }
 
-  const onSubmit = (data: EncuestaFormData) => {
-    console.log("Encuesta enviada:", data);
+      const cleanData = {
+        ...data,
+        user_id: user.id,
+      };
+
+      if (isEditMode && id) {
+        await surveysApi.editSurvey({
+          ...cleanData,
+          id,
+        });
+      } else {
+        await surveysApi.createSurvey(cleanData);
+      }
+
+      navigate("/surveys");
+    } catch (error) {
+      console.error("Error al guardar encuesta:", error);
+    }
   };
+
   return (
     <section className="center">
       <div className="bg-bg-sec/50 p-4 rounded-md border border-border">
         <header className="mb-8 col-span-2">
-          <div className="flex  items-center gap-4">
+          <div className="flex items-center gap-4">
             <Link to="/surveys" className="text-txt">
               <ArrowLeft />
             </Link>
+
             <h1 className="text-2xl my-2">
               {isEditMode ? "Editar una encuesta" : "Crear una encuesta"}
             </h1>
           </div>
+
           <p className="text-txt-sec text-pretty md:w-8/12">
             {isEditMode
               ? "Modifica los campos necesarios para actualizar la información de la encuesta dentro de este foro."
               : "En este formulario podrás crear tus propias encuestas que la comunidad podrá votar y decidir."}
           </p>
         </header>
+
         <form
           className="grid grid-cols-2 gap-x-4 bg-bg border border-border px-4 rounded-md py-8"
           onSubmit={handleSubmit(onSubmit)}
@@ -80,6 +141,7 @@ export default function SurveyForm() {
             register={register}
             require={true}
           />
+
           <TextAreaForm
             className="col-span-2"
             label="Description"
@@ -89,24 +151,43 @@ export default function SurveyForm() {
             register={register}
             require={true}
           />
+
           <label>
             <p className="mb-3">Fecha inicio</p>
             <input
               type="date"
-              name=""
-              id=""
               className="w-full outline-0 px-4 py-1 bg-bg-sec border border-border rounded-md"
+              {...register("dateStart", {
+                valueAsDate: true,
+              })}
             />
+
+            <div className="h-8 flex items-center">
+              {errors.dateStart && (
+                <span className="text-err text-sm">
+                  {errors.dateStart.message as string}
+                </span>
+              )}
+            </div>
           </label>
 
           <label>
             <p className="mb-3">Fecha término</p>
             <input
               type="date"
-              name=""
-              id=""
               className="w-full outline-0 px-4 py-1 bg-bg-sec border border-border rounded-md"
+              {...register("dateEnd", {
+                valueAsDate: true,
+              })}
             />
+
+            <div className="h-8 flex items-center">
+              {errors.dateEnd && (
+                <span className="text-err text-sm">
+                  {errors.dateEnd.message as string}
+                </span>
+              )}
+            </div>
           </label>
 
           <section className="col-span-2 py-4">
@@ -168,7 +249,6 @@ export default function SurveyForm() {
               </p>
             )}
           </section>
-
 
           <div className="py-4 col-span-2">
             <button

@@ -6,7 +6,7 @@ import { FRONTEND_URL } from "./config.js";
 import discussion_router from "./routes/discussions.routes.js";
 import util_router from "./routes/util.routes.js";
 import comment_router from "./routes/comments.routes.js";
-import survey_router from "./routes/surveys.routes.js"
+import survey_router from "./routes/surveys.routes.js";
 
 const app = express();
 
@@ -24,5 +24,6 @@ app.use("/api", discussion_router);
 app.use("/api", util_router);
 app.use("/api", comment_router);
 app.use("/api", survey_router);
+
 
 export default app;
