@@ -1,20 +1,82 @@
+import { useEffect, useState } from "react";
 import { ArrowLeft, MessageSquarePlus } from "lucide-react";
-import { Link } from "react-router-dom";
-import { HarcoDiscussions } from "../discussions/HarcoDiscussions";
+import { Link, useParams } from "react-router-dom";
+import { getForumsRequest } from "../../api/forums";
+import { getDiscussionsByForum } from "../../api/discussions";
 
-const foro = {
-  categoria: "Medio Ambiente",
-  titulo: "Áreas Verdes, Parques y convivencia",
-  discusiones: 120,
-  abiertas: 73,
-  cerradas: 47,
-  descripcion:
-    "Espacio para debatir sobre el cuidado de nuestros parques, propuestas para nuevas áreas verdes y normas de convivencia en espacios públicos de la comuna.",
-  imagen:
-    "https://comoli.es/wp-content/uploads/2023/12/creacion-espacios-verdes-foto.jpg",
-};
+interface Forum {
+  id: number;
+  titulo: string;
+  categoria: string;
+  descripcion: string;
+  imagen: string;
+}
+
+interface Discussion {
+  id: number;
+  title: string;
+  subtitle?: string;
+  content: string;
+  is_active: boolean;
+  keywords?: string[];
+  nombre?: string;
+  apellido?: string;
+  commentCount?: number;
+}
 
 export default function ForumDetail() {
+  const { id } = useParams();
+  const [foro, setForo] = useState<Forum | null>(null);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [forosData, discussionsData] = await Promise.all([
+          getForumsRequest(),
+          getDiscussionsByForum(id!),
+        ]);
+
+        const foroEncontrado = forosData.find(
+          (f: Forum) => String(f.id) === String(id)
+        );
+
+        if (!foroEncontrado) {
+          setError("Foro no encontrado");
+          return;
+        }
+
+        setForo(foroEncontrado);
+        setDiscussions(discussionsData);
+      } catch (err) {
+        setError("Error al cargar el foro");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-txt-sec">Cargando foro...</p>
+      </div>
+    );
+  }
+
+  if (error || !foro) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-err">{error ?? "Foro no encontrado"}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
 
@@ -45,15 +107,19 @@ export default function ForumDetail() {
         <p className="text-txt-sec">{foro.descripcion}</p>
         <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
           <div className="flex flex-col items-center bg-bg border border-border rounded-md px-6 py-3">
-            <span className="font-bold text-xl">{foro.discusiones}</span>
+            <span className="font-bold text-xl">{discussions.length}</span>
             <span className="text-txt-sec text-sm">Discusiones</span>
           </div>
           <div className="flex flex-col items-center bg-green-500/10 border border-green-500/40 rounded-md px-6 py-3">
-            <span className="font-bold text-xl text-green-600">{foro.abiertas}</span>
+            <span className="font-bold text-xl text-green-600">
+              {discussions.filter((d) => d.is_active).length}
+            </span>
             <span className="text-green-600 text-sm">Abiertas</span>
           </div>
           <div className="flex flex-col items-center bg-gray-500/10 border border-gray-400/40 rounded-md px-6 py-3">
-            <span className="font-bold text-xl text-gray-500">{foro.cerradas}</span>
+            <span className="font-bold text-xl text-gray-500">
+              {discussions.filter((d) => !d.is_active).length}
+            </span>
             <span className="text-gray-500 text-sm">Cerradas</span>
           </div>
         </div>
@@ -72,56 +138,68 @@ export default function ForumDetail() {
           </Link>
         </div>
 
-        <div className="flex flex-col gap-3">
-          {HarcoDiscussions.map((dis) => (
-            <article
-              key={dis.id}
-              className="bg-bg-sec border border-border rounded-md p-4 flex flex-col gap-3 hover:border-accent/50 transition-colors cursor-pointer"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-bold text-base">{dis.title}</h3>
-                  <p className="text-txt-sec text-sm">{dis.subtitle}</p>
-                </div>
-                <span
-                  className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border shrink-0 ${
-                    dis.is_active
-                      ? "bg-green-500/10 text-green-600 border-green-500/40"
-                      : "bg-gray-500/10 text-gray-500 border-gray-400/40"
-                  }`}
-                >
-                  ● {dis.is_active ? "Activa" : "Cerrada"}
-                </span>
-              </div>
-
-              {/* Contenido */}
-              <p className="text-sm text-txt line-clamp-2">{dis.content}</p>
-
-              {/* Keywords */}
-              <div className="flex flex-wrap gap-2">
-                {dis.keywords.map((word, i) => (
+        {discussions.length === 0 ? (
+          <p className="text-txt-sec text-center py-10">
+            No hay discusiones en este foro aún.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {discussions.map((dis) => (
+              <article
+                key={dis.id}
+                className="bg-bg-sec border border-border rounded-md p-4 flex flex-col gap-3 hover:border-accent/50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-bold text-base">{dis.title}</h3>
+                    {dis.subtitle && (
+                      <p className="text-txt-sec text-sm">{dis.subtitle}</p>
+                    )}
+                  </div>
                   <span
-                    key={i}
-                    className="text-xs px-3 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/50"
+                    className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border shrink-0 ${
+                      dis.is_active
+                        ? "bg-green-500/10 text-green-600 border-green-500/40"
+                        : "bg-gray-500/10 text-gray-500 border-gray-400/40"
+                    }`}
                   >
-                    #{word}
+                    ● {dis.is_active ? "Activa" : "Cerrada"}
                   </span>
-                ))}
-              </div>
+                </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-txt-sec">
-                <span>
-                  Por <span className="font-semibold text-txt">{dis.nombre} {dis.apellido}</span>
-                </span>
-                <span>{dis.commentCount} comentarios</span>
-              </div>
-            </article>
-          ))}
-        </div>
+                <p className="text-sm text-txt line-clamp-2">{dis.content}</p>
+
+                {dis.keywords && dis.keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {dis.keywords.map((word, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-3 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/50"
+                      >
+                        #{word}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-txt-sec">
+                  {dis.nombre && (
+                    <span>
+                      Por{" "}
+                      <span className="font-semibold text-txt">
+                        {dis.nombre} {dis.apellido}
+                      </span>
+                    </span>
+                  )}
+                  {dis.commentCount !== undefined && (
+                    <span>{dis.commentCount} comentarios</span>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
-
     </div>
   );
 }

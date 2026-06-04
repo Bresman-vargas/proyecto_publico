@@ -27,3 +27,8 @@ export const delateDiscussion = async (id: string) => {
   const response = await axios.delete(`/discussions/${id}`);
   return response.data;
 };
+
+export const getDiscussionsByForum = async (forumId: string | number) => {
+  const response = await axios.get(`/forums/${forumId}/discussions`);
+  return response.data;
+};
