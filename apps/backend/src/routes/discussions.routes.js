@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createDiscussion,
   getDiscussionsByUser,
+  getDiscussionsByForum,
   getDiscussion,
   deleteDiscussion,
   updateDiscussion,
@@ -14,6 +15,7 @@ const discussion_router = Router();
 
 discussion_router.get("/users/:userId/discussions", getDiscussionsByUser);
 discussion_router.get("/discussions/:id", getDiscussion);
+discussion_router.get("/forums/:forumId/discussions", getDiscussionsByForum);
 discussion_router.post("/discussions", validateSchema(discussionSchema), createDiscussion);
 discussion_router.patch("/discussions/:id", validateSchema(discussionSchema), updateDiscussion);
 discussion_router.patch("/discussions/:id/status", updateState);

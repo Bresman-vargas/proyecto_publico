@@ -1,4 +1,10 @@
-import { useCallback, createContext, useContext, useState, useEffect } from "react";
+import {
+  useCallback,
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import {
   registerRequest,
   loginRequest,
@@ -17,7 +23,7 @@ export const useAuth = () => {
   return context;
 };
 
-const DEV_MODE = false; // Cambiar a false en producción
+const DEV_MODE = true; // Cambiar a false en producción
 
 const MOCK_USER = {
   id: "dev-user-123",
@@ -71,8 +77,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setLoading(false);
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.message;
+      const errorMsg = error.response?.data?.message;
       setErrors(Array.isArray(errorMsg) ? errorMsg : [errorMsg]);
       setIsAuthenticated(false);
       setLoading(false);
