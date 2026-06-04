@@ -165,6 +165,21 @@ Endpoints implementados con métodos HTTP correctos y respuestas JSON estructura
 | PATCH | `/api/discussions/:id/status` | Cambiar estado de discusión | 200 |
 | DELETE | `/api/discussions/:id` | Eliminar una discusión | 200 |
 
+### Comentarios
+| Método | Endpoint | Descripción | Código |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/discussions/:discussionId/comments` | Obtener comentarios de una discusión | 200 |
+| GET | `/api/users/:userId/comments` | Obtener comentarios de un usuario | 200 |
+| POST | `/api/comments` | Crear un comentario | 201 |
+| POST | `/api/comments/:id/vote` | Votar un comentario (upvote/downvote) | 200 |
+| DELETE | `/api/comments/:id` | Eliminar un comentario | 200 |
+
+### Utilidades geográficas
+| Método | Endpoint | Descripción | Código |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/regiones` | Obtener todas las regiones de Chile | 200 |
+| GET | `/api/regiones/:id_region/comunas` | Obtener comunas de una región | 200 |
+
 ### Autenticación
 | Método | Endpoint | Descripción | Código |
 | :--- | :--- | :--- | :--- |
@@ -172,8 +187,6 @@ Endpoints implementados con métodos HTTP correctos y respuestas JSON estructura
 | POST | `/api/auth/login` | Iniciar sesión | 200 |
 | POST | `/api/auth/logout` | Cerrar sesión | 200 |
 | GET | `/api/auth/verify` | Verificar token JWT | 200 |
-
----
 
 ## 2.4 Consumo de la API REST desde React con Axios
 
