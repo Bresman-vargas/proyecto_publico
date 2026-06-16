@@ -81,9 +81,7 @@ export default function Surveys() {
     );
   };
 
-  if (loading) {
-    return <Loader />;
-  }
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
 
   if (error) {
     return (

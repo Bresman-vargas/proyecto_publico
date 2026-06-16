@@ -3,6 +3,7 @@ import { ArrowLeft, MessageSquarePlus } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { getForumsRequest } from "../../api/forums";
 import { getDiscussionsByForum } from "../../api/discussions";
+import Loader from "../../components/Loader";
 
 interface Forum {
   id: number;
@@ -61,13 +62,7 @@ export default function ForumDetail() {
     fetchData();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-txt-sec">Cargando foro...</p>
-      </div>
-    );
-  }
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
 
   if (error || !foro) {
     return (
@@ -106,17 +101,17 @@ export default function ForumDetail() {
         </div>
         <p className="text-txt-sec">{foro.descripcion}</p>
         <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
-          <div className="flex flex-col items-center bg-bg border border-border rounded-md px-6 py-3">
+          <div className="flex gap-4 items-center bg-bg border border-border rounded-md px-4 py-2">
             <span className="font-bold text-xl">{discussions.length}</span>
             <span className="text-txt-sec text-sm">Discusiones</span>
           </div>
-          <div className="flex flex-col items-center bg-green-500/10 border border-green-500/40 rounded-md px-6 py-3">
+          <div className="flex gap-4 items-center bg-green-500/10 border border-green-500/40 rounded-md px-4 py-2">
             <span className="font-bold text-xl text-green-600">
               {discussions.filter((d) => d.is_active).length}
             </span>
             <span className="text-green-600 text-sm">Abiertas</span>
           </div>
-          <div className="flex flex-col items-center bg-gray-500/10 border border-gray-400/40 rounded-md px-6 py-3">
+          <div className="flex gap-4 items-center bg-gray-500/10 border border-gray-400/40 rounded-md px-4 py-2">
             <span className="font-bold text-xl text-gray-500">
               {discussions.filter((d) => !d.is_active).length}
             </span>
@@ -130,7 +125,7 @@ export default function ForumDetail() {
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-xl">Discusiones</h2>
           <Link
-            to="/discussions/new"
+            to={`/discussions/new/${id}`}
             className="border border-border px-4 py-2 bg-bg font-bold rounded-md flex items-center gap-2 text-sm hover:bg-accent/10 transition-colors"
           >
             <MessageSquarePlus size={16} className="text-accent" />

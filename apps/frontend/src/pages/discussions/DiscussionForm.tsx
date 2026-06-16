@@ -17,7 +17,7 @@ import { ArrowLeft, Plus, X } from "lucide-react";
 import Loader from "../../components/Loader";
 
 export default function DiscussionForm() {
-  const { id } = useParams();
+  const { id, forumId } = useParams();
   const isEditMode = Boolean(id);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -79,6 +79,12 @@ export default function DiscussionForm() {
       fetchDiscussion();
     }
   }, [isEditMode, id, reset]);
+
+  useEffect(() => {
+    if (!isEditMode && forumId) {
+      setValue("forum_id", String(forumId), { shouldValidate: true });
+    }
+  }, [isEditMode, forumId, setValue]);
 
   const addKeyword = () => {
     const trimmedWord = currentKeyword.trim();
@@ -201,15 +207,6 @@ export default function DiscussionForm() {
             register={register}
             require={true}
           />
-          <InputForm
-            label="Foro"
-            name="forum_id"
-            type="number"
-            placeholder="Ej: Seguridad, Medio Ambiente, Obras"
-            errors={errors}
-            register={register}
-            require={true}
-          />
 
           <SelectForm
             label="Visibilidad"
@@ -270,13 +267,14 @@ export default function DiscussionForm() {
                 </span>
               ))}
             </div>
-            
+
             {/* RENDERIZADO DE ERROR MEJORADO */}
             {errors.keywords && (
               <p className="text-err text-xs mt-1">
                 {/* Si el error viene de Zod como un array de fallos internos, busca el mensaje interno, si no muestra el mensaje raíz */}
-                {Array.isArray(errors.keywords) 
-                  ? (errors.keywords.find((err) => err)?.message || "Alguna palabra clave no es válida")
+                {Array.isArray(errors.keywords)
+                  ? errors.keywords.find((err) => err)?.message ||
+                    "Alguna palabra clave no es válida"
                   : (errors.keywords.message as string)}
               </p>
             )}
