@@ -17,3 +17,27 @@ export const createNewForum = async (req, res) => {
     res.status(500).json({ message: "Error al crear foro" });
   }
 };
+
+export const updateForum = async (req, res) => {
+  try {
+    const updated = await forumsService.updateForum(req.params.id, req.body);
+    if (!updated) {
+      return res.status(404).json({ message: "Foro no encontrado" });
+    }
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar foro" });
+  }
+};
+
+export const deleteForum = async (req, res) => {
+  try {
+    const deleted = await forumsService.deleteForum(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Foro no encontrado" });
+    }
+    res.status(200).json({ message: "Foro eliminado con éxito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar foro" });
+  }
+};

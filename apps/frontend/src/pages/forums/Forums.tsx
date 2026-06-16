@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MessageSquarePlus, Pencil, Search, X } from "lucide-react";
+import { MessageSquarePlus, Pencil, Search, Trash2, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -8,6 +8,11 @@ import { forumSchema } from "@proyecto_publico/schemas";
 import InputForm from "../../components/InputForm";
 import TextAreaForm from "../../components/TextAreaForm";
 import SelectForm from "../../components/SelectForm";
+import {
+  getForumsRequest,
+  updateForumRequest,
+  deleteForumRequest,
+} from "../../api/forums";
 
 type ForumFormData = z.infer<typeof forumSchema>;
 
@@ -39,96 +44,38 @@ const toSentenceCase = (str: string) =>
     .toLowerCase()
     .replace(/(^\s*\w|[.!?]\s*\w)/g, (char) => char.toUpperCase());
 
-const forosData: ForumData[] = [
-  {
-    id: 1,
-    categoria: "Medio Ambiente",
-    titulo: "Áreas Verdes, Parques y convivencia",
-    discusiones: 120,
-    abiertas: 73,
-    cerradas: 47,
-    descripcion:
-      "Espacio para debatir sobre el cuidado de nuestros parques, propuestas para nuevas áreas verdes y normas de convivencia en espacios públicos de la comuna.",
-    imagen:
-      "https://comoli.es/wp-content/uploads/2023/12/creacion-espacios-verdes-foto.jpg",
-  },
-  {
-    id: 2,
-    categoria: "Seguridad",
-    titulo: "Seguridad Ciudadana y Prevención",
-    discusiones: 345,
-    abiertas: 198,
-    cerradas: 147,
-    descripcion:
-      "Foro destinado a coordinar acciones preventivas, reportar luminarias en mal estado y proponer mejoras en la seguridad de los barrios.",
-    imagen:
-      "https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    categoria: "Infraestructura",
-    titulo: "Tránsito, Transporte y Movilidad",
-    discusiones: 210,
-    abiertas: 134,
-    cerradas: 76,
-    descripcion:
-      "Debate sobre el transporte público local, estado de calles, creación de ciclovías y problemas de congestión vehicular.",
-    imagen:
-      "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    categoria: "Servicios",
-    titulo: "Gestión de Residuos y Reciclaje",
-    discusiones: 89,
-    abiertas: 42,
-    cerradas: 47,
-    descripcion:
-      "Consultas sobre los horarios del camión recolector, puntos limpios disponibles y estrategias para mejorar el reciclaje municipal.",
-    imagen:
-      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    id: 5,
-    categoria: "Urbanismo",
-    titulo: "Desarrollo Urbano y Obras Públicas",
-    discusiones: 156,
-    abiertas: 89,
-    cerradas: 67,
-    descripcion:
-      "Información y opiniones ciudadanas sobre las nuevas obras en la comuna, permisos de edificación y consultas sobre el plan regulador.",
-    imagen:
-      "https://www.ecologiapolitica.info/wp-content/uploads/2014/07/santiago-chile.jpg",
-  },
-  {
-    id: 6,
-    categoria: "Comunidad",
-    titulo: "Salud Pública y Bienestar Animal",
-    discusiones: 274,
-    abiertas: 155,
-    cerradas: 119,
-    descripcion:
-      "Espacio de información sobre vacunatorios, atención en los recintos de salud municipales y campañas de tenencia responsable de mascotas.",
-    imagen:
-      "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=1000&auto=format&fit=crop",
-  },
-];
-
 export default function Forums() {
+  const [foros, setForos] = useState<ForumData[]>([]);
   const [foroEditando, setForoEditando] = useState<ForumData | null>(null);
+  const [foroAEliminar, setForoAEliminar] = useState<ForumData | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ForumFormData>({
     resolver: zodResolver(forumSchema),
     mode: "onChange",
   });
 
-  const forosFiltrados = forosData.filter((foro) => {
+  useEffect(() => {
+    const fetchForos = async () => {
+      try {
+        const data = await getForumsRequest();
+        setForos(data);
+      } catch (error) {
+        console.error("Error al cargar foros:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchForos();
+  }, []);
+
+  const forosFiltrados = foros.filter((foro) => {
     const texto = busqueda.toLowerCase();
     return (
       foro.titulo.toLowerCase().includes(texto) ||
@@ -138,7 +85,8 @@ export default function Forums() {
   });
 
   const abrirModal = (e: React.MouseEvent, foro: ForumData) => {
-    e.preventDefault(); // evita que el Link del card navegue al hacer click en editar
+    e.preventDefault();
+    e.stopPropagation();
     setForoEditando(foro);
     reset({
       titulo: foro.titulo,
@@ -153,9 +101,28 @@ export default function Forums() {
     reset();
   };
 
-  const onSubmit = (data: ForumFormData) => {
-    console.log("Foro editado:", data);
-    cerrarModal();
+  const onSubmit = async (data: ForumFormData) => {
+    try {
+      const updated = await updateForumRequest(foroEditando!.id, data);
+      setForos((prev) =>
+        prev.map((f) => (f.id === foroEditando!.id ? { ...f, ...updated } : f)),
+      );
+      cerrarModal();
+    } catch (error) {
+      console.error("Error al editar foro:", error);
+    }
+  };
+
+  const eliminarForo = async () => {
+    if (!foroAEliminar) return;
+    try {
+      await deleteForumRequest(foroAEliminar.id);
+      setForos((prev) => prev.filter((f) => f.id !== foroAEliminar.id));
+      setForoAEliminar(null);
+    } catch (error: any) {
+      console.error("Error al eliminar foro:", error);
+      alert(error?.response?.data?.message || "Error al eliminar");
+    }
   };
 
   return (
@@ -169,7 +136,10 @@ export default function Forums() {
         </div>
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-fit">
           <div className="relative w-full md:w-72">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-sec" />
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-sec"
+            />
             <input
               type="text"
               placeholder="Buscar foro..."
@@ -188,7 +158,11 @@ export default function Forums() {
       </header>
 
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
-        {forosFiltrados.length === 0 ? (
+        {loading ? (
+          <p className="text-txt-sec col-span-2 text-center py-10">
+            Cargando foros...
+          </p>
+        ) : forosFiltrados.length === 0 ? (
           <p className="text-txt-sec col-span-2 text-center py-10">
             No se encontraron foros para "{busqueda}"
           </p>
@@ -197,7 +171,7 @@ export default function Forums() {
             <Link
               to={`/forums/${foro.id}`}
               key={foro.id}
-              className="w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors"
+              className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors"
             >
               <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
                 <div className="flex items-start justify-between">
@@ -205,15 +179,29 @@ export default function Forums() {
                     <p className="text-accent capitalize">{foro.categoria}</p>
                     <h2 className="font-bold text-xl">{foro.titulo}</h2>
                   </div>
-                  <button
-                    onClick={(e) => abrirModal(e, foro)}
-                    className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-accent bg-bg hover:bg-accent/10 transition-colors flex-shrink-0"
-                  >
-                    <Pencil size={14} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => abrirModal(e, foro)}
+                      className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-accent bg-bg hover:bg-accent/10 transition-colors flex-shrink-0"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setForoAEliminar(foro);
+                      }}
+                      className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-red-500 bg-bg hover:bg-red-500/10 transition-colors flex-shrink-0"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex gap-4">
-                  <p className="text-txt-sec">({foro.discusiones} Discusiones)</p>
+                  <p className="text-txt-sec">
+                    ({foro.discusiones} Discusiones)
+                  </p>
                 </div>
                 <div className="flex gap-3">
                   <span className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/40">
@@ -238,6 +226,51 @@ export default function Forums() {
         )}
       </section>
 
+      {/* Modal confirmar eliminación */}
+      {foroAEliminar && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setForoAEliminar(null)}
+        >
+          <section
+            className="w-full max-w-md bg-bg-sec border border-border rounded-md p-6 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-xl">Eliminar Foro</h2>
+              <button
+                onClick={() => setForoAEliminar(null)}
+                className="text-txt-sec hover:text-accent transition-colors"
+              >
+                <X />
+              </button>
+            </div>
+            <p className="text-txt-sec">
+              ¿Estás seguro de que deseas eliminar el foro{" "}
+              <span className="font-bold text-txt">
+                "{foroAEliminar.titulo}"
+              </span>
+              ? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setForoAEliminar(null)}
+                className="border border-border px-4 py-2 rounded-md text-txt-sec hover:bg-bg transition-colors text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={eliminarForo}
+                className="border border-red-500 px-4 py-2 rounded-md bg-red-500 text-white font-bold flex items-center gap-2 hover:bg-red-600 transition-colors text-sm"
+              >
+                <Trash2 size={14} /> Eliminar
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* Modal editar */}
       {foroEditando && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -260,7 +293,10 @@ export default function Forums() {
               Modifica los datos del foro y guarda los cambios.
             </p>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 bg-bg border border-border px-4 rounded-md py-8">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-2 bg-bg border border-border px-4 rounded-md py-8"
+            >
               <InputForm
                 label="Título del Foro"
                 name="titulo"
@@ -310,9 +346,15 @@ export default function Forums() {
                 </button>
                 <button
                   type="submit"
-                  className="border border-border px-4 py-2 rounded-md bg-bg text-accent font-bold flex items-center gap-2 hover:bg-accent/10 transition-colors text-sm"
+                  disabled={isSubmitting}
+                  className={`border border-border px-4 py-2 rounded-md bg-bg font-bold flex items-center gap-2 transition-colors text-sm ${
+                    isSubmitting
+                      ? "text-txt-sec cursor-not-allowed"
+                      : "text-accent hover:bg-accent/10 cursor-pointer"
+                  }`}
                 >
-                  <Pencil size={14} /> Guardar cambios
+                  <Pencil size={14} />
+                  {isSubmitting ? "Guardando..." : "Guardar cambios"}
                 </button>
               </div>
             </form>
