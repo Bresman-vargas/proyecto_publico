@@ -21,3 +21,12 @@ export const auth = (req, res, next) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const isAdmin = (req, res, next) => {
+  if (!req.user || req.user.rol !== 'admin') {
+    return res.status(403).json({ 
+      message: "Acceso denegado: Se requieren permisos de Administrador." 
+    });
+  }
+  next();
+};

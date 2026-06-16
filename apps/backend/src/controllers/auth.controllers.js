@@ -17,7 +17,8 @@ export const login = async (req, res) => {
       message: "Login exitoso",
         id: user.id,
         nombre: user.nombre,
-        email: user.email
+        email: user.email,
+        rol: user.rol
     });
   } catch (error) {
     if (error.message === "USER_NOT_FOUND" || error.message === "INVALID_CREDENTIALS") {
@@ -44,6 +45,7 @@ export const register = async (req, res) => {
       id: user.id,
       nombre: user.nombre,
       email: user.email,
+      rol: user.rol
     });
   } catch (error) {
     console.error("ERROR REAL:", error);

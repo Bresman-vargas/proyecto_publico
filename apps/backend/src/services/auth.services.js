@@ -25,6 +25,7 @@ export const loginUser = async (email, password) => {
   const token = await createAccessToken({
     id: user.id,
     email: email,
+    rol: user.rol, 
   });
 
   return {
@@ -33,6 +34,7 @@ export const loginUser = async (email, password) => {
       id: user.id,
       nombre: user.nombre,
       email: user.email,
+      rol: user.rol,
     },
   };
 };
@@ -50,6 +52,7 @@ export const registerUser = async (dataUser) => {
     id_comuna,
     password,
     acepta_terminos,
+    rol,
   } = dataUser;
 
   const { rows } = await pool.query(
@@ -63,6 +66,7 @@ export const registerUser = async (dataUser) => {
 
   const userId = uuidv4();
   const password_hash = await bcrypt.hash(password, 10);
+  const userRol = rol || 'user';
 
   const aceptaTerminosNumeric =
     acepta_terminos === true || acepta_terminos === "true" ? 1 : 0;
@@ -72,8 +76,8 @@ export const registerUser = async (dataUser) => {
         INSERT INTO usuarios (
           id, nombre, nombre2, apellido_paterno, apellido_materno, 
           rut_cuerpo, rut_dv, email, id_region, id_comuna, 
-          password_hash, acepta_terminos
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          password_hash, acepta_terminos, rol
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       `,
     [
       userId,
@@ -88,12 +92,14 @@ export const registerUser = async (dataUser) => {
       id_comuna,
       password_hash,
       aceptaTerminosNumeric,
+      userRol
     ],
   );
 
   const token = await createAccessToken({
     id: userId,
     email: email,
+    rol: userRol,
   });
 
   return {
@@ -102,6 +108,7 @@ export const registerUser = async (dataUser) => {
       id: userId,
       nombre,
       email,
+      rol: userRol,
     },
   };
 };
@@ -115,7 +122,7 @@ export const verifyTokenService = async (token) => {
 
       try {
         const { rows } = await pool.query(
-          "SELECT id, nombre, email FROM usuarios WHERE id = $1",
+          "SELECT id, nombre, email, rol FROM usuarios WHERE id = $1",
           [decoded.id],
         );
 
