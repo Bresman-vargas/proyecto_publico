@@ -13,6 +13,8 @@ import {
   updateForumRequest,
   deleteForumRequest,
 } from "../../api/forums";
+import { getDiscussionsByForum } from "../../api/discussions";
+import Loader from "../../components/Loader";
 
 type ForumFormData = z.infer<typeof forumSchema>;
 
@@ -65,7 +67,22 @@ export default function Forums() {
     const fetchForos = async () => {
       try {
         const data = await getForumsRequest();
-        setForos(data);
+        const forosConContadores = await Promise.all(
+          data.map(async (foro: ForumData) => {
+            try {
+              const discussions = await getDiscussionsByForum(foro.id);
+              return {
+                ...foro,
+                discusiones: discussions.length,
+                abiertas: discussions.filter((d: any) => d.is_active).length,
+                cerradas: discussions.filter((d: any) => !d.is_active).length,
+              };
+            } catch {
+              return { ...foro, discusiones: 0, abiertas: 0, cerradas: 0 };
+            }
+          }),
+        );
+        setForos(forosConContadores);
       } catch (error) {
         console.error("Error al cargar foros:", error);
       } finally {
@@ -119,9 +136,8 @@ export default function Forums() {
       await deleteForumRequest(foroAEliminar.id);
       setForos((prev) => prev.filter((f) => f.id !== foroAEliminar.id));
       setForoAEliminar(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error al eliminar foro:", error);
-      alert(error?.response?.data?.message || "Error al eliminar");
     }
   };
 
@@ -159,9 +175,9 @@ export default function Forums() {
 
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
         {loading ? (
-          <p className="text-txt-sec col-span-2 text-center py-10">
-            Cargando foros...
-          </p>
+          <div className="col-span-2">
+            <Loader className="h-[calc(100vh-8rem)]" />
+          </div>
         ) : forosFiltrados.length === 0 ? (
           <p className="text-txt-sec col-span-2 text-center py-10">
             No se encontraron foros para "{busqueda}"
@@ -198,11 +214,9 @@ export default function Forums() {
                     </button>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <p className="text-txt-sec">
-                    ({foro.discusiones} Discusiones)
-                  </p>
-                </div>
+                <p className="text-txt-sec text-sm">
+                  ({foro.discusiones} Discusiones)
+                </p>
                 <div className="flex gap-3">
                   <span className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/40">
                     ● {foro.abiertas} Abiertas
@@ -211,7 +225,7 @@ export default function Forums() {
                     ● {foro.cerradas} Cerradas
                   </span>
                 </div>
-                <p className="py-5">{foro.descripcion}</p>
+                <p className="py-2 text-sm">{foro.descripcion}</p>
               </div>
 
               <aside className="row-start-1 flex flex-col w-full justify-between">

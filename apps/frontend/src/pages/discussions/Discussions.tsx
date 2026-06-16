@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import DiscussionCard from "../../components/DiscussionsCard";
 import Loader from "../../components/Loader";
 
+
 export default function Discussions() {
   const { user, devMode } = useAuth();
   const navigate = useNavigate();

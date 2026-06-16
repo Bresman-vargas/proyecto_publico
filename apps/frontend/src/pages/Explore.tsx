@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getForumsRequest } from "../api/forums";
+import Loader from "../components/Loader";
 
 interface ForumData {
   id: number;
@@ -28,7 +29,6 @@ export default function Explore() {
         setLoading(false);
       }
     };
-
     fetchForos();
   }, []);
 
@@ -68,9 +68,9 @@ export default function Explore() {
 
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
         {loading ? (
-          <p className="text-txt-sec col-span-2 text-center py-10">
-            Cargando foros...
-          </p>
+          <div className="col-span-2">
+            <Loader className="h-[calc(100vh-8rem)]" />
+          </div>
         ) : error ? (
           <p className="text-err col-span-2 text-center py-10">{error}</p>
         ) : forosFiltrados.length === 0 ? (
@@ -79,16 +79,24 @@ export default function Explore() {
           </p>
         ) : (
           forosFiltrados.map((foro) => (
-            <Link to={`/forums/${foro.id}`} key={foro.id} className="block h-full">
-              <section className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer min-h-40">
-                <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
+            <Link
+              to={`/forums/${foro.id}`}
+              key={foro.id}
+              className="h-full block"
+            >
+              <section className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer">
+                <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-4 flex flex-col gap-2">
                   <div>
-                    <p className="text-accent capitalize">{foro.categoria}</p>
+                    <p className="text-accent capitalize text-sm">
+                      {foro.categoria}
+                    </p>
                     <h2 className="font-bold text-xl">{foro.titulo}</h2>
                   </div>
-                  <p className="py-5">{foro.descripcion}</p>
+                  <p className="text-txt-sec text-sm line-clamp-3">
+                    {foro.descripcion}
+                  </p>
                 </div>
-                <aside className="row-start-1 flex flex-col w-full justify-between">
+                <aside className="row-start-1 flex flex-col w-full">
                   <img
                     src={foro.imagen}
                     alt={foro.titulo}

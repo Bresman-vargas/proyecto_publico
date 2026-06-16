@@ -93,7 +93,8 @@ export const deleteDiscussionService = async (id) => {
 
 export const getDiscussionsByForumService = async (forumId) => {
   const result = await pool.query(
-    "SELECT * FROM discussions WHERE forum_id = $1 ORDER BY created_at DESC",
+    `SELECT id, title, subtitle, is_active, created_at 
+     FROM discussions WHERE forum_id = $1 ORDER BY created_at DESC`,
     [forumId]
   );
   return result.rows;
