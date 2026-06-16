@@ -12,3 +12,16 @@ export const createCommentRequest = (commentData: {
   user_id: string;
   parent_comment_id?: string | null;
 }) => axios.post("/comments", commentData);
+
+export const voteCommentRequest = (
+  commentId: string,
+  voteData: { user_id: string; type: "up" | "down" },
+) => axios.post(`/comments/${commentId}/vote`, voteData);
+
+export const deleteCommentRequest = (commentId: string) =>
+  axios.delete(`/comments/${commentId}`);
+
+export const updateCommentRequest = (
+  commentId: string,
+  commentData: { content: string },
+) => axios.put(`/comments/${commentId}`, commentData);

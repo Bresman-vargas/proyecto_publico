@@ -10,13 +10,44 @@ export const createComment = async (req, res) => {
   }
 };
 
+export const updateComment = async (req, res) => {
+  const { content } = req.body;
+  const commentId = req.params.id;
+
+  if (!content || !content.trim()) {
+    return res
+      .status(400)
+      .json({ message: "El contenido del comentario no puede estar vacío." });
+  }
+
+  try {
+    const result = await commentService.updateCommentService(
+      commentId,
+      content,
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    if (error.message === "Comentario no encontrado") {
+      return res.status(404).json({ message: error.message });
+    }
+    return res
+      .status(500)
+      .json({ message: "Error al actualizar el comentario" });
+  }
+};
+
 export const getCommentsByDiscussion = async (req, res) => {
   try {
-    const comments = await commentService.getCommentsByDiscussionService(req.params.discussionId);
+    const comments = await commentService.getCommentsByDiscussionService(
+      req.params.discussionId,
+    );
     return res.status(200).json(comments);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Error al obtener los comentarios" });
+    return res
+      .status(500)
+      .json({ message: "Error al obtener los comentarios" });
   }
 };
 
@@ -33,18 +64,26 @@ export const deleteComment = async (req, res) => {
 };
 
 export const voteComment = async (req, res) => {
-  const { type, user_id } = req.body; 
-  
+  const { type, user_id } = req.body;
+
   if (type !== "up" && type !== "down") {
-    return res.status(400).json({ message: "Tipo de voto inválido. Use 'up' o 'down'." });
+    return res
+      .status(400)
+      .json({ message: "Tipo de voto inválido. Use 'up' o 'down'." });
   }
   if (!user_id) {
-    return res.status(400).json({ message: "El ID de usuario es requerido para votar." });
+    return res
+      .status(400)
+      .json({ message: "El ID de usuario es requerido para votar." });
   }
 
   try {
-    const result = await commentService.voteCommentService(req.params.id, user_id, type);
-    
+    const result = await commentService.voteCommentService(
+      req.params.id,
+      user_id,
+      type,
+    );
+
     return res.status(200).json(result);
   } catch (error) {
     console.error(error);
@@ -59,6 +98,8 @@ export const getCommentsByUser = async (req, res) => {
     return res.status(200).json(comments);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Error al obtener los comentarios del usuario" });
+    return res
+      .status(500)
+      .json({ message: "Error al obtener los comentarios del usuario" });
   }
 };
