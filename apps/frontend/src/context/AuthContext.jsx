@@ -23,7 +23,7 @@ const MOCK_USER = {
   id: "dev-user-123",
   username: "Developer_Harco",
   email: "dev@harco.com",
-  role: "admin",
+  rol: "admin",
 };
 
 export const AuthProvider = ({ children }) => {

@@ -27,7 +27,7 @@ interface SidebarProps {
 export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
   const location = useLocation();
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.rol === "admin";
 
   return (
     <>

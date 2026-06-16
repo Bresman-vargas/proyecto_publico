@@ -18,8 +18,9 @@ import Comments from "./pages/comments/Comments";
 interface RouteConfig {
   path: string;
   component: React.ComponentType<any>;
-  private?: boolean; // Solo si está logueado
-  restricted?: boolean; // Solo si NO está logueado (Login/Register)
+  private?: boolean;     // Solo si está logueado
+  restricted?: boolean;  // Solo si NO está logueado (Login/Register)
+  adminOnly?: boolean;   // <-- NUEVA PROPIEDAD: Solo para administradores
 }
 
 export const routes: RouteConfig[] = [
@@ -27,27 +28,24 @@ export const routes: RouteConfig[] = [
   { path: "/login", component: Login, restricted: true },
   { path: "/register", component: Register, restricted: true },
 
-  // --- RUTAS PROTEGIDAS ---
+  // --- RUTAS PROTEGIDAS (USUARIO COMÚN) ---
   { path: "/explore", component: Explore, private: true },
-
   { path: "/discussions", component: Discussions, private: true },
   { path: "/discussions/new", component: DiscussionForm, private: true },
   { path: "/discussions/edit/:id", component: DiscussionForm, private: true },
-
   { path: "/user-comments", component: UserComments, private: true },
   { path: "/comments/:id", component: Comments, private: true },
-  
   { path: "/surveys", component: Surveys, private: true },
-  { path: "/surveys/new", component: SurveyForm, private:true},
-  { path: "/surveys/edit/:id", component: SurveyForm, private: true },
-  
   { path: "/forums", component: Forums, private: true },
   { path: "/forum", component: ForumDetail, private: true },
-  { path: "/newforum", component: newForum, private: true },
-  { path: "/forums/:id", component: ForumDetail, private: true },
+
+  // --- RUTAS PROTEGIDAS (SOLO ADMIN) ---
+  { path: "/surveys/new", component: SurveyForm, private: true, adminOnly: true },
+  { path: "/surveys/edit/:id", component: SurveyForm, private: true, adminOnly: true },
+  { path: "/newforum", component: newForum, private: true, adminOnly: true },
+  { path: "/forums/:id", component: ForumDetail, private: true, adminOnly: true },
   
   { path: "/settings", component: Settings, private: true },
-
   { path: "/not-found", component: lazy(() => import("./pages/NotFound")) }
 ];
 
