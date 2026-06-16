@@ -31,7 +31,7 @@ export const routes: RouteConfig[] = [
   // --- RUTAS PROTEGIDAS (USUARIO COMÚN) ---
   { path: "/explore", component: Explore, private: true },
   { path: "/discussions", component: Discussions, private: true },
-  { path: "/discussions/new", component: DiscussionForm, private: true },
+  { path: "/discussions/new/:forumId", component: DiscussionForm, private: true },
   { path: "/discussions/edit/:id", component: DiscussionForm, private: true },
   { path: "/user-comments", component: UserComments, private: true },
   { path: "/comments/:id", component: Comments, private: true },

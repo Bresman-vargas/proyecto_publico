@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, MessageSquarePlus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import InputForm from "../../components/InputForm";
 import TextAreaForm from "../../components/TextAreaForm";
 import SelectForm from "../../components/SelectForm";
 import { createForumRequest } from "../../api/forums";
+import ButtonLoading from "../../components/ButtonLoading";
+import { useState, useEffect } from "react";
 
 type ForumFormData = z.infer<typeof forumSchema>;
 
@@ -20,14 +22,14 @@ const categoriasOptions = [
   { value: "Comunidad", label: "Comunidad" },
 ];
 
-
 export default function NewForum() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isValid },
   } = useForm<ForumFormData>({
     resolver: zodResolver(forumSchema),
     mode: "onChange",
@@ -36,9 +38,12 @@ export default function NewForum() {
 
   const onSubmit = async (data: ForumFormData) => {
     try {
+      setLoading(true);
       await createForumRequest(data);
+      setLoading(false);
       navigate("/forums");
     } catch (error) {
+      setLoading(false);
       console.error("Error al crear el foro:", error);
     }
   };
@@ -100,18 +105,11 @@ export default function NewForum() {
             require
           />
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`mt-2 border border-border px-4 py-2 rounded-md bg-bg font-bold flex items-center justify-center gap-2 transition-colors ${
-              isSubmitting
-                ? "text-txt-sec cursor-not-allowed"
-                : "text-accent hover:bg-accent/10 cursor-pointer"
-            }`}
-          >
-            <MessageSquarePlus />
-            {isSubmitting ? "Creando..." : "Crear Foro"}
-          </button>
+          <div className="py-4 col-span-2">
+            <ButtonLoading loading={loading} isValid={isValid}>
+              {!loading ? "Agregar un foro" : "Procesando..."}
+            </ButtonLoading>{" "}
+          </div>
         </form>
       </section>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Megaphone, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getForumsRequest } from "../api/forums";
 import Loader from "../components/Loader";
@@ -66,48 +66,66 @@ export default function Explore() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
-        {loading ? (
-          <div className="col-span-2">
-            <Loader className="h-[calc(100vh-8rem)]" />
-          </div>
-        ) : error ? (
-          <p className="text-err col-span-2 text-center py-10">{error}</p>
-        ) : forosFiltrados.length === 0 ? (
-          <p className="text-txt-sec col-span-2 text-center py-10">
-            No se encontraron foros para "{busqueda}"
-          </p>
-        ) : (
-          forosFiltrados.map((foro) => (
-            <Link
-              to={`/forums/${foro.id}`}
-              key={foro.id}
-              className="h-full block"
-            >
-              <section className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer">
-                <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-4 flex flex-col gap-2">
-                  <div>
-                    <p className="text-accent capitalize text-sm">
-                      {foro.categoria}
-                    </p>
-                    <h2 className="font-bold text-xl">{foro.titulo}</h2>
+      {loading ? (
+        <div className="flex justify-center items-center h-[calc(100vh-12rem)]">
+          <Loader className="h-[calc(100vh-8rem)]" />
+        </div>
+      ) : (
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
+          {forosFiltrados.length === 0 ? (
+            <div className="col-span-2 bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
+              <div className="bg-accent/10 p-4 mb-4 rounded-full">
+                <Megaphone size={36} className="text-accent" />
+              </div>
+              <h2 className="text-xl font-bold text-txt">
+                {busqueda !== ""
+                  ? `No hay resultados para "${busqueda}"`
+                  : "Aún no hay foros creados"}
+              </h2>
+
+              <p className="text-txt-sec mt-2 max-w-md text-center text-pretty">
+                {busqueda !== ""
+                  ? "Intenta ajustar los términos de búsqueda o revisa que la categoría o descripción sea la correcta."
+                  : "Próximamente se crearán nuevos foros donde la comunidad podrá participar activamente."}
+              </p>
+
+              {busqueda && (
+                <button
+                  onClick={() => setBusqueda("")}
+                  className="mt-6 bg-accent px-8 py-2 rounded-md text-bg font-semibold hover:bg-accent/90 transition-colors cursor-pointer text-sm"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+            </div>
+          ) : (
+            forosFiltrados.map((foro) => (
+              <Link
+                to={`/forums/${foro.id}`}
+                key={foro.id}
+                className="block h-full"
+              >
+                <section className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer min-h-40">
+                  <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
+                    <div>
+                      <p className="text-accent capitalize">{foro.categoria}</p>
+                      <h2 className="font-bold text-xl">{foro.titulo}</h2>
+                    </div>
+                    <p className="py-5">{foro.descripcion}</p>
                   </div>
-                  <p className="text-txt-sec text-sm line-clamp-3">
-                    {foro.descripcion}
-                  </p>
-                </div>
-                <aside className="row-start-1 flex flex-col w-full">
-                  <img
-                    src={foro.imagen}
-                    alt={foro.titulo}
-                    className="w-full h-48 md:h-full object-cover"
-                  />
-                </aside>
-              </section>
-            </Link>
-          ))
-        )}
-      </section>
+                  <aside className="row-start-1 flex flex-col w-full justify-between">
+                    <img
+                      src={foro.imagen}
+                      alt={foro.titulo}
+                      className="w-full h-48 md:h-full object-cover"
+                    />
+                  </aside>
+                </section>
+              </Link>
+            ))
+          )}
+        </section>
+      )}
     </div>
   );
 }
