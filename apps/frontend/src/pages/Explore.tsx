@@ -47,7 +47,8 @@ export default function Explore() {
         <div>
           <h1 className="text-xl font-bold">Explorar Foros</h1>
           <p className="text-txt-sec">
-            Explora los foros disponibles y participa en las discusiones de tu comuna.
+            Explora los foros disponibles y participa en las discusiones de tu
+            comuna.
           </p>
         </div>
         <div className="relative w-full md:w-72">
@@ -78,8 +79,8 @@ export default function Explore() {
           </p>
         ) : (
           forosFiltrados.map((foro) => (
-            <Link to={`/forums/${foro.id}`} key={foro.id} className="block">
-              <section className="w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer min-h-40">
+            <Link to={`/forums/${foro.id}`} key={foro.id} className="block h-full">
+              <section className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors cursor-pointer min-h-40">
                 <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
                   <div>
                     <p className="text-accent capitalize">{foro.categoria}</p>

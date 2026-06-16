@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { getForums, createNewForum } from "../controllers/forums.controller.js";
-import { forumSchema } from "@proyecto_publico/schemas"; // Importas tu esquema
+import { getForums, createNewForum, updateForum, deleteForum } from "../controllers/forums.controller.js";
+import { forumSchema } from "@proyecto_publico/schemas";
 
 const router = Router();
 
-// Middleware rapidito para validar con Zod
 const validateSchema = (schema) => (req, res, next) => {
   try {
     schema.parse(req.body);
@@ -16,5 +15,7 @@ const validateSchema = (schema) => (req, res, next) => {
 
 router.get("/forums", getForums);
 router.post("/forums", validateSchema(forumSchema), createNewForum);
+router.patch("/forums/:id", validateSchema(forumSchema), updateForum);
+router.delete("/forums/:id", deleteForum);
 
 export default router;
