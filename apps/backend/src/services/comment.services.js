@@ -26,6 +26,24 @@ export const createCommentService = async (data) => {
   return rows[0];
 };
 
+export const updateCommentService = async (commentId, content) => {
+  try {
+    const { rows } = await pool.query(
+      "UPDATE comments SET content = $1, updated_at = NOW() WHERE id = $2",
+      [content, commentId]
+    );
+
+    if (rows.affectedRows === 0) {
+      throw new Error("Comentario no encontrado");
+    }
+
+    return { message: "Comentario actualizado con éxito" };
+  } catch (error) {
+    console.error("Error en updateCommentService:", error);
+    throw error;
+  }
+};
+
 // Obtener todos los comentarios de una discusión con el nombre del usuario mapeado
 export const getCommentsByDiscussionService = async (discussionId) => {
   const { rows } = await pool.query(
