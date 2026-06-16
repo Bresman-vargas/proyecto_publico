@@ -113,14 +113,6 @@ export default function Discussions() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          {!devMode && (
-            <Link
-              to="/discussions/new"
-              className="border text-nowrap w-full md:w-fit border-border px-5 py-2 bg-bg font-bold rounded-md flex justify-center gap-4 capitalize"
-            >
-              <CirclePlus className="text-accent" /> Crear un foro
-            </Link>
-          )}
         </div>
       </header>
       {filteredDiscussions.length > 0 ? (

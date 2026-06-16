@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MessageSquarePlus, Pencil, Search, Trash2, X } from "lucide-react";
+import {
+  Megaphone,
+  MessageSquarePlus,
+  Pencil,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -13,6 +20,7 @@ import {
   updateForumRequest,
   deleteForumRequest,
 } from "../../api/forums";
+import Loader from "../../components/Loader";
 
 type ForumFormData = z.infer<typeof forumSchema>;
 
@@ -129,13 +137,13 @@ export default function Forums() {
     <div>
       <header className="py-3 gap-3 flex flex-col md:flex-row items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold">Foros</h1>
+          <h1 className="text-xl font-bold">Los Foros</h1>
           <p className="text-txt-sec">
             En este lugar podras visualizar todo tipo de Foros
           </p>
         </div>
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-fit">
-          <div className="relative w-full md:w-72">
+          <div className="flex items-center relative w-full md:w-72">
             <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-sec"
@@ -150,81 +158,106 @@ export default function Forums() {
           </div>
           <Link
             to="/newforum"
-            className="border w-full md:w-fit border-border px-5 py-2 bg-bg font-bold rounded-md flex justify-center gap-4 capitalize"
+            className="border w-full md:w-fit border-border px-5 py-2 bg-bg font-bold rounded-md flex justify-center gap-4"
           >
             <MessageSquarePlus className="text-accent" /> Crear un foro
           </Link>
         </div>
       </header>
 
-      <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
-        {loading ? (
-          <p className="text-txt-sec col-span-2 text-center py-10">
-            Cargando foros...
-          </p>
-        ) : forosFiltrados.length === 0 ? (
-          <p className="text-txt-sec col-span-2 text-center py-10">
-            No se encontraron foros para "{busqueda}"
-          </p>
-        ) : (
-          forosFiltrados.map((foro) => (
-            <Link
-              to={`/forums/${foro.id}`}
-              key={foro.id}
-              className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors"
-            >
-              <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-accent capitalize">{foro.categoria}</p>
-                    <h2 className="font-bold text-xl">{foro.titulo}</h2>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => abrirModal(e, foro)}
-                      className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-accent bg-bg hover:bg-accent/10 transition-colors flex-shrink-0"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setForoAEliminar(foro);
-                      }}
-                      className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-red-500 bg-bg hover:bg-red-500/10 transition-colors flex-shrink-0"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <p className="text-txt-sec">
-                    ({foro.discusiones} Discusiones)
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <span className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/40">
-                    ● {foro.abiertas} Abiertas
-                  </span>
-                  <span className="flex items-center gap-1 text-sm px-3 py-1 bg-gray-500/10 text-gray-500 rounded-full border border-gray-400/40">
-                    ● {foro.cerradas} Cerradas
-                  </span>
-                </div>
-                <p className="py-5">{foro.descripcion}</p>
+      {loading ? (
+        <div className="flex justify-center items-center h-[calc(100vh-12rem)]">
+          <Loader className="h-[calc(100vh-8rem)]" />
+        </div>
+      ) : (
+        /* 2. El contenedor Grid solo renderiza cuando ya no está cargando */
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 bg-bg-sec p-4 rounded-md">
+          {forosFiltrados.length === 0 ? (
+            <div className="col-span-2 bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
+              <div className="bg-accent/10 p-4 mb-4 rounded-full">
+                <Megaphone size={36} className="text-accent" />
               </div>
+              <h2 className="text-xl font-bold text-txt">
+                {busqueda !== ""
+                  ? `No hay resultados para "${busqueda}"`
+                  : "Aún no hay foros creados"}
+              </h2>
 
-              <aside className="row-start-1 flex flex-col w-full justify-between">
-                <img
-                  src={foro.imagen}
-                  alt={foro.titulo}
-                  className="w-full h-48 md:h-full object-cover"
-                />
-              </aside>
-            </Link>
-          ))
-        )}
-      </section>
+              <p className="text-txt-sec mt-2 max-w-md text-center text-pretty">
+                {busqueda !== ""
+                  ? "Intenta ajustar los términos de búsqueda o revisa que la categoría o descripción sea la correcta."
+                  : "Sé el primero en comenzar la comunidad creando un nuevo foro temático."}
+              </p>
+
+              {busqueda && (
+                <button
+                  onClick={() => setBusqueda("")}
+                  className="mt-6 bg-accent px-8 py-2 rounded-md text-bg font-semibold hover:bg-accent/90 transition-colors cursor-pointer text-sm"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+            </div>
+          ) : (
+            forosFiltrados.map((foro) => (
+              <Link
+                to={`/forums/${foro.id}`}
+                key={foro.id}
+                className="h-full w-full grid grid-cols-1 md:grid-cols-3 border-2 border-border rounded-md overflow-hidden hover:border-accent/50 transition-colors"
+              >
+                <div className="col-span-2 bg-bg rounded-l-md rounded-tr-md rounded-br-md p-3 flex flex-col gap-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-accent capitalize">{foro.categoria}</p>
+                      <h2 className="font-bold text-xl">{foro.titulo}</h2>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => abrirModal(e, foro)}
+                        className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-accent bg-bg hover:bg-accent/10 transition-colors flex-shrink-0"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setForoAEliminar(foro);
+                        }}
+                        className="flex items-center justify-center w-8 h-8 border border-border rounded-md text-red-500 bg-bg hover:bg-red-500/10 transition-colors flex-shrink-0"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <p className="text-txt-sec">
+                      ({foro.discusiones} Discusiones)
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/40">
+                      ● {foro.abiertas} Abiertas
+                    </span>
+                    <span className="flex items-center gap-1 text-sm px-3 py-1 bg-gray-500/10 text-gray-500 rounded-full border border-gray-400/40">
+                      ● {foro.cerradas} Cerradas
+                    </span>
+                  </div>
+                  <p className="py-5">{foro.descripcion}</p>
+                </div>
+
+                <aside className="row-start-1 flex flex-col w-full justify-between">
+                  <img
+                    src={foro.imagen}
+                    alt={foro.titulo}
+                    className="w-full h-48 md:h-full object-cover"
+                  />
+                </aside>
+              </Link>
+            ))
+          )}
+        </section>
+      )}
 
       {/* Modal confirmar eliminación */}
       {foroAEliminar && (
@@ -255,13 +288,13 @@ export default function Forums() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setForoAEliminar(null)}
-                className="border border-border px-4 py-2 rounded-md text-txt-sec hover:bg-bg transition-colors text-sm"
+                className="cursor-pointer border border-border px-4 py-2 rounded-md text-txt-sec hover:bg-bg transition-colors text-sm"
               >
                 Cancelar
               </button>
               <button
                 onClick={eliminarForo}
-                className="border border-red-500 px-4 py-2 rounded-md bg-red-500 text-white font-bold flex items-center gap-2 hover:bg-red-600 transition-colors text-sm"
+                className="border border-err px-4 py-2 rounded-md bg-bg text-err font-bold flex items-center gap-2 hover:bg-err/20 cursor-pointer transition-colors text-sm"
               >
                 <Trash2 size={14} /> Eliminar
               </button>
