@@ -8,7 +8,6 @@ import {
   Reply,
   Send,
   X,
-  FilePen,
   PenLine,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -237,7 +236,7 @@ export function CommentItem({
                   disabled={isProcessing || !editContent.trim()}
                   className="px-4 py-2 bg-accent/80 text-bg text-xs border-transparent font-semibold rounded-md flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
-                  <PenLine size={14}/>
+                  <PenLine size={14} />
                   Guardar cambios
                 </button>
               </div>

@@ -48,12 +48,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
           {expanded && (
             <Link to="/explore" className="flex items-center h-full">
               <div className="text-accent">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="30"
-                  viewBox="0 0 70 40"
-                  fill="currentColor"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 0 70 40" fill="currentColor">
                   <g id="logomark">
                     <path d="M32 10H42C47.5228 10 52 14.4772 52 20C52 25.5228 47.5228 30 42 30H36V28H42C46.4183 28 50 24.4183 50 20C50 15.5817 46.4183 12 42 12H32V22H42C43.1046 22 44 21.1046 44 20C44 18.8954 43.1046 18 42 18H36V16H42C44.2091 16 46 17.7909 46 20C46 22.2091 44.2091 24 42 24H32V34H42C49.732 34 56 27.732 56 20C56 12.268 49.732 6 42 6H36V4H42C50.8366 4 58 11.1634 58 20C58 28.8366 50.8366 36 42 36H32V40H42C53.0457 40 62 31.0457 62 20C62 8.95431 53.0457 0 42 0H32V10Z"></path>
                     <path d="M20 0C8.95431 0 0 8.95431 0 20C0 31.0457 8.95431 40 20 40H30V30H20C14.4772 30 10 25.5228 10 20C10 14.4772 14.4772 10 20 10H26V12H20C15.5817 12 12 15.5817 12 20C12 24.4183 15.5817 28 20 28H30V18H20C18.8954 18 18 18.8954 18 20C18 21.1046 18.8954 22 20 22H26V24H20C17.7909 24 16 22.2091 16 20C16 17.7909 17.7909 16 20 16H30V6H20C12.268 6 6 12.268 6 20C6 27.732 12.268 34 20 34H26V36H20C11.1634 36 4 28.8366 4 20C4 11.1634 11.1634 4 20 4H30V0H20Z"></path>
@@ -61,12 +56,7 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
                 </svg>
               </div>
               <div className="text-txt">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="30"
-                  viewBox="70 0 170 40"
-                  fill="currentColor"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" height="30" viewBox="70 0 170 40" fill="currentColor">
                   <g id="logotype">
                     <path d="M196.498 10.4573H205.321L213.533 24.6222L221.772 10.4573H230.595V29.0604H226.449V10.6433L215.739 29.0604H211.354L200.617 10.6433V29.0604H196.498V10.4573Z"></path>
                     <path d="M169.921 21.8317C166.785 21.8317 164.261 19.307 164.261 16.1445C164.261 13.0086 166.785 10.4573 169.921 10.4573H193.972V14.6031H169.921C169.071 14.6031 168.38 15.2941 168.38 16.1445C168.38 17.0215 169.071 17.7125 169.921 17.7125H188.285C191.421 17.7125 193.972 20.2372 193.972 23.3997C193.972 26.5357 191.421 29.0604 188.285 29.0604H164.261V24.9411H188.285C189.136 24.9411 189.827 24.2501 189.827 23.3997C189.827 22.5227 189.136 21.8317 188.285 21.8317H169.921Z"></path>
@@ -93,7 +83,8 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
         <div className="flex flex-col justify-between h-[calc(100vh-4rem)]">
           <SidebarContext.Provider value={{ expanded }}>
             <nav className="p-4 flex items-start flex-col gap-4">
-              <p className="text-txt-sec">MAIN</p>
+              {expanded && <p className="text-txt-sec text-xs font-semibold tracking-widest uppercase">Main</p>}
+              {!expanded && <div className="border-b border-border w-full" />}
               <SidebarItem
                 ico={Send}
                 label="Explore"
@@ -115,7 +106,10 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
 
               {isAdmin && (
                 <>
-                  <p className="text-txt-sec">ADMIN</p>
+                  {expanded
+                    ? <p className="text-txt-sec text-xs font-semibold tracking-widest uppercase">Admin</p>
+                    : <div className="border-b border-border w-full" />
+                  }
                   <SidebarItem
                     ico={Megaphone}
                     label="Foros"
@@ -124,14 +118,14 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
                   />
                   <SidebarItem
                     ico={ChartBarDecreasing}
-                    label="Encuentas"
+                    label="Encuestas"
                     link="/surveys"
                     active={location.pathname === "/surveys"}
                   />
                 </>
               )}
 
-              <p className="border-b border-border w-full"></p>
+              <div className="border-b border-border w-full" />
               <SidebarItem
                 ico={Settings2}
                 label="Settings"
@@ -142,18 +136,20 @@ export default function Sidebar({ expanded, setExpanded }: SidebarProps) {
 
             {user && (
               <section className="p-4 h-20 w-full border-t border-border">
-                <div className="h-full flex gap-4">
-                  <div className="p-4 center bg-accent text-bg rounded-md font-bold capitalize">
+                <div className="h-full flex gap-4 items-center">
+                  <div className={`flex-shrink-0 size-10 center bg-accent text-bg rounded-md font-bold capitalize`}>
                     {user.nombre ? sliceTetxt(user.nombre) : "Us"}
                   </div>
-                  <div className="overflow-hidden">
-                    <h3 className="font-bold truncate capitalize">
-                      {user.nombre || "user"}
-                    </h3>
-                    <p className="text-txt-sec text-sm truncate lowercase">
-                      {user.email || "user@user.cl"}
-                    </p>
-                  </div>
+                  {expanded && (
+                    <div className="overflow-hidden">
+                      <h3 className="font-bold truncate capitalize">
+                        {user.nombre || "user"}
+                      </h3>
+                      <p className="text-txt-sec text-sm truncate lowercase">
+                        {user.email || "user@user.cl"}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </section>
             )}
