@@ -408,6 +408,12 @@ La aplicación está completamente containerizada con Docker para facilitar el d
 | `backend` | `node:20-alpine` | 4000 | API REST con Express.js |
 | `frontend` | `nginx:alpine` | 80 | Build de producción servido con Nginx |
 
+
+
+
+![](https://github.com/user-attachments/assets/41ff3ce8-693b-43dd-94fe-9ad624018a44)
+
+
 ### Arquitectura de red
 
 El frontend compilado con Vite es servido por Nginx, que actúa como proxy inverso redirigiendo las llamadas a `/api` hacia el contenedor del backend internamente, sin exponer la URL del backend al navegador.
