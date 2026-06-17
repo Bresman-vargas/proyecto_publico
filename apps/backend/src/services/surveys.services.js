@@ -7,24 +7,41 @@ export const createSurveyService = async (data) => {
   try {
     await client.query("BEGIN");
 
-    const { title, description, options, dateStart, dateEnd, user_id } = data;
+    const {
+      title,
+      description,
+      options,
+      dateStart,
+      dateEnd,
+      user_id,
+      discussion_id,
+    } = data;
 
     const surveyId = uuidv4();
 
     await client.query(
       `
-      INSERT INTO surveys (
-        id,
+  INSERT INTO surveys (
+    id,
+    title,
+    description,
+    user_id,
+    discussion_id,
+    date_start,
+    date_end,
+    is_active
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7, true);
+  `,
+      [
+        surveyId,
         title,
         description,
         user_id,
-        date_start,
-        date_end,
-        is_active
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, true);
-      `,
-      [surveyId, title, description, user_id, dateStart, dateEnd],
+        discussion_id ?? null,
+        dateStart,
+        dateEnd,
+      ],
     );
 
     for (const option of options) {
@@ -53,18 +70,39 @@ export const createSurveyService = async (data) => {
   }
 };
 
-export const getAllSurveysService = async () => {
-  const { rows } = await pool.query(`
+export const getAllSurveysService = async (userId = null) => {
+  const { rows } = await pool.query(
+    `
     SELECT
       s.id,
       s.title,
       s.description,
       s.user_id,
+      s.discussion_id,
+      u.nombre AS creator_name,
       s.is_active,
       s.date_start,
       s.date_end,
       s.created_at,
       s.updated_at,
+
+      EXISTS (
+        SELECT 1
+        FROM survey_votes sv
+        WHERE sv.survey_id = s.id
+          AND $1::text IS NOT NULL
+          AND sv.user_id::text = $1::text
+      ) AS has_voted,
+
+      (
+        SELECT sv.option_id
+        FROM survey_votes sv
+        WHERE sv.survey_id = s.id
+          AND $1::text IS NOT NULL
+          AND sv.user_id::text = $1::text
+        LIMIT 1
+      ) AS voted_option_id,
+
       COALESCE(
         json_agg(
           json_build_object(
@@ -78,13 +116,16 @@ export const getAllSurveysService = async () => {
     FROM surveys s
     LEFT JOIN survey_options so
       ON so.survey_id = s.id
-    GROUP BY s.id
+    LEFT JOIN usuarios u
+      ON u.id::text = s.user_id::text
+    GROUP BY s.id, u.nombre
     ORDER BY s.created_at DESC;
-  `);
+    `,
+    [userId],
+  );
 
   return rows;
 };
-
 export const getSurveysByUserService = async (userId) => {
   const { rows } = await pool.query(
     `
@@ -129,6 +170,8 @@ export const getSurveyByIdService = async (id) => {
       s.title,
       s.description,
       s.user_id,
+      s.discussion_id,
+      u.nombre AS creator_name,
       s.is_active,
       s.date_start,
       s.date_end,
@@ -147,8 +190,10 @@ export const getSurveyByIdService = async (id) => {
     FROM surveys s
     LEFT JOIN survey_options so
       ON so.survey_id = s.id
+    LEFT JOIN usuarios u
+      ON u.id::text = s.user_id::text
     WHERE s.id = $1
-    GROUP BY s.id;
+    GROUP BY s.id, u.nombre;
     `,
     [id],
   );
@@ -158,6 +203,64 @@ export const getSurveyByIdService = async (id) => {
   }
 
   return rows[0];
+};
+
+export const getSurveysByDiscussionService = async (discussionId, userId = null) => {
+  const { rows } = await pool.query(
+    `
+    SELECT
+      s.id,
+      s.title,
+      s.description,
+      s.user_id,
+      s.discussion_id,
+      u.nombre AS creator_name,
+      s.is_active,
+      s.date_start,
+      s.date_end,
+      s.created_at,
+      s.updated_at,
+
+      EXISTS (
+        SELECT 1
+        FROM survey_votes sv
+        WHERE sv.survey_id = s.id
+          AND $2::text IS NOT NULL
+          AND sv.user_id::text = $2::text
+      ) AS has_voted,
+
+      (
+        SELECT sv.option_id
+        FROM survey_votes sv
+        WHERE sv.survey_id = s.id
+          AND $2::text IS NOT NULL
+          AND sv.user_id::text = $2::text
+        LIMIT 1
+      ) AS voted_option_id,
+
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', so.id,
+            'texto', so.texto,
+            'votes', so.votes
+          )
+        ) FILTER (WHERE so.id IS NOT NULL),
+        '[]'
+      ) AS options
+    FROM surveys s
+    LEFT JOIN survey_options so
+      ON so.survey_id = s.id
+    LEFT JOIN usuarios u
+      ON u.id::text = s.user_id::text
+    WHERE s.discussion_id::text = $1::text
+    GROUP BY s.id, u.nombre
+    ORDER BY s.created_at DESC;
+    `,
+    [discussionId, userId],
+  );
+
+  return rows;
 };
 
 export const updateSurveyService = async (id, data) => {
@@ -213,6 +316,70 @@ export const updateSurveyService = async (id, data) => {
     await client.query("COMMIT");
 
     return await getSurveyByIdService(id);
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const voteSurveyOptionService = async ({
+  surveyId,
+  optionId,
+  userId,
+}) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const optionResult = await client.query(
+      `
+      SELECT id
+      FROM survey_options
+      WHERE id = $1
+        AND survey_id = $2;
+      `,
+      [optionId, surveyId],
+    );
+
+    if (optionResult.rows.length === 0) {
+      throw new Error("SURVEY_OPTION_NOT_FOUND");
+    }
+
+    const voteResult = await client.query(
+      `
+      INSERT INTO survey_votes (
+        id,
+        survey_id,
+        option_id,
+        user_id
+      )
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (survey_id, user_id) DO NOTHING
+      RETURNING *;
+      `,
+      [uuidv4(), surveyId, optionId, userId],
+    );
+
+    if (voteResult.rows.length === 0) {
+      throw new Error("SURVEY_ALREADY_VOTED");
+    }
+
+    await client.query(
+      `
+      UPDATE survey_options
+      SET votes = votes + 1
+      WHERE id = $1
+        AND survey_id = $2;
+      `,
+      [optionId, surveyId],
+    );
+
+    await client.query("COMMIT");
+
+    return await getSurveyByIdService(surveyId);
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
