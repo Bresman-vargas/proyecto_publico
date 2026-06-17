@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SurveyCommentCard from "./SurveyCommentCard";
 import {
   Ellipsis,
   Pencil,
@@ -26,9 +27,26 @@ export interface Comentario {
   created_at: string;
   updated_at: string;
   nombre_usuario: string;
+  comment_type?: "text" | "survey";
+  is_pinned?: boolean;
+  survey?: {
+    id: string;
+    title: string;
+    description: string;
+    user_id: string;
+    creator_name?: string | null;
+    date_start?: string | null;
+    date_end?: string | null;
+    has_voted?: boolean;
+    voted_option_id?: string | null;
+    options: {
+      id: string;
+      texto: string;
+      votes: number;
+    }[];
+  } | null;
   respuestas?: Comentario[];
 }
-
 interface CommentItemProps {
   comment: Comentario;
   isReply?: boolean;
@@ -170,7 +188,7 @@ export function CommentItem({
               )}
             </div>
 
-            {user && user.id === comment.user_id && (
+            {user && user.id === comment.user_id && !comment.survey && (
               <div className="relative">
                 <button
                   onClick={() => setShowOptions(!showOptions)}
@@ -223,6 +241,7 @@ export function CommentItem({
                 className="w-full bg-bg-sec border border-border rounded-md p-2 text-sm focus:outline-none focus:border-accent resize-none text-txt placeholder:text-txt-sec"
                 required
               />
+
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
@@ -231,6 +250,7 @@ export function CommentItem({
                 >
                   Cancelar
                 </button>
+
                 <button
                   type="submit"
                   disabled={isProcessing || !editContent.trim()}
@@ -241,9 +261,10 @@ export function CommentItem({
                 </button>
               </div>
             </form>
+          ) : comment.survey ? (
+            <SurveyCommentCard survey={comment.survey} onRefresh={onRefresh} />
           ) : (
-            // Si no está editando, muestra el contenido estático normal
-            comment.content
+            <p className="whitespace-pre-wrap">{comment.content}</p>
           )}
         </aside>
 

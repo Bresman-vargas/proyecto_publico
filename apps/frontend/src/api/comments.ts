@@ -1,7 +1,17 @@
 import axios from "./axios";
 
-export const getCommentsByDiscussionRequest = (discussionId: string) =>
-  axios.get(`/discussions/${discussionId}/comments`);
+export const getCommentsByDiscussionRequest = async (
+  discussionId: string,
+  userId?: string,
+) => {
+  const response = await axios.get(`/discussions/${discussionId}/comments`, {
+    params: {
+      userId,
+    },
+  });
+
+  return response.data;
+};
 
 export const getCommentsByUserRequest = (userId: string) =>
   axios.get(`/users/${userId}/comments`);
@@ -25,3 +35,15 @@ export const updateCommentRequest = (
   commentId: string,
   commentData: { content: string },
 ) => axios.put(`/comments/${commentId}`, commentData);
+
+export const createSurveyCommentRequest = (
+  discussionId: string,
+  surveyData: {
+    title: string;
+    description: string;
+    options: { texto: string }[];
+    dateStart: Date | string;
+    dateEnd: Date | string;
+    user_id: string;
+  },
+) => axios.post(`/discussions/${discussionId}/survey-comment`, surveyData);

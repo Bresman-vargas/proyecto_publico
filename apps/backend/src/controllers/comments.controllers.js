@@ -41,7 +41,9 @@ export const getCommentsByDiscussion = async (req, res) => {
   try {
     const comments = await commentService.getCommentsByDiscussionService(
       req.params.discussionId,
+      req.query.userId ?? null,
     );
+
     return res.status(200).json(comments);
   } catch (error) {
     console.error(error);
@@ -101,5 +103,36 @@ export const getCommentsByUser = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Error al obtener los comentarios del usuario" });
+  }
+};
+
+export const createSurveyComment = async (req, res) => {
+  try {
+    const { title, description, options, dateStart, dateEnd, user_id } =
+      req.body;
+
+    if (!title || !description || !options?.length || !user_id) {
+      return res.status(400).json({
+        message: "Faltan datos para crear la encuesta",
+      });
+    }
+
+    const result = await commentService.createSurveyCommentService({
+      discussionId: req.params.discussionId,
+      userId: user_id,
+      title,
+      description,
+      options,
+      dateStart,
+      dateEnd,
+    });
+
+    return res.status(201).json(result);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Error al crear la encuesta como comentario",
+    });
   }
 };
