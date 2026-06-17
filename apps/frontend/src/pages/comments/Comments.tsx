@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { MessagesSquare } from "lucide-react";
 import { getCommentsByDiscussionRequest } from "../../api/comments";
+import { useAuth } from "../../context/AuthContext";
 import { CommentItem } from "../../components/CommentItem";
 import CommentForm from "../../components/CommentForm";
 import Loader from "../../components/Loader";
 
 export default function Comments() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isAdmin = (user as any)?.rol === "admin";
+
   const [commentsFlat, setCommentsFlat] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchComments = async (isSilent = false) => {
     if (!id) return;
+
     try {
       if (!isSilent) setLoading(true);
 
-      const res = await getCommentsByDiscussionRequest(id);
-      setCommentsFlat(res.data);
+      const data = await getCommentsByDiscussionRequest(id, user?.id);
+
+      setCommentsFlat(data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -28,7 +35,7 @@ export default function Comments() {
 
   useEffect(() => {
     fetchComments(false);
-  }, [id]);
+  }, [id, user?.id]);
 
   const handleCommentSubmitting = () => {
     setIsSubmitting(true);
@@ -39,25 +46,31 @@ export default function Comments() {
     setIsSubmitting(false);
   };
 
-  if (loading || isSubmitting) return <Loader className="h-[calc(100vh-8rem)]" />;
-
   const estructurarArbol = (lista: any[]) => {
-  const listaValida = lista.filter((c) => c && c.id);
-  const mapa = new Map(listaValida.map((c) => [c.id, { ...c, respuestas: [] }]));
-  const raices: any[] = [];
+    const listaValida = lista.filter((c) => c && c.id);
 
-  for (const item of mapa.values()) {
-    if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
-      mapa.get(item.parent_comment_id).respuestas.push(item);
-    } else {
-      raices.push(item);
+    const mapa = new Map(
+      listaValida.map((c) => [c.id, { ...c, respuestas: [] }]),
+    );
+
+    const raices: any[] = [];
+
+    for (const item of mapa.values()) {
+      if (item.parent_comment_id && mapa.has(item.parent_comment_id)) {
+        mapa.get(item.parent_comment_id).respuestas.push(item);
+      } else {
+        raices.push(item);
+      }
     }
-  }
-  return raices;
-};
 
-// Pasamos tu array plano por la estructura
-const comentariosEstructurados = estructurarArbol(commentsFlat);
+    return raices;
+  };
+
+  const comentariosEstructurados = estructurarArbol(commentsFlat);
+
+  if (loading || isSubmitting) {
+    return <Loader className="h-[calc(100vh-8rem)]" />;
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-4 flex flex-col gap-6">
@@ -70,6 +83,16 @@ const comentariosEstructurados = estructurarArbol(commentsFlat);
             onCommentCreated={handleNewCommentAdded}
             onSubmitting={handleCommentSubmitting}
           />
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate(`/surveys/new?discussionId=${id}`)}
+              className="mt-3 w-full rounded-md border border-border bg-bg px-4 py-2 font-bold text-accent hover:bg-bg-sec cursor-pointer"
+            >
+              Crear encuesta para esta discusión
+            </button>
+          )}
         </div>
       )}
 
@@ -83,14 +106,15 @@ const comentariosEstructurados = estructurarArbol(commentsFlat);
             />
           ))
         ) : (
-
           <div className="bg-bg-sec rounded-md p-20 flex flex-col items-center justify-center border-2 border-border border-dashed">
             <div className="bg-accent/10 p-4 mb-4 rounded-full text-accent">
               <MessagesSquare size={36} />
             </div>
+
             <h2 className="text-xl font-bold text-txt">
               Aún no hay comentarios
             </h2>
+
             <p className="text-txt-sec mt-2 w-100 text-center text-pretty">
               Sé el primero en iniciar la conversación escribiendo un comentario
               público arriba.

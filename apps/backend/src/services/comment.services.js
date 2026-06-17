@@ -29,15 +29,22 @@ export const createCommentService = async (data) => {
 export const updateCommentService = async (commentId, content) => {
   try {
     const { rows } = await pool.query(
-      "UPDATE comments SET content = $1, updated_at = NOW() WHERE id = $2",
-      [content, commentId]
+      `
+      UPDATE comments
+      SET
+        content = $1,
+        updated_at = NOW()
+      WHERE id = $2
+      RETURNING *;
+      `,
+      [content, commentId],
     );
 
-    if (rows.affectedRows === 0) {
+    if (rows.length === 0) {
       throw new Error("Comentario no encontrado");
     }
 
-    return { message: "Comentario actualizado con éxito" };
+    return rows[0];
   } catch (error) {
     console.error("Error en updateCommentService:", error);
     throw error;
@@ -45,35 +52,151 @@ export const updateCommentService = async (commentId, content) => {
 };
 
 // Obtener todos los comentarios de una discusión con el nombre del usuario mapeado
-export const getCommentsByDiscussionService = async (discussionId) => {
+export const getCommentsByDiscussionService = async (
+  discussionId,
+  userId = null,
+) => {
   const { rows } = await pool.query(
-    `WITH RECURSIVE CheckedComments AS (
-        SELECT 
-            c.*,
-            CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
-            ARRAY[c.id::text] AS path,
-            c.created_at AS root_date 
-        FROM comments c
-        INNER JOIN usuarios u ON c.user_id = u.id
-        WHERE c.discussion_id = $1 AND c.parent_comment_id IS NULL
+    `
+    WITH RECURSIVE CheckedComments AS (
+      SELECT
+        c.*,
+        CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
 
-        UNION ALL
+        (
+          SELECT json_build_object(
+            'id', s.id,
+            'title', s.title,
+            'description', s.description,
+            'user_id', s.user_id,
+            'creator_name', CONCAT_WS(' ', su.nombre, su.apellido_paterno),
+            'date_start', s.date_start,
+            'date_end', s.date_end,
 
-        SELECT 
-            c.*,
-            CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
-            p.path || c.id::text AS path,
-            p.root_date 
-        FROM comments c
-        INNER JOIN usuarios u ON c.user_id = u.id
-        INNER JOIN CheckedComments p ON c.parent_comment_id = p.id
+            'has_voted', EXISTS (
+              SELECT 1
+              FROM survey_votes sv
+              WHERE sv.survey_id = s.id
+                AND $2::text IS NOT NULL
+                AND sv.user_id::text = $2::text
+            ),
+
+            'voted_option_id', (
+              SELECT sv.option_id
+              FROM survey_votes sv
+              WHERE sv.survey_id = s.id
+                AND $2::text IS NOT NULL
+                AND sv.user_id::text = $2::text
+              LIMIT 1
+            ),
+
+            'options', COALESCE(
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'id', so.id,
+                    'texto', so.texto,
+                    'votes', so.votes
+                  )
+                  ORDER BY so.created_at ASC
+                )
+                FROM survey_options so
+                WHERE so.survey_id = s.id
+              ),
+              '[]'::json
+            )
+          )
+          FROM surveys s
+          LEFT JOIN usuarios su
+            ON su.id::text = s.user_id::text
+          WHERE s.comment_id::text = c.id::text
+          LIMIT 1
+        ) AS survey,
+
+        ARRAY[c.id::text] AS path,
+        c.created_at AS root_date,
+        COALESCE(c.is_pinned, false) AS root_is_pinned
+
+      FROM comments c
+      INNER JOIN usuarios u
+        ON c.user_id = u.id
+      WHERE c.discussion_id = $1
+        AND c.parent_comment_id IS NULL
+
+      UNION ALL
+
+      SELECT
+        c.*,
+        CONCAT_WS(' ', u.nombre, u.apellido_paterno) AS nombre_usuario,
+
+        (
+          SELECT json_build_object(
+            'id', s.id,
+            'title', s.title,
+            'description', s.description,
+            'user_id', s.user_id,
+            'creator_name', CONCAT_WS(' ', su.nombre, su.apellido_paterno),
+            'date_start', s.date_start,
+            'date_end', s.date_end,
+
+            'has_voted', EXISTS (
+              SELECT 1
+              FROM survey_votes sv
+              WHERE sv.survey_id = s.id
+                AND $2::text IS NOT NULL
+                AND sv.user_id::text = $2::text
+            ),
+
+            'voted_option_id', (
+              SELECT sv.option_id
+              FROM survey_votes sv
+              WHERE sv.survey_id = s.id
+                AND $2::text IS NOT NULL
+                AND sv.user_id::text = $2::text
+              LIMIT 1
+            ),
+
+            'options', COALESCE(
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'id', so.id,
+                    'texto', so.texto,
+                    'votes', so.votes
+                  )
+                  ORDER BY so.created_at ASC
+                )
+                FROM survey_options so
+                WHERE so.survey_id = s.id
+              ),
+              '[]'::json
+            )
+          )
+          FROM surveys s
+          LEFT JOIN usuarios su
+            ON su.id::text = s.user_id::text
+          WHERE s.comment_id::text = c.id::text
+          LIMIT 1
+        ) AS survey,
+
+        p.path || c.id::text AS path,
+        p.root_date AS root_date,
+        p.root_is_pinned AS root_is_pinned
+
+      FROM comments c
+      INNER JOIN usuarios u
+        ON c.user_id = u.id
+      INNER JOIN CheckedComments p
+        ON c.parent_comment_id = p.id
     )
-    SELECT * FROM CheckedComments 
-    ORDER BY 
-    root_date DESC, 
-    path ASC;`,
-    [discussionId],
+
+    SELECT *
+    FROM CheckedComments
+    ORDER BY root_is_pinned DESC, root_date DESC, path ASC;
+    `,
+    [discussionId, userId],
   );
+
   return rows;
 };
 
@@ -204,4 +327,82 @@ export const getCommentsByUserService = async (userId) => {
     [userId],
   );
   return rows;
+};
+
+export const createSurveyCommentService = async ({
+  discussionId,
+  userId,
+  title,
+  description,
+  options,
+  dateStart,
+  dateEnd,
+}) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const commentId = uuidv4();
+    const surveyId = uuidv4();
+
+    await client.query(
+      `
+      INSERT INTO comments (
+        id,
+        content,
+        discussion_id,
+        user_id,
+        parent_comment_id,
+        upvotes,
+        downvotes,
+        comment_type,
+        is_pinned
+      )
+      VALUES ($1, $2, $3, $4, NULL, 0, 0, 'survey', true);
+      `,
+      [commentId, title, discussionId, userId],
+    );
+
+    await client.query(
+      `
+      INSERT INTO surveys (
+        id,
+        comment_id,
+        title,
+        description,
+        user_id,
+        date_start,
+        date_end,
+        is_active
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, true);
+      `,
+      [surveyId, commentId, title, description, userId, dateStart, dateEnd],
+    );
+
+    for (const option of options) {
+      await client.query(
+        `
+        INSERT INTO survey_options (
+          id,
+          survey_id,
+          texto,
+          votes
+        )
+        VALUES ($1, $2, $3, 0);
+        `,
+        [uuidv4(), surveyId, option.texto],
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return { comment_id: commentId, survey_id: surveyId };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };

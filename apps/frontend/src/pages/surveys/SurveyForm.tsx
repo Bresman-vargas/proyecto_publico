@@ -16,6 +16,7 @@ import { surveySchema } from "@proyecto_publico/schemas";
 
 import { useAuth } from "../../context/AuthContext";
 import * as surveysApi from "../../api/surveys";
+import { createSurveyCommentRequest } from "../../api/comments";
 
 type EncuestaFormData = z.infer<typeof surveySchema>;
 
@@ -109,22 +110,37 @@ export default function SurveyForm() {
         return;
       }
 
-      const cleanData = {
-        ...data,
-        user_id: user.id,
-        discussion_id: data.discussion_id || discussionId || null,
-      };
+      const finalDiscussionId = data.discussion_id || discussionId;
 
       if (isEditMode && id) {
         await surveysApi.editSurvey({
-          ...cleanData,
+          ...data,
           id,
+          user_id: user.id,
+          discussion_id: finalDiscussionId ?? null,
         });
-      } else {
-        await surveysApi.createSurvey(cleanData);
+
+        navigate(
+          finalDiscussionId ? `/comments/${finalDiscussionId}` : "/surveys",
+        );
+        return;
       }
 
-      navigate("/surveys");
+      if (!finalDiscussionId) {
+        console.error("Debes seleccionar una discusión para crear la encuesta");
+        return;
+      }
+
+      await createSurveyCommentRequest(finalDiscussionId, {
+        title: data.title,
+        description: data.description,
+        options: data.options,
+        dateStart: data.dateStart,
+        dateEnd: data.dateEnd,
+        user_id: user.id,
+      });
+
+      navigate(`/comments/${finalDiscussionId}`);
     } catch (error) {
       console.error("Error al guardar encuesta:", error);
     }
