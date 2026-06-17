@@ -16,11 +16,14 @@ type Survey = {
   title: string;
   description: string;
   user_id: string | null;
+  creator_name?: string | null;
   is_active?: boolean;
   date_start?: string | null;
   date_end?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  has_voted?: boolean;
+  voted_option_id?: string | null;
   options: SurveyOption[];
 };
 
@@ -33,13 +36,14 @@ export default function Surveys() {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = user?.rol === "admin";
 
   const fetchSurveys = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await surveysApi.getSurveys();
+      const data = await surveysApi.getSurveys(user?.id);
       setSurveys(data);
     } catch (err) {
       console.error("Error al cargar encuestas:", err);
@@ -51,7 +55,7 @@ export default function Surveys() {
 
   useEffect(() => {
     fetchSurveys();
-  }, []);
+  }, [user?.id]);
 
   const mySurveys = surveys.filter((sur) => sur.user_id === user?.id);
   const visibleSurveys = activeTab === "crear" ? mySurveys : surveys;
@@ -78,6 +82,14 @@ export default function Surveys() {
 
     return options.reduce((winner, current) =>
       current.votes > winner.votes ? current : winner,
+    );
+  };
+
+  const handleVoteSuccess = (updatedSurvey: Survey) => {
+    setSurveys((currentSurveys) =>
+      currentSurveys.map((survey) =>
+        survey.id === updatedSurvey.id ? updatedSurvey : survey,
+      ),
     );
   };
 
@@ -156,9 +168,12 @@ export default function Surveys() {
                   key={sur.id}
                   survey={sur}
                   openSurveyId={openSurveyId}
-                  canEdit={true}
+                  canEdit={false}
+                  userId={user?.id}
+                  isAdmin={isAdmin}
                   onToggle={toggleSurvey}
                   onEdit={handleEdit}
+                  onVoteSuccess={handleVoteSuccess}
                   getTotalVotes={getTotalVotes}
                   getOptionPercentage={getOptionPercentage}
                   getWinningOption={getWinningOption}
@@ -195,8 +210,11 @@ export default function Surveys() {
                   survey={sur}
                   openSurveyId={openSurveyId}
                   canEdit={false}
+                  userId={user?.id}
+                  isAdmin={isAdmin}
                   onToggle={toggleSurvey}
                   onEdit={handleEdit}
+                  onVoteSuccess={handleVoteSuccess}
                   getTotalVotes={getTotalVotes}
                   getOptionPercentage={getOptionPercentage}
                   getWinningOption={getWinningOption}
@@ -214,8 +232,11 @@ type SurveyCardProps = {
   survey: Survey;
   openSurveyId: string | null;
   canEdit: boolean;
+  userId?: string;
+  isAdmin: boolean;
   onToggle: (id: string) => void;
   onEdit: (id: string) => void;
+  onVoteSuccess: (updatedSurvey: Survey) => void;
   getTotalVotes: (options: SurveyOption[]) => number;
   getOptionPercentage: (votes: number, totalVotes: number) => number;
   getWinningOption: (options: SurveyOption[]) => SurveyOption | null;
@@ -225,15 +246,68 @@ function SurveyCard({
   survey,
   openSurveyId,
   canEdit,
+  userId,
+  isAdmin,
   onToggle,
   onEdit,
+  onVoteSuccess,
   getTotalVotes,
   getOptionPercentage,
   getWinningOption,
 }: SurveyCardProps) {
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(
+    survey.voted_option_id ?? null,
+  );
+
+  const [votedOptionId, setVotedOptionId] = useState<string | null>(
+    survey.voted_option_id ?? null,
+  );
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteError, setVoteError] = useState<string | null>(null);
+
   const options = survey.options ?? [];
   const totalVotes = getTotalVotes(options);
   const winner = getWinningOption(options);
+
+  const hasVoted = Boolean(votedOptionId || survey.has_voted);
+
+  const shouldShowVoteForm = !isAdmin && !hasVoted;
+  const shouldShowResults = isAdmin || hasVoted;
+
+  useEffect(() => {
+    setSelectedOptionId(survey.voted_option_id ?? null);
+    setVotedOptionId(survey.voted_option_id ?? null);
+    setVoteError(null);
+  }, [survey.id, survey.voted_option_id]);
+
+  const handleConfirmVote = async () => {
+    if (!selectedOptionId || !userId) return;
+
+    try {
+      setIsVoting(true);
+      setVoteError(null);
+
+      const updatedSurvey = await surveysApi.voteSurvey({
+        surveyId: survey.id,
+        option_id: selectedOptionId,
+        user_id: userId,
+      });
+
+      setVoteError(null);
+      setSelectedOptionId(selectedOptionId);
+      setVotedOptionId(selectedOptionId);
+      onVoteSuccess({
+        ...updatedSurvey,
+        has_voted: true,
+        voted_option_id: selectedOptionId,
+      });
+    } catch (error) {
+      console.error("Error al votar:", error);
+      setVoteError("No se pudo registrar tu voto o ya votaste.");
+    } finally {
+      setIsVoting(false);
+    }
+  };
 
   return (
     <section className="flex flex-col justify-start rounded-md text-base/9">
@@ -282,79 +356,166 @@ function SurveyCard({
 
         {openSurveyId === survey.id && (
           <div className="mt-4 rounded-md border border-border bg-bg-sec p-4">
-            <h3 className="mb-3 text-center font-bold text-txt-sec">
-              Resultados de la encuesta
-            </h3>
+            {shouldShowVoteForm && (
+              <div className="mb-4 rounded-md border border-border bg-bg p-4">
+                <h3 className="mb-3 font-bold text-txt-sec">
+                  Vota en esta encuesta
+                </h3>
 
-            <div className="space-y-4">
-              {options.map((option) => {
-                const isWinner = winner?.id === option.id;
-                const percentage = getOptionPercentage(
-                  option.votes,
-                  totalVotes,
-                );
-
-                return (
-                  <div
-                    key={option.id}
-                    className={`rounded-md border p-3 ${
-                      isWinner
-                        ? "border-accent bg-accent/10"
-                        : "border-border bg-bg"
-                    }`}
-                  >
-                    <div className="mb-1 flex justify-between gap-4 text-sm">
-                      <span className={isWinner ? "font-bold text-accent" : ""}>
-                        {option.texto}
-                      </span>
-
-                      <span className="text-txt-sec">
-                        {option.votes} votos · {percentage}%
-                      </span>
-                    </div>
-
-                    <div className="h-4 w-full overflow-hidden rounded-full border border-border bg-bg-sec">
-                      <div
-                        className={
-                          isWinner ? "h-full bg-accent" : "h-full bg-txt-sec/40"
-                        }
-                        style={{ width: `${percentage}%` }}
+                <div className="space-y-2">
+                  {options.map((option) => (
+                    <label
+                      key={option.id}
+                      className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 ${
+                        selectedOptionId === option.id
+                          ? "border-accent bg-accent/10"
+                          : "border-border bg-bg-sec"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`survey-${survey.id}`}
+                        value={option.id}
+                        checked={selectedOptionId === option.id}
+                        disabled={isVoting}
+                        onChange={() => setSelectedOptionId(option.id)}
                       />
-                    </div>
 
-                    {isWinner && (
-                      <p className="mt-2 text-sm font-bold text-accent">
-                        Opción más votada
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                      <span>{option.texto}</span>
+                    </label>
+                  ))}
+                </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-md border border-border bg-bg p-3">
-                <p className="font-bold">Usuario creador:</p>
-                <p className="text-txt-sec">{survey.user_id ?? "Sin usuario"}</p>
+                <button
+                  type="button"
+                  disabled={!selectedOptionId || isVoting || !userId}
+                  onClick={handleConfirmVote}
+                  className={`mt-4 w-full rounded-md px-4 py-2 font-bold ${
+                    selectedOptionId && !isVoting && userId
+                      ? "cursor-pointer bg-accent text-bg"
+                      : "cursor-not-allowed bg-accent/20 text-txt-sec"
+                  }`}
+                >
+                  {isVoting ? "Registrando voto..." : "Confirmar voto"}
+                </button>
+
+                {voteError && (
+                  <p className="mt-2 text-sm text-err">{voteError}</p>
+                )}
+
+                {!userId && (
+                  <p className="mt-2 text-sm text-err">
+                    Debes iniciar sesión para votar.
+                  </p>
+                )}
               </div>
+            )}
 
-              <div className="rounded-md border border-border bg-bg p-3">
-                <p className="font-bold">Total de votos:</p>
-                <p className="text-txt-sec">{totalVotes}</p>
-              </div>
-
-              <div className="rounded-md border border-border bg-bg p-3">
-                <p className="font-bold">Opción más votada:</p>
-                <p className="text-txt-sec">{winner?.texto ?? "Sin votos"}</p>
-              </div>
-
-              <div className="rounded-md border border-border bg-bg p-3">
-                <p className="font-bold">Fecha emisión:</p>
-                <p className="text-txt-sec">
-                  {formatDate(survey.created_at ?? survey.date_start)}
+            {hasVoted && !isAdmin && (
+              <div className="mb-4 rounded-md border border-accent bg-accent/10 p-4">
+                <p className="font-bold text-accent">
+                  Voto registrado correctamente.
+                </p>
+                <p className="text-sm text-txt-sec">
+                  Tu voto quedó bloqueado y no puede modificarse.
                 </p>
               </div>
-            </div>
+            )}
+
+            {isAdmin && (
+              <div className="mb-4 rounded-md border border-border bg-bg p-4">
+                <p className="font-bold text-accent">Vista de administrador</p>
+                <p className="text-sm text-txt-sec">
+                  Puedes revisar los resultados sin votar.
+                </p>
+              </div>
+            )}
+
+            {shouldShowResults && (
+              <>
+                <h3 className="mb-3 text-center font-bold text-txt-sec">
+                  Resultados de la encuesta
+                </h3>
+
+                <div className="space-y-4">
+                  {options.map((option) => {
+                    const isWinner = winner?.id === option.id;
+                    const percentage = getOptionPercentage(
+                      option.votes,
+                      totalVotes,
+                    );
+
+                    return (
+                      <div
+                        key={option.id}
+                        className={`rounded-md border p-3 ${
+                          isWinner
+                            ? "border-accent bg-accent/10"
+                            : "border-border bg-bg"
+                        }`}
+                      >
+                        <div className="mb-1 flex justify-between gap-4 text-sm">
+                          <span
+                            className={isWinner ? "font-bold text-accent" : ""}
+                          >
+                            {option.texto}
+                          </span>
+
+                          <span className="text-txt-sec">
+                            {option.votes} votos · {percentage}%
+                          </span>
+                        </div>
+
+                        <div className="h-4 w-full overflow-hidden rounded-full border border-border bg-bg-sec">
+                          <div
+                            className={
+                              isWinner
+                                ? "h-full bg-accent"
+                                : "h-full bg-txt-sec/40"
+                            }
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+
+                        {isWinner && (
+                          <p className="mt-2 text-sm font-bold text-accent">
+                            Opción más votada
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-md border border-border bg-bg p-3">
+                    <p className="font-bold">Creador:</p>
+                    <p className="text-txt-sec">
+                      {survey.creator_name ?? "Sin usuario"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-md border border-border bg-bg p-3">
+                    <p className="font-bold">Total de votos:</p>
+                    <p className="text-txt-sec">{totalVotes}</p>
+                  </div>
+
+                  <div className="rounded-md border border-border bg-bg p-3">
+                    <p className="font-bold">Opción más votada:</p>
+                    <p className="text-txt-sec">
+                      {winner?.texto ?? "Sin votos"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-md border border-border bg-bg p-3">
+                    <p className="font-bold">Fecha emisión:</p>
+                    <p className="text-txt-sec">
+                      {formatDate(survey.created_at ?? survey.date_start)}
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </section>

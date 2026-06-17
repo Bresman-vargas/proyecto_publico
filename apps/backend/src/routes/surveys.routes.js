@@ -4,8 +4,10 @@ import {
   createSurvey,
   getSurveys,
   getSurveysByUser,
+  getSurveysByDiscussion,
   getSurvey,
   updateSurvey,
+  voteSurveyOption,
 } from "../controllers/surveys.controllers.js";
 
 import { validateSchema } from "../middleware/validator.middleware.js";
@@ -19,5 +21,9 @@ survey_router.get("/surveys/:id", getSurvey);
 
 survey_router.post("/surveys", validateSchema(surveySchema), createSurvey);
 survey_router.patch("/surveys/:id", validateSchema(surveySchema), updateSurvey);
+
+survey_router.post("/surveys/:id/vote", voteSurveyOption);
+
+survey_router.get("/discussions/:discussionId/surveys", getSurveysByDiscussion);
 
 export default survey_router;

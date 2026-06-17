@@ -29,5 +29,7 @@ export const surveySchema = z.object({
   dateStart: z.coerce.date(),
   dateEnd: z.coerce.date(),
 
-  user_id: z.string().uuid("El usuario no es válido"),
+  user_id: z.string().trim().min(1, "El usuario es requerido"),
+
+  discussion_id: z.string().trim().optional().nullable(),
 });

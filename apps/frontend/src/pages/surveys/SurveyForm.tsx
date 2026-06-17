@@ -2,7 +2,12 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import InputForm from "../../components/InputForm";
@@ -18,6 +23,8 @@ export default function SurveyForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const discussionId = searchParams.get("discussionId");
 
   const isEditMode = Boolean(id);
 
@@ -37,6 +44,7 @@ export default function SurveyForm() {
       dateStart: new Date(),
       dateEnd: new Date(),
       user_id: user?.id ?? "",
+      discussion_id: discussionId ?? "",
     },
   });
 
@@ -46,7 +54,20 @@ export default function SurveyForm() {
   });
 
   useEffect(() => {
-    if (!isEditMode || !id) return;
+    const emptySurvey = {
+      title: "",
+      description: "",
+      options: [{ texto: "" }, { texto: "" }],
+      dateStart: new Date(),
+      dateEnd: new Date(),
+      user_id: user?.id ?? "",
+      discussion_id: discussionId ?? "",
+    };
+
+    if (!isEditMode || !id) {
+      reset(emptySurvey);
+      return;
+    }
 
     const loadSurvey = async () => {
       try {
@@ -61,6 +82,7 @@ export default function SurveyForm() {
           dateStart: new Date(survey.date_start),
           dateEnd: new Date(survey.date_end),
           user_id: survey.user_id,
+          discussion_id: survey.discussion_id ?? discussionId ?? "",
         });
       } catch (error) {
         console.error("Error al cargar encuesta:", error);
@@ -68,7 +90,7 @@ export default function SurveyForm() {
     };
 
     loadSurvey();
-  }, [isEditMode, id, reset]);
+  }, [isEditMode, id, reset, user?.id, discussionId]);
 
   const addOption = () => {
     if (fields.length >= 5) return;
@@ -90,6 +112,7 @@ export default function SurveyForm() {
       const cleanData = {
         ...data,
         user_id: user.id,
+        discussion_id: data.discussion_id || discussionId || null,
       };
 
       if (isEditMode && id) {
@@ -129,9 +152,12 @@ export default function SurveyForm() {
         </header>
 
         <form
+          autoComplete="off"
           className="grid grid-cols-2 gap-x-4 bg-bg border border-border px-4 rounded-md py-8"
           onSubmit={handleSubmit(onSubmit)}
         >
+          <input type="hidden" {...register("discussion_id")} />
+
           <InputForm
             className="col-span-2"
             label="Title"
@@ -189,7 +215,6 @@ export default function SurveyForm() {
               )}
             </div>
           </label>
-          
 
           <section className="col-span-2 py-4">
             <div className="flex items-center justify-between mb-4">

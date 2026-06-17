@@ -43,7 +43,7 @@ export const routes: RouteConfig[] = [
   { path: "/surveys/new", component: SurveyForm, private: true, adminOnly: true },
   { path: "/surveys/edit/:id", component: SurveyForm, private: true, adminOnly: true },
   { path: "/newforum", component: newForum, private: true, adminOnly: true },
-  { path: "/forums/:id", component: ForumDetail, private: true, adminOnly: true },
+  { path: "/forums/:id", component: ForumDetail, private: true},
   
   { path: "/settings", component: Settings, private: true },
   { path: "/not-found", component: lazy(() => import("./pages/NotFound")) }
