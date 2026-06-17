@@ -16,7 +16,6 @@ export default function Explore() {
   const [forosData, setForosData] = useState<ForumData[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchForos = async () => {
@@ -24,7 +23,7 @@ export default function Explore() {
         const data = await getForumsRequest();
         setForosData(data);
       } catch (err) {
-        setError("Error al cargar los foros");
+        console.error("Error al cargar los foros", err);
       } finally {
         setLoading(false);
       }
@@ -82,13 +81,11 @@ export default function Explore() {
                   ? `No hay resultados para "${busqueda}"`
                   : "Aún no hay foros creados"}
               </h2>
-
               <p className="text-txt-sec mt-2 max-w-md text-center text-pretty">
                 {busqueda !== ""
                   ? "Intenta ajustar los términos de búsqueda o revisa que la categoría o descripción sea la correcta."
                   : "Próximamente se crearán nuevos foros donde la comunidad podrá participar activamente."}
               </p>
-
               {busqueda && (
                 <button
                   onClick={() => setBusqueda("")}
