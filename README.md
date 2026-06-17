@@ -12,6 +12,15 @@ Proyecto para la asignatura enfocado en mejorar la comunicación y los tiempos d
 
 ## Instrucciones de ejecución del proyecto
 
+> **Credenciales de prueba:**
+> | Rol | Email | Contraseña |
+> | :--- | :--- | :--- |
+> | Administrador | ola@gmail.com | 1234 |
+> | Ciudadano | prueba@prueba.com | 1234 |
+
+
+### Modo desarrollo (local)
+
 ```bash
 # Clonar el repositorio
 git clone [url]
@@ -29,7 +38,41 @@ pnpm -F backend dev
 pnpm -F frontend dev
 ```
 
-> **Nota de desarrollo:** Para acceder a la aplicación sin autenticación real, modificar `DEV_MODE = true` en `apps/frontend/src/context/AuthContext.jsx`. Cambiar `role` en `MOCK_USER` entre `"admin"` y `"user"` para probar ambas vistas.
+### Modo producción (Docker)
+
+```bash
+# Clonar el repositorio
+git clone [url]
+
+# Acceder al directorio raíz del proyecto
+cd proyecto_publico
+
+# Copiar el archivo de variables de entorno del backend
+# (requiere el archivo .env real en apps/backend/)
+
+# Construir y levantar los contenedores
+docker-compose up --build
+
+# Acceder a la aplicación en el navegador
+# http://localhost
+```
+### Comandos Docker
+
+```bash
+# Construir y levantar todos los servicios
+docker-compose up --build
+
+# Detener los servicios
+docker-compose down
+
+# Rebuild completo sin caché
+docker-compose down
+docker-compose build --no-cache
+docker-compose up
+```
+
+
+> **Nota de variables de entorno:** Crear el archivo `apps/backend/.env` con las credenciales reales basándose en `apps/backend/.env.example`.
 
 ---
 
@@ -111,7 +154,6 @@ Proyecto inicializado con **Vite + React + TypeScript** en arquitectura monorepo
 - `api/` — Configuración Axios y funciones de llamada a endpoints
 - `context/` — AuthContext (sesión y roles) y ThemeContext (tema visual)
 
-
 ---
 
 ## 2.1 Creación del servidor en Node.js
@@ -153,6 +195,8 @@ Endpoints implementados con métodos HTTP correctos y respuestas JSON estructura
 | :--- | :--- | :--- | :--- |
 | GET | `/api/forums` | Obtener todos los foros | 200 |
 | POST | `/api/forums` | Crear un nuevo foro | 201 |
+| PATCH | `/api/forums/:id` | Editar un foro | 200 |
+| DELETE | `/api/forums/:id` | Eliminar un foro | 200 |
 
 ### Discusiones
 | Método | Endpoint | Descripción | Código |
@@ -188,13 +232,15 @@ Endpoints implementados con métodos HTTP correctos y respuestas JSON estructura
 | POST | `/api/auth/logout` | Cerrar sesión | 200 |
 | GET | `/api/auth/verify` | Verificar token JWT | 200 |
 
+---
+
 ## 2.4 Consumo de la API REST desde React con Axios
 
 Instancia global de Axios configurada con `baseURL` y `withCredentials: true` para manejo de cookies JWT.
 
 ```typescript
 const api = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
@@ -202,15 +248,16 @@ const api = axios.create({
 
 Funciones implementadas por dominio en `/api`:
 
-* **`forums.ts`:** `getForumsRequest()`, `createForumRequest()`
+* **`forums.ts`:** `getForumsRequest()`, `createForumRequest()`, `updateForumRequest()`, `deleteForumRequest()`
 * **`discussions.ts`:** `getDiscussionsByForum()`, `getDiscussionId()`, `discussionsByUser()`, `createDiscussion()`, `editDiscussion()`, `editDiscussionState()`, `delateDiscussion()`
 * **`comments.ts`:** `getCommentsByDiscussion()`, `getCommentsByUser()`, `createComment()`, `voteComment()`, `deleteComment()`
 * **`auth.ts`:** `loginRequest()`, `registerRequest()`, `logoutRequest()`, `verifyTokenRequest()`
 
 Vistas conectadas a la API:
 * **`Explore.tsx`:** Carga foros reales desde `GET /api/forums`
-* **`NewForum.tsx`:** Crea foros reales via `POST /api/forums` y redirige al listado
+* **`Forums.tsx`:** CRUD completo de foros con contadores de discusiones en tiempo real
 * **`ForumDetail.tsx`:** Carga foro y sus discusiones desde `GET /api/forums/:id/discussions`
+* **`Discussions.tsx`:** Carga discusiones del usuario desde `GET /api/users/:userId/discussions`
 
 ---
 
@@ -243,25 +290,160 @@ Pruebas realizadas con **Thunder Client** sobre los endpoints principales:
 ![200 OK](https://github.com/user-attachments/assets/81ad9e2d-55bc-45a9-956a-cd9080b63f7a)
 
 ### POST /api/forums
-
 * **Resultado:** 201 Created — retorna el foro creado con su ID asignado
 ![201_OK](https://github.com/user-attachments/assets/aa1579bf-d8ea-4ba4-aa4b-8ccc4b76eba8)
 
-
 ### GET /api/comments
-**Resultado:** 200 OK — retorna array JSON con todos los comentarios almacenados en Supabase por usuario
+* **Resultado:** 200 OK — retorna array JSON con todos los comentarios almacenados en Supabase por usuario
 ![200 OK](https://github.com/user-attachments/assets/2a08a7ea-853c-40c5-8adf-9cfb6be7d07b)
 
-
 ### POST /api/comments
-**Resultado:** 201 Created — retorna el comentario creado con su ID asignado
+* **Resultado:** 201 Created — retorna el comentario creado con su ID asignado
 ![201 OK](https://github.com/user-attachments/assets/f44418c5-f8fc-48c8-9231-5377375c38bf)
 
 ### GET /api/discussions
-**Resultado:** 200 OK — retorna array JSON con todas las discusiones almacenadas en Supabase
+* **Resultado:** 200 OK — retorna array JSON con todas las discusiones almacenadas en Supabase
 ![200 OK](https://github.com/user-attachments/assets/3e7efd1e-6c03-4020-932d-7598d9c86c87)
 
-
 ### POST /api/discussions
-**Resultado:** 201 Created — retorna la discusión creada con su ID asignado
+* **Resultado:** 201 Created — retorna la discusión creada con su ID asignado
 ![201 OK](https://github.com/user-attachments/assets/830d0244-51c0-46ef-bb42-187370c7209e)
+
+---
+
+## 3.1 Funcionalidades completas (CRUD)
+
+La entrega final completó el CRUD en todos los dominios de la aplicación:
+
+| Dominio | Crear | Leer | Editar | Eliminar |
+| :--- | :---: | :---: | :---: | :---: |
+| Foros | ✅ | ✅ | ✅ | ✅ |
+| Discusiones | ✅ | ✅ | ✅ | ✅ |
+| Comentarios | ✅ | ✅ | ✅ | ✅ |
+| Encuestas | ✅ | ✅ | ✅ | ✅ |
+| Votos (comentarios) | ✅ | ✅ | ✅ | ✅ |
+
+Funcionalidades adicionales implementadas:
+* **Cambio de estado de discusiones:** El administrador puede alternar entre Activo/Inactivo
+* **Votación de comentarios:** Sistema upvote/downvote con transacciones SQL para consistencia de datos
+* **Comentarios anidados:** Hilos multinivel con consulta recursiva (`WITH RECURSIVE`) en PostgreSQL
+* **Búsqueda en tiempo real:** Filtrado por título, categoría y keywords en foros y discusiones
+
+---
+
+## 3.2 Mejoras en UI/UX
+
+Mejoras visuales y de experiencia implementadas en la entrega final:
+
+* **ForumDetail rediseñado:** Banner de fondo con gradiente y avatar circular tipo Reddit para la imagen del foro, evitando imágenes estiradas
+* **Sidebar mejorado:** Las etiquetas MAIN/ADMIN se ocultan automáticamente cuando el sidebar está colapsado, reemplazadas por líneas divisorias
+* **Loader unificado:** Componente `Loader` reutilizable reemplaza los textos de "Cargando..." en Explore, Forums y Discussions
+* **Explore optimizado:** Se eliminaron los contadores de discusiones abiertas/cerradas, dejando una vista más limpia para el usuario ciudadano
+* **Forums con contadores reales:** Los contadores de discusiones abiertas/cerradas se calculan en tiempo real desde la API
+* **Cards clickeables:** Las tarjetas de foros en Explore y Forums navegan al detalle del foro al hacer clic
+* **Tema Light/Dark:** Sistema de temas dinámico con variables CSS `oklch` configurable desde Settings
+
+---
+
+## 3.3 Seguridad avanzada en API
+
+| Medida | Implementación |
+| :--- | :--- |
+| Protección XSS | `helmet` con Content Security Policy (CSP) configurado |
+| CORS seguro | Métodos HTTP explícitos (`GET`, `POST`, `PATCH`, `DELETE`, `OPTIONS`) y headers permitidos |
+| Inyección SQL | Consultas parametrizadas con `$1, $2` en todos los servicios |
+| Payload gigante | `express.json({ limit: "10kb" })` para prevenir ataques de carga masiva |
+| Encriptación | `bcryptjs` con salt de 10 rondas para hash de contraseñas |
+| Cookies seguras | JWT en cookie `httpOnly` inaccesible desde JavaScript |
+
+```javascript
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+```
+
+---
+
+## 3.4 Optimización de consultas
+
+* **Consultas optimizadas:** `getDiscussionsByForumService` actualizado para seleccionar solo columnas necesarias en lugar de `SELECT *`
+* **Transacciones SQL:** Sistema de votación implementado con `BEGIN/COMMIT/ROLLBACK` para garantizar consistencia de datos
+* **Pool de conexiones:** Conexión a Supabase mediante `pg.Pool` para reutilización eficiente de conexiones
+
+---
+
+## 3.5 Integración con servicio externo
+
+La aplicación utiliza **Supabase** como servicio externo en la nube, integrando:
+
+* **PostgreSQL hosteado:** Base de datos relacional en la nube de AWS (`aws-1-us-west-1.pooler.supabase.com`)
+* **Connection pooling:** Conexión mediante el pooler de Supabase en puerto `6543` para optimizar el número de conexiones simultáneas
+* **CRUD completo integrado:** Esta entrega es la primera en conectar todas las operaciones (crear, leer, editar, eliminar) con la base de datos real en producción
+
+```javascript
+import pg from "pg";
+const { Pool } = pg;
+import { DB_CONFIG } from "./config.js";
+export const pool = new Pool(DB_CONFIG);
+```
+
+---
+
+## 3.6 Despliegue con Docker
+
+La aplicación está completamente containerizada con Docker para facilitar el despliegue en cualquier entorno.
+
+### Estructura de contenedores
+
+| Contenedor | Imagen base | Puerto | Descripción |
+| :--- | :--- | :--- | :--- |
+| `backend` | `node:20-alpine` | 4000 | API REST con Express.js |
+| `frontend` | `nginx:alpine` | 80 | Build de producción servido con Nginx |
+
+### Arquitectura de red
+
+El frontend compilado con Vite es servido por Nginx, que actúa como proxy inverso redirigiendo las llamadas a `/api` hacia el contenedor del backend internamente, sin exponer la URL del backend al navegador.
+
+```nginx
+location /api {
+    proxy_pass http://backend:4000/api;
+}
+```
+
+### Variables de entorno
+
+Crear el archivo `apps/backend/.env` basándose en `apps/backend/.env.example`:
+
+```dotenv
+PORT=4000
+TOKEN_SECRET=tu_clave_secreta_aqui
+DB_HOST=
+DB_PORT=6543
+DB_USER=
+DB_PASSWORD=
+DB_NAME=postgres
+FRONTEND_URL=http://localhost
+```
+
+### Comandos Docker
+
+```bash
+# Construir y levantar todos los servicios
+docker-compose up --build
+
+# Detener los servicios
+docker-compose down
+
+# Rebuild completo sin caché
+docker-compose down
+docker-compose build --no-cache
+docker-compose up
+```
