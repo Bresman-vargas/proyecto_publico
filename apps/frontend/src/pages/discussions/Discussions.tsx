@@ -1,5 +1,5 @@
-import { Search, Lightbulb, CirclePlus } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Search, Lightbulb } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { type DiscussionData, HarcoDiscussions } from "./HarcoDiscussions";
 import { useState, useEffect, useMemo } from "react";
 import * as discussionsApi from "../../api/discussions";

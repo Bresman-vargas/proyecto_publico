@@ -9,7 +9,7 @@ import TextAreaForm from "../../components/TextAreaForm";
 import SelectForm from "../../components/SelectForm";
 import { createForumRequest } from "../../api/forums";
 import ButtonLoading from "../../components/ButtonLoading";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type ForumFormData = z.infer<typeof forumSchema>;
 
