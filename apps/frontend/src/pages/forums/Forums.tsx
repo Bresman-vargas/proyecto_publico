@@ -20,10 +20,7 @@ import {
   updateForumRequest,
   deleteForumRequest,
 } from "../../api/forums";
-<<<<<<< HEAD
 import { getDiscussionsByForum } from "../../api/discussions";
-=======
->>>>>>> respando-cambios
 import Loader from "../../components/Loader";
 
 type ForumFormData = z.infer<typeof forumSchema>;
