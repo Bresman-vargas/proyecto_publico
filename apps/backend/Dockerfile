@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm tsx
 
 WORKDIR /app
 
@@ -17,4 +17,4 @@ WORKDIR /app/apps/backend
 
 EXPOSE 4000
 
-CMD ["node", "src/index.js"]
+CMD ["tsx", "src/index.js"]
