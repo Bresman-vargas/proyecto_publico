@@ -183,9 +183,6 @@ export function CommentItem({
               <p className="text-txt-sec text-sm">
                 {formatDate(comment.created_at)}
               </p>
-              {isEdited && (
-                <p className="text-txt-sec text-xs italic">(Editado)</p>
-              )}
             </div>
 
             {user && user.id === comment.user_id && !comment.survey && (

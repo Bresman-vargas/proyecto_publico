@@ -1,5 +1,5 @@
 import { useForm, useFieldArray } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -17,6 +17,7 @@ import { surveySchema } from "@proyecto_publico/schemas";
 import { useAuth } from "../../context/AuthContext";
 import * as surveysApi from "../../api/surveys";
 import { createSurveyCommentRequest } from "../../api/comments";
+import ButtonLoading from "../../components/ButtonLoading";
 
 type EncuestaFormData = z.infer<typeof surveySchema>;
 
@@ -26,6 +27,7 @@ export default function SurveyForm() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const discussionId = searchParams.get("discussionId");
+  const [loading, setLoading] = useState(false);
 
   const isEditMode = Boolean(id);
 
@@ -72,6 +74,7 @@ export default function SurveyForm() {
 
     const loadSurvey = async () => {
       try {
+        setLoading(true); // 3. Activamos loader al traer los datos viejos si es edición
         const survey = await surveysApi.getSurveyId(id);
 
         reset({
@@ -87,6 +90,8 @@ export default function SurveyForm() {
         });
       } catch (error) {
         console.error("Error al cargar encuesta:", error);
+      } finally {
+        setLoading(false); // 4. Desactivamos loader inicial
       }
     };
 
@@ -110,6 +115,7 @@ export default function SurveyForm() {
         return;
       }
 
+      setLoading(true);
       const finalDiscussionId = data.discussion_id || discussionId;
 
       if (isEditMode && id) {
@@ -128,6 +134,7 @@ export default function SurveyForm() {
 
       if (!finalDiscussionId) {
         console.error("Debes seleccionar una discusión para crear la encuesta");
+        setLoading(false);
         return;
       }
 
@@ -143,17 +150,26 @@ export default function SurveyForm() {
       navigate(`/comments/${finalDiscussionId}`);
     } catch (error) {
       console.error("Error al guardar encuesta:", error);
+      setLoading(false);
     }
   };
 
   return (
     <section className="center">
       <div className="bg-bg-sec/50 p-4 rounded-md border border-border">
+        {loading && !isValid && (
+          <div className="text-center py-4 text-accent animate-pulse">
+            Cargando datos de la encuesta...
+          </div>
+        )}
         <header className="mb-8 col-span-2">
           <div className="flex items-center gap-4">
-            <Link to="/surveys" className="text-txt">
+            <button
+              onClick={() => navigate(-1)}
+              className="text-txt bg-transparent border-0 cursor-pointer"
+            >
               <ArrowLeft />
-            </Link>
+            </button>
 
             <h1 className="text-2xl my-2">
               {isEditMode ? "Editar una encuesta" : "Crear una encuesta"}
@@ -293,17 +309,9 @@ export default function SurveyForm() {
           </section>
 
           <div className="py-4 col-span-2">
-            <button
-              className={`rounded-md px-4 py-2 w-full ${
-                isValid
-                  ? "bg-accent cursor-pointer text-bg"
-                  : "bg-accent/20 cursor-not-allowed text-txt"
-              }`}
-              type="submit"
-              disabled={!isValid}
-            >
+            <ButtonLoading loading={loading} isValid={isValid}>
               {isEditMode ? "Editar encuesta" : "Agregar encuesta"}
-            </button>
+            </ButtonLoading>
           </div>
         </form>
       </div>

@@ -250,14 +250,6 @@ export default function Forums() {
                       ({foro.discusiones} Discusiones)
                     </p>
                   </div>
-                  <div className="flex gap-3">
-                    <span className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500/10 text-green-600 rounded-full border border-green-500/40">
-                      ● {foro.abiertas} Abiertas
-                    </span>
-                    <span className="flex items-center gap-1 text-sm px-3 py-1 bg-gray-500/10 text-gray-500 rounded-full border border-gray-400/40">
-                      ● {foro.cerradas} Cerradas
-                    </span>
-                  </div>
                   <p className="py-5">{foro.descripcion}</p>
                 </div>
 
