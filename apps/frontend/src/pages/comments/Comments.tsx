@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MessagesSquare } from "lucide-react";
+import { MessagesSquare, ArrowLeft } from "lucide-react";
 import { getCommentsByDiscussionRequest } from "../../api/comments";
 import { useAuth } from "../../context/AuthContext";
 import { CommentItem } from "../../components/CommentItem";
@@ -74,7 +74,16 @@ export default function Comments() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 flex flex-col gap-6">
-      <h1 className="text-xl font-bold">Conversación</h1>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate(-1)} // Navega a la página anterior en el historial
+          className="flex items-center justify-center p-2 rounded-full hover:bg-bg-sec text-text transition-colors cursor-pointer"
+          aria-label="Volver atrás"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-xl font-bold">Conversación</h1>
+      </div>
 
       {id && (
         <div className="bg-bg-sec p-4 rounded-md">

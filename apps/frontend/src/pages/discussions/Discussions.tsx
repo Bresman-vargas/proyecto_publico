@@ -138,22 +138,14 @@ export default function Discussions() {
                   {formatDate(dis.created_at)}
                 </p>
 
-                <p className="font-bold">Razón:</p>
-                <p className="border-r lg:border-border border-transparent text-txt-sec truncate">
-                  {dis.reason}
-                </p>
                 <p className="font-bold text-nowrap truncate">Editado:</p>
-                <p className="text-txt-sec text-nowrap truncate">
+                <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
                   {formatDate(dis.updated_at)}
                 </p>
 
                 <p className="font-bold text-nowrap truncate">Resuelto:</p>
-                <p className="border-r lg:border-border border-transparent text-txt-sec text-nowrap truncate">
-                  {formatDate(dis.resolvedAt) || "Pendiente"}
-                </p>
-                <p className="font-bold">Foro:</p>
                 <p className="text-txt-sec text-nowrap truncate">
-                  {dis.category}
+                  {formatDate(dis.resolvedAt) || "Pendiente"}
                 </p>
               </div>
             </DiscussionCard>

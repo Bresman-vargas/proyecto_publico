@@ -141,7 +141,7 @@ export default function DiscussionForm() {
       } else {
         await discussionsApi.createDiscussion(cleanData);
       }
-      navigate("/discussions");
+      navigate(`/forums/${forumId}`);
     } catch (err) {
       console.error(err);
       setError("Hubo un error al guardar los cambios.");

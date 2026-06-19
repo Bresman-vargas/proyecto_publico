@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageSquarePlus } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { getForumsRequest } from "../../api/forums";
 import { getDiscussionsByForum } from "../../api/discussions";
 import Loader from "../../components/Loader";
+import DiscussionCard from "../../components/DiscussionsCard"; // <-- Importamos tu tarjeta
 
 interface Forum {
   id: number;
@@ -23,10 +24,22 @@ interface Discussion {
   nombre?: string;
   apellido?: string;
   commentCount?: number;
+  created_at?: string;
+  updated_at?: string;
 }
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "No especificada";
+  return new Date(dateString).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 export default function ForumDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [foro, setForo] = useState<Forum | null>(null);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +55,7 @@ export default function ForumDetail() {
         ]);
 
         const foroEncontrado = forosData.find(
-          (f: Forum) => String(f.id) === String(id)
+          (f: Forum) => String(f.id) === String(id),
         );
 
         if (!foroEncontrado) {
@@ -62,6 +75,11 @@ export default function ForumDetail() {
     fetchData();
   }, [id]);
 
+  // Manejador para cuando hacen click en la discusión para expandir/ver comentarios
+  const handleExpand = (discussionId: string | number) => {
+    navigate(`/comments/${discussionId}`);
+  };
+
   if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
 
   if (error || !foro) {
@@ -74,7 +92,6 @@ export default function ForumDetail() {
 
   return (
     <div className="flex flex-col gap-4">
-
       {/* Banner + Avatar */}
       <div className="relative">
         <div className="w-full h-24 rounded-md bg-linear-to-r from-accent/40 to-accent/10 border border-border" />
@@ -105,18 +122,6 @@ export default function ForumDetail() {
             <span className="font-bold text-xl">{discussions.length}</span>
             <span className="text-txt-sec text-sm">Discusiones</span>
           </div>
-          <div className="flex gap-4 items-center bg-green-500/10 border border-green-500/40 rounded-md px-4 py-2">
-            <span className="font-bold text-xl text-green-600">
-              {discussions.filter((d) => d.is_active).length}
-            </span>
-            <span className="text-green-600 text-sm">Abiertas</span>
-          </div>
-          <div className="flex gap-4 items-center bg-gray-500/10 border border-gray-400/40 rounded-md px-4 py-2">
-            <span className="font-bold text-xl text-gray-500">
-              {discussions.filter((d) => !d.is_active).length}
-            </span>
-            <span className="text-gray-500 text-sm">Cerradas</span>
-          </div>
         </div>
       </section>
 
@@ -138,60 +143,39 @@ export default function ForumDetail() {
             No hay discusiones en este foro aún.
           </p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {discussions.map((dis) => (
-              <article
-                key={dis.id}
-                className="bg-bg-sec border border-border rounded-md p-4 flex flex-col gap-3 hover:border-accent/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-bold text-base">{dis.title}</h3>
-                    {dis.subtitle && (
-                      <p className="text-txt-sec text-sm">{dis.subtitle}</p>
-                    )}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {discussions.map((dis) => {
+              const adaptedDis = {
+                ...dis,
+                id: String(dis.id),
+                category: foro.categoria,
+                // Aseguramos que keywords se mapee correctamente si viene del backend
+                keywords: dis.keywords || [],
+              };
+
+              return (
+                <DiscussionCard
+                  key={dis.id}
+                  dis={adaptedDis as any}
+                  devMode={true} // Evita que aparezca el menú de editar/eliminar (Ellipsis)
+                  showStatus={false} // Oculta por completo la badge de estado (Activo/No activo)
+                  onExpand={() => handleExpand(dis.id)}
+                >
+                  {/* El bloque "Ver más" que contiene EXCLUSIVAMENTE las fechas */}
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 bg-bg-sec p-4 m-2 border border-border rounded-md animate-in fade-in duration-300">
+                    <p className="font-bold text-nowrap truncate">Inicio:</p>
+                    <p className="text-txt-sec text-nowrap truncate">
+                      {formatDate(dis.created_at)}
+                    </p>
+
+                    <p className="font-bold text-nowrap truncate">Término:</p>
+                    <p className="text-txt-sec text-nowrap truncate">
+                      {formatDate(dis.updated_at)}
+                    </p>
                   </div>
-                  <span
-                    className={`text-nowrap text-xs font-semibold px-3 py-1 rounded-full border shrink-0 ${
-                      dis.is_active
-                        ? "bg-green-500/10 text-green-600 border-green-500/40"
-                        : "bg-gray-500/10 text-gray-500 border-gray-400/40"
-                    }`}
-                  >
-                    ● {dis.is_active ? "Activa" : "Cerrada"}
-                  </span>
-                </div>
-
-                <p className="text-sm text-txt line-clamp-2">{dis.content}</p>
-
-                {dis.keywords && dis.keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {dis.keywords.map((word, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-0.5 bg-accent/10 text-accent rounded-full border border-accent/50"
-                      >
-                        #{word}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-txt-sec">
-                  {dis.nombre && (
-                    <span>
-                      Por{" "}
-                      <span className="font-semibold text-txt">
-                        {dis.nombre} {dis.apellido}
-                      </span>
-                    </span>
-                  )}
-                  {dis.commentCount !== undefined && (
-                    <span>{dis.commentCount} comentarios</span>
-                  )}
-                </div>
-              </article>
-            ))}
+                </DiscussionCard>
+              );
+            })}
           </div>
         )}
       </section>

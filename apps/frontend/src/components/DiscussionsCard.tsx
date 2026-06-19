@@ -5,11 +5,12 @@ import { type DiscussionData } from "../pages/discussions/HarcoDiscussions";
 interface DiscussionCardProps {
   dis: DiscussionData;
   devMode: boolean;
-  onActiveToggle: (id: string) => void;
-  onEdit: (id: string) => void;
+  onActiveToggle?: (id: string) => void; // <-- Ahora es opcional
+  onEdit?: (id: string) => void; // <-- Ahora es opcional
   onDelete?: (id: string) => void;
   onExpand: (id: string) => void;
   children?: React.ReactNode;
+  showStatus?: boolean;
 }
 
 export default function DiscussionCard({
@@ -20,13 +21,13 @@ export default function DiscussionCard({
   onDelete,
   onExpand,
   children,
+  showStatus = true,
 }: DiscussionCardProps) {
   const [showOptions, setShowOptions] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <section className="rounded-md text-base/9 flex flex-col justify-start">
-      {/* Añadimos el onExpand aquí para que responda al clic en la cabecera, pero sin afectar los botones */}
       <header
         onClick={() => onExpand(dis.id)}
         className="bg-bg p-4 rounded-t-md border-l border-r border-t border-border cursor-pointer"
@@ -34,31 +35,34 @@ export default function DiscussionCard({
         <section className="flex justify-between items-center gap-4">
           <h1 className="text-xl font-bold text-pretty">{dis.title}</h1>
 
-          {/* Al contenedor de acciones le agregamos un onClick que frena la propagación hacia el header */}
           <div
             className="flex items-start gap-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <span
-              onClick={() => onActiveToggle(dis.id)}
-              className={`text-nowrap relative font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm transition-all ${
-                devMode ? "cursor-not-allowed opacity-75" : "cursor-pointer"
-              } ${dis.is_active ? "text-ok" : "text-err"}`}
-            >
+            {/* Ocultamos el estado si showStatus es false */}
+            {showStatus && (
               <span
-                className={`absolute -top-1 -right-1 animate-ping size-3 rounded-full ${
-                  dis.is_active ? "bg-ok" : "bg-err"
-                }`}
-              ></span>
-              <span
-                className={`absolute -top-1 -right-1 size-3 rounded-full ${
-                  dis.is_active ? "bg-ok" : "bg-err"
-                }`}
-              ></span>
-              <RotateCw size={15} className="hidden md:block" />
-              {dis.is_active ? "Activo" : "No activo"}
-            </span>
+                onClick={() => onActiveToggle?.(dis.id)}
+                className={`text-nowrap relative font-bold flex items-center gap-2 bg-bg-sec px-4 border border-border rounded-sm transition-all ${
+                  devMode ? "cursor-not-allowed opacity-75" : "cursor-pointer"
+                } ${dis.is_active ? "text-ok" : "text-err"}`}
+              >
+                <span
+                  className={`absolute -top-1 -right-1 animate-ping size-3 rounded-full ${
+                    dis.is_active ? "bg-ok" : "bg-err"
+                  }`}
+                ></span>
+                <span
+                  className={`absolute -top-1 -right-1 size-3 rounded-full ${
+                    dis.is_active ? "bg-ok" : "bg-err"
+                  }`}
+                ></span>
+                <RotateCw size={15} className="hidden md:block" />
+                {dis.is_active ? "Activo" : "No activo"}
+              </span>
+            )}
 
+            {/* Al estar en ForumDetail pasaremos devMode={true} para que esto NUNCA se renderice */}
             {!devMode && (
               <div className="relative">
                 <button
@@ -77,7 +81,7 @@ export default function DiscussionCard({
                     <div className="absolute right-0 mt-2 w-32 bg-bg border border-border rounded-md z-50 overflow-hidden">
                       <button
                         onClick={() => {
-                          onEdit(dis.id);
+                          onEdit?.(dis.id);
                           setShowOptions(false);
                         }}
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-bg-sec text-left cursor-pointer"
@@ -105,7 +109,7 @@ export default function DiscussionCard({
           <p className="text-txt-sec">{dis.subtitle}</p>
           <p className="text-base/normal">{dis.content}</p>
           <div className="flex flex-wrap gap-2 my-4">
-            {dis.keywords.map((word: string, index: number) => (
+            {dis.keywords?.map((word: string, index: number) => (
               <div
                 className="text-sm px-4 py-1 bg-accent/10 text-accent rounded-full border border-accent/50"
                 key={index}
@@ -117,7 +121,6 @@ export default function DiscussionCard({
         </section>
       </header>
 
-      {/* Contenedor del Botón de Expansión */}
       <section className="bg-bg border border-border rounded-b-md">
         <button
           onClick={() => setIsExpanded(!isExpanded)}

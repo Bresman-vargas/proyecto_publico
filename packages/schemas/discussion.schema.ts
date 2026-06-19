@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-const MAX_NUMBER = 30;
+const MAX_NUMBER = 100;
 const msgMax = (n: number) => `Máximo ${n} caracteres`;
 
 export const discussionSchema = z.object({

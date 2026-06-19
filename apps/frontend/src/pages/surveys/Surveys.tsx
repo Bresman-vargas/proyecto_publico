@@ -93,9 +93,7 @@ export default function Surveys() {
     );
   };
 
-  if (loading) {
-    return <Loader />;
-  }
+  if (loading) return <Loader className="h-[calc(100vh-8rem)]" />;
 
   if (error) {
     return (
@@ -145,15 +143,6 @@ export default function Surveys() {
                   Aquí puedes crear y administrar tus encuestas.
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => navigate("/surveys/new")}
-                className="flex w-full cursor-pointer justify-center gap-4 rounded-md border border-border bg-bg-sec px-4 py-2 font-bold text-ok md:w-fit"
-              >
-                <CirclePlus />
-                Crear Encuesta
-              </button>
             </div>
 
             <div className="grid grid-cols-1 gap-8 rounded-md bg-bg-sec p-4 xl:grid-cols-2">
